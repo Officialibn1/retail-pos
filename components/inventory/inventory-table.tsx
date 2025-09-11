@@ -126,10 +126,10 @@ export function InventoryTable({ onEdit, onDelete }: InventoryTableProps) {
                     {item.category}
                   </TableCell>
                   <TableCell className="text-lunar-green-700">
-                    ${item.price.toFixed(2)}
+                    ₦{item.price.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-lunar-green-700">
-                    ${item.cost.toFixed(2)}
+                    ₦{item.cost.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-lunar-green-700">
                     <div className="flex items-center gap-2">

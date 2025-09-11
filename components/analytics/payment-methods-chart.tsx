@@ -1,14 +1,19 @@
-"use client"
+"use client";
 
-import { PieChart, Pie, Cell } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { PieChart, Pie, Cell } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 
 interface PaymentMethodsChartProps {
   data: Array<{
-    method: string
-    count: number
-    revenue: number
-  }>
+    method: string;
+    count: number;
+    revenue: number;
+  }>;
 }
 
 const chartConfig = {
@@ -24,9 +29,9 @@ const chartConfig = {
     label: "Digital",
     color: "#9bad9b",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-const COLORS = ["#5c705d", "#768b76", "#9bad9b", "#c2cdc2"]
+const COLORS = ["#5c705d", "#768b76", "#9bad9b", "#c2cdc2"];
 
 export function PaymentMethodsChart({ data }: PaymentMethodsChartProps) {
   return (
@@ -40,7 +45,9 @@ export function PaymentMethodsChart({ data }: PaymentMethodsChartProps) {
           outerRadius={80}
           fill="#8884d8"
           dataKey="count"
-          label={({ method, percent }) => `${method} ${(percent * 100).toFixed(0)}%`}
+          label={({ method, percent }) =>
+            `${method} ${(percent * 100).toFixed(0)}%`
+          }
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -49,5 +56,5 @@ export function PaymentMethodsChart({ data }: PaymentMethodsChartProps) {
         <ChartTooltip content={<ChartTooltipContent />} />
       </PieChart>
     </ChartContainer>
-  )
+  );
 }

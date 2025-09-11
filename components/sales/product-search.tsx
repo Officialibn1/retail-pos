@@ -139,7 +139,7 @@ export function ProductSearch({ onAddToCart }: ProductSearchProps) {
                     {product.sku}
                   </TableCell>
                   <TableCell className="text-lunar-green-800 font-medium">
-                    ${product.price.toFixed(2)}
+                    ₦{product.price.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-lunar-green-700">
                     {product.quantity}

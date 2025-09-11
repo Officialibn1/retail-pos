@@ -50,7 +50,7 @@ export function ReceiptPrintDialog({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt - ${sale.id}</title>
+          <title>Receipt - ₦{sale.id}</title>
           <style>
             body { margin: 0; padding: 20px; font-family: monospace; }
             .receipt-template { max-width: none; margin: 0; }
@@ -61,7 +61,7 @@ export function ReceiptPrintDialog({
           </style>
         </head>
         <body>
-          ${receiptElement.outerHTML}
+          ₦{receiptElement.outerHTML}
         </body>
       </html>
     `;
@@ -88,14 +88,14 @@ export function ReceiptPrintDialog({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt - ${sale.id}</title>
+          <title>Receipt - ₦{sale.id}</title>
           <style>
             body { margin: 20px; font-family: monospace; }
             .receipt-template { max-width: none; margin: 0; }
           </style>
         </head>
         <body>
-          ${receiptElement.outerHTML}
+          ₦{receiptElement.outerHTML}
         </body>
       </html>
     `;
@@ -104,7 +104,7 @@ export function ReceiptPrintDialog({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `receipt-${sale.id}.html`;
+    a.download = `receipt-₦{sale.id}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

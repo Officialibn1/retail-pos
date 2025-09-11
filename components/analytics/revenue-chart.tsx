@@ -1,36 +1,49 @@
-"use client"
+"use client";
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 
 interface RevenueChartProps {
   data: Array<{
-    date: string
-    sales: number
-    revenue: number
-  }>
+    date: string;
+    sales: number;
+    revenue: number;
+  }>;
 }
 
 const chartConfig = {
   revenue: {
-    label: "Revenue ($)",
+    label: "Revenue (₦)",
     color: "#5c705d",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <ChartContainer config={chartConfig}>
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-lunar-green-600" />
+        <XAxis
+          dataKey="date"
+          tickLine={false}
+          axisLine={false}
+          className="text-lunar-green-600"
+        />
         <YAxis
           tickLine={false}
           axisLine={false}
           className="text-lunar-green-600"
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `₦${value}`}
         />
-        <ChartTooltip content={<ChartTooltipContent />} formatter={(value) => [`$${value}`, "Revenue"]} />
+        <ChartTooltip
+          content={<ChartTooltipContent />}
+          formatter={(value) => [`₦${value}`, "Revenue"]}
+        />
         <Line
           type="monotone"
           dataKey="revenue"
@@ -40,5 +53,5 @@ export function RevenueChart({ data }: RevenueChartProps) {
         />
       </LineChart>
     </ChartContainer>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import type { Sale } from "@/lib/types"
-import { format } from "date-fns"
+import type { Sale } from "@/lib/types";
+import { format } from "date-fns";
 
 interface ReceiptTemplateProps {
-  sale: Sale
-  storeName?: string
-  storeAddress?: string
-  storePhone?: string
+  sale: Sale;
+  storeName?: string;
+  storeAddress?: string;
+  storePhone?: string;
 }
 
 export function ReceiptTemplate({
@@ -16,10 +16,13 @@ export function ReceiptTemplate({
   storeAddress = "123 Main Street, City, State 12345",
   storePhone = "(555) 123-4567",
 }: ReceiptTemplateProps) {
-  const subtotal = sale.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const tax = sale.tax || 0
-  const discount = sale.discount || 0
-  const total = subtotal + tax - discount
+  const subtotal = sale.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+  const tax = sale.tax || 0;
+  const discount = sale.discount || 0;
+  const total = subtotal + tax - discount;
 
   return (
     <div className="receipt-template bg-white text-black p-6 max-w-sm mx-auto font-mono text-sm">
@@ -58,11 +61,11 @@ export function ReceiptTemplate({
           <div key={index} className="mb-2">
             <div className="flex justify-between">
               <span className="truncate flex-1">{item.name}</span>
-              <span className="ml-2">${item.price.toFixed(2)}</span>
+              <span className="ml-2">₦{item.price.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs text-gray-600">
               <span>Qty: {item.quantity}</span>
-              <span>${(item.price * item.quantity).toFixed(2)}</span>
+              <span>₦{(item.price * item.quantity).toFixed(2)}</span>
             </div>
           </div>
         ))}
@@ -72,21 +75,21 @@ export function ReceiptTemplate({
       <div className="border-t border-gray-300 pt-2 mb-4">
         <div className="flex justify-between">
           <span>Subtotal:</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>₦{subtotal.toFixed(2)}</span>
         </div>
         {discount > 0 && (
           <div className="flex justify-between">
             <span>Discount:</span>
-            <span>-${discount.toFixed(2)}</span>
+            <span>-₦{discount.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between">
           <span>Tax:</span>
-          <span>${tax.toFixed(2)}</span>
+          <span>₦{tax.toFixed(2)}</span>
         </div>
         <div className="flex justify-between font-bold text-lg border-t border-gray-300 pt-1">
           <span>Total:</span>
-          <span>${total.toFixed(2)}</span>
+          <span>₦{total.toFixed(2)}</span>
         </div>
       </div>
 
@@ -98,7 +101,7 @@ export function ReceiptTemplate({
         </div>
         <div className="flex justify-between">
           <span>Amount Paid:</span>
-          <span>${total.toFixed(2)}</span>
+          <span>₦{total.toFixed(2)}</span>
         </div>
       </div>
 
@@ -109,5 +112,5 @@ export function ReceiptTemplate({
         <p className="mt-2">Return Policy: 30 days with receipt</p>
       </div>
     </div>
-  )
+  );
 }
