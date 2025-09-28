@@ -130,7 +130,7 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="text-lunar-green-800">Sales Trend</CardTitle>
             <CardDescription className="text-lunar-green-600">
-              Daily sales over the last 7 days
+              Daily sales over the last 30 days
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -144,7 +144,7 @@ export default function AnalyticsPage() {
               Revenue Trend
             </CardTitle>
             <CardDescription className="text-lunar-green-600">
-              Daily revenue over the last 7 days
+              Daily revenue over the last 30 days
             </CardDescription>
           </CardHeader>
           <CardContent>

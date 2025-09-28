@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useRef } from "react"; // Import useRef
-import { BarcodeScanner } from "react-barcode-scanner"; // Import BarcodeScanner
+import { BarcodeScanner, DetectedBarcode } from "react-barcode-scanner"; // Import BarcodeScanner
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import type { InventoryItem } from "@/lib/types";
 import { Camera } from "lucide-react"; // Import Camera icon
+import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
 
 interface AddItemDialogProps {
   open: boolean;
@@ -81,8 +82,8 @@ export function AddItemDialog({
     setIsScanning(false); // Close scanner when dialog is closed or form is saved
   };
 
-  const handleScan = (decodedText: string) => {
-    setFormData({ ...formData, barcode: decodedText });
+  const handleScan = (decodedBarcodes: DetectedBarcode[]) => {
+    setFormData({ ...formData, barcode: decodedBarcodes[0].rawValue });
     setIsScanning(false); // Stop scanning after a successful scan
   };
 
@@ -208,11 +209,18 @@ export function AddItemDialog({
             <div className="relative w-full h-64 border border-lunar-green-200 rounded-lg overflow-hidden">
               <BarcodeScanner
                 ref={scannerRef}
-                onSuccess={handleScan}
-                onError={() => setIsScanning(false)} // Stop scanning on error
-                width={300} // Adjust width as needed
-                height={200} // Adjust height as needed
-                constraints={{ facingMode: "environment" }} // Use back camera
+                onCapture={handleScan}
+                onError={() => setIsScanning(false)}
+                width={300}
+                height={200}
+                trackConstraints={{
+                  facingMode: {
+                    ideal: "environment",
+                  },
+                }}
+                options={{
+                  formats: QR_SCANNER_FORMAT_OPTIONS,
+                }}
               />
             </div>
           )}

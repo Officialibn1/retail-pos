@@ -208,16 +208,11 @@ export function DashboardSidebar() {
                   size="sm"
                   asChild
                   onClick={logout}
-                  className="w-full justify-start text-lunar-green-700 hover:bg-red-100 hover:text-red-800"
+                  className="w-full justify-start text-lunar-green-700"
                 >
                   <TooltipTrigger>
                     <LogOut className="h-4 w-4 mr-2" />
-                    <TooltipContent
-                      side="right"
-                      className="bg-red-100 text-red-800"
-                    >
-                      Log Out
-                    </TooltipContent>
+                    <TooltipContent side="right">Log Out</TooltipContent>
                   </TooltipTrigger>
                 </Button>
               </Tooltip>
@@ -229,7 +224,7 @@ export function DashboardSidebar() {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="w-full justify-start text-lunar-green-700 hover:bg-red-100 hover:text-red-800"
+              className="w-full justify-start text-lunar-green-700"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out

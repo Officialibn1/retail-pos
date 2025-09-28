@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react"; // Import useRef
-import { BarcodeScanner } from "react-barcode-scanner"; // Import BarcodeScanner
+import { BarcodeScanner, DetectedBarcode } from "react-barcode-scanner"; // Import BarcodeScanner
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
 import { Search, Plus, Camera } from "lucide-react"; // Import Camera icon
 import { mockInventoryData } from "@/lib/dummy-data/mock-inventory";
 import type { InventoryItem } from "@/lib/types";
+import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
 
 interface ProductSearchProps {
   onAddToCart: (item: InventoryItem, quantity: number) => void;
@@ -51,8 +52,8 @@ export function ProductSearch({ onAddToCart }: ProductSearchProps) {
     return { label: "In Stock", variant: "default" as const };
   };
 
-  const handleScan = (decodedText: string) => {
-    setSearchTerm(decodedText); // Set the scanned barcode as the search term
+  const handleScan = (decodedBarcodes: DetectedBarcode[]) => {
+    setSearchTerm(decodedBarcodes[0].rawValue); // Set the scanned barcode as the search term
     setIsScanning(false); // Stop scanning after a successful scan
   };
 
@@ -96,11 +97,18 @@ export function ProductSearch({ onAddToCart }: ProductSearchProps) {
         <div className="relative w-full h-64 border border-lunar-green-200 rounded-lg overflow-hidden">
           <BarcodeScanner
             ref={scannerRef}
-            onSuccess={handleScan}
+            onCapture={handleScan}
             onError={() => setIsScanning(false)} // Stop scanning on error
             width={300} // Adjust width as needed
             height={200} // Adjust height as needed
-            constraints={{ facingMode: "environment" }} // Use back camera
+            trackConstraints={{
+              facingMode: {
+                ideal: "environment",
+              },
+            }}
+            options={{
+              formats: QR_SCANNER_FORMAT_OPTIONS,
+            }}
           />
         </div>
       )}

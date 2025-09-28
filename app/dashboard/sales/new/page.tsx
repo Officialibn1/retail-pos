@@ -97,19 +97,20 @@ export default function NewSalePage() {
         quantity: item.quantity,
         discount: item.discount,
         total: item.total,
+        unitPrice: item.unitPrice,
       })),
       subtotal,
       tax: taxAmount,
       discount: discountAmount,
       total,
       paymentMethod,
-      salesperson: user.name,
-      date: new Date().toISOString(),
-      customer: undefined, // Could be added later for customer management
+      salesPersonId: user.id,
+      createdAt: new Date(),
+      customerId: undefined,
+      status: "completed",
     };
 
     console.log("Sale completed:", newSale);
-    // In a real app, this would save to database and update inventory
 
     if (shouldShowReceipt) {
       setCompletedSale(newSale);
