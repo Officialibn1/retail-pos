@@ -1,0 +1,147 @@
+import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/auth/password";
+import { User, UserRole, Shift } from "@/generated/prisma/client";
+import {
+	CreateUserInput,
+	UpdateUserInput,
+} from "@/lib/validations/user.schema";
+
+/**
+ * User returned without password field
+ */
+export type SafeUser = Omit<User, "password">;
+
+/**
+ * Create a new user with hashed password
+ * @param data - User creation data
+ * @returns Created user without password
+ */
+export async function createUser(data: CreateUserInput): Promise<SafeUser> {
+	// Hash the password before storing
+	const hashedPassword = await hashPassword(data.password);
+
+	// Create user with hashed password
+	const user = await prisma.user.create({
+		data: {
+			email: data.email,
+			username: data.username,
+			name: data.name,
+			password: hashedPassword,
+			roles: data.roles || [UserRole.CASHIER],
+			shift: data.shift || Shift.MORNING,
+		},
+	});
+
+	// Return user without password
+	const { password, ...safeUser } = user;
+	return safeUser;
+}
+
+/**
+ * Get user by ID (excluding password)
+ * @param id - User ID
+ * @returns User without password or null if not found
+ */
+export async function getUserById(id: string): Promise<SafeUser | null> {
+	const user = await prisma.user.findUnique({
+		where: { id },
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			name: true,
+			roles: true,
+			shift: true,
+			createdAt: true,
+			updatedAt: true,
+			password: false,
+		},
+	});
+
+	return user;
+}
+
+/**
+ * Get user by email (excluding password)
+ * @param email - User email
+ * @returns User without password or null if not found
+ */
+export async function getUserByEmail(email: string): Promise<SafeUser | null> {
+	const user = await prisma.user.findUnique({
+		where: { email },
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			name: true,
+			roles: true,
+			shift: true,
+			createdAt: true,
+			updatedAt: true,
+			password: false,
+		},
+	});
+
+	return user;
+}
+
+/**
+ * Update user by ID
+ * @param id - User ID
+ * @param data - User update data
+ * @returns Updated user without password
+ */
+export async function updateUser(
+	id: string,
+	data: UpdateUserInput,
+): Promise<SafeUser> {
+	// If password is being updated, hash it
+	const updateData: any = { ...data };
+	if (data.password) {
+		updateData.password = await hashPassword(data.password);
+	}
+
+	const user = await prisma.user.update({
+		where: { id },
+		data: updateData,
+	});
+
+	// Return user without password
+	const { password, ...safeUser } = user;
+	return safeUser;
+}
+
+/**
+ * Delete user by ID (cascade deletes sessions)
+ * @param id - User ID
+ */
+export async function deleteUser(id: string): Promise<void> {
+	await prisma.user.delete({
+		where: { id },
+	});
+}
+
+/**
+ * List all users (excluding passwords)
+ * @returns Array of users without passwords
+ */
+export async function listUsers(): Promise<SafeUser[]> {
+	const users = await prisma.user.findMany({
+		select: {
+			id: true,
+			email: true,
+			username: true,
+			name: true,
+			roles: true,
+			shift: true,
+			createdAt: true,
+			updatedAt: true,
+			password: false,
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
+
+	return users;
+}

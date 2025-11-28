@@ -1,28 +1,39 @@
-import type { User, UserRole } from "./types"
-import { mockUsers } from "./dummy-data/mock-users"
+import type { User, UserRole } from "./types";
+import { api } from "./api-client";
 
-export function getCurrentUser(): User | null {
-  // In a real app, this would check authentication tokens
-  // For demo purposes, return the first user (SuperAdmin)
-  return mockUsers[0]
+/**
+ * Fetches the current authenticated user from the API
+ * Returns null if not authenticated
+ */
+export async function getCurrentUser(): Promise<User | null> {
+	try {
+		const user = await api.get<User>("/api/auth/me");
+		return user;
+	} catch (error) {
+		// If unauthorized or any error, return null
+		return null;
+	}
 }
 
-export function hasPermission(userRole: UserRole, requiredRoles: UserRole[]): boolean {
-  return requiredRoles.includes(userRole)
+export function hasPermission(
+	userRoles: UserRole[],
+	requiredRoles: UserRole[],
+): boolean {
+	return userRoles.some((role) => requiredRoles.includes(role));
 }
 
-export function canViewAllData(userRole: UserRole): boolean {
-  return userRole === "SuperAdmin" || userRole === "Manager"
+export function canViewAllData(userRoles: UserRole[]): boolean {
+	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }
 
-export function canViewActivityLogs(userRole: UserRole): boolean {
-  return userRole === "SuperAdmin" || userRole === "Manager"
+export function canViewActivityLogs(userRoles: UserRole[]): boolean {
+	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }
 
-export function canManageInventory(userRole: UserRole): boolean {
-  return userRole === "SuperAdmin" || userRole === "Manager"
+export function canManageInventory(userRoles: UserRole[]): boolean {
+	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }
 
-export function canManageUsers(userRole: UserRole): boolean {
-  return userRole === "SuperAdmin"
+export function canManageUsers(userRoles: UserRole[]): boolean {
+	return userRoles.includes("SUPERADMIN");
 }

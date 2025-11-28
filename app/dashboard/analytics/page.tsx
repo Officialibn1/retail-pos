@@ -1,241 +1,387 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth/auth-provider";
-import { getSalesAnalytics, getInventoryAnalytics } from "@/lib/analytics";
 import { SalesChart } from "@/components/analytics/sales-chart";
 import { RevenueChart } from "@/components/analytics/revenue-chart";
 import { PaymentMethodsChart } from "@/components/analytics/payment-methods-chart";
 import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  ShoppingCart,
-  AlertTriangle,
+	TrendingUp,
+	TrendingDown,
+	DollarSign,
+	ShoppingCart,
+	AlertTriangle,
+	Loader2,
 } from "lucide-react";
 import { canViewAllData } from "@/lib/auth";
+import { api } from "@/lib/api-client";
+import { formatNaira } from "@/lib/utils";
+
+interface SalesAnalytics {
+	totalRevenue: number;
+	totalSales: number;
+	averageOrderValue: number;
+}
+
+interface DailySales {
+	date: string;
+	sales: number;
+	revenue: number;
+}
+
+interface TopProduct {
+	productId: string;
+	productName: string;
+	quantitySold: number;
+	revenue: number;
+}
+
+interface PaymentMethodStats {
+	method: string;
+	count: number;
+	revenue: number;
+}
+
+interface InventoryAnalytics {
+	totalProducts: number;
+	totalValue: number;
+	lowStockCount: number;
+	lowStockItems: Array<{
+		id: string;
+		name: string;
+		stock: number;
+		price: number;
+	}>;
+	categoryDistribution: Array<{
+		category: string;
+		count: number;
+		totalValue: number;
+	}>;
+}
+
+interface DashboardStats {
+	totalSales: number;
+	totalRevenue: number;
+	averageOrderValue: number;
+	totalProducts: number;
+	lowStockCount: number;
+	recentSales: Array<{
+		id: string;
+		total: number;
+		status: string;
+		createdAt: Date;
+		customerName: string | null;
+		itemCount: number;
+	}>;
+}
 
 export default function AnalyticsPage() {
-  const { user } = useAuth();
+	const { user } = useAuth();
+	const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
+		null,
+	);
+	const [salesByDay, setSalesByDay] = useState<DailySales[]>([]);
+	const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+	const [paymentMethods, setPaymentMethods] = useState<PaymentMethodStats[]>(
+		[],
+	);
+	const [inventoryAnalytics, setInventoryAnalytics] =
+		useState<InventoryAnalytics | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  if (!user) return null;
+	useEffect(() => {
+		const fetchAnalytics = async () => {
+			try {
+				setLoading(true);
+				setError(null);
 
-  const salesAnalytics = getSalesAnalytics(user);
-  const inventoryAnalytics = getInventoryAnalytics();
-  const canSeeAll = canViewAllData(user.role);
+				// Calculate date range for last 30 days
+				const endDate = new Date();
+				const startDate = new Date();
+				startDate.setDate(startDate.getDate() - 30);
 
-  return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-lunar-green-800">
-            Analytics Dashboard
-          </h1>
-          <p className="text-lunar-green-600 mt-1">
-            {canSeeAll
-              ? "Store-wide analytics and insights"
-              : "Your personal sales analytics"}
-          </p>
-        </div>
-        <Badge
-          variant="secondary"
-          className="bg-lunar-green-100 text-lunar-green-800"
-        >
-          {canSeeAll ? "All Data" : "Personal Data"}
-        </Badge>
-      </div>
+				// Fetch all analytics data in parallel
+				const [dashboard, salesData, products, payments, inventory] =
+					await Promise.all([
+						api.get<DashboardStats>("/api/analytics/dashboard"),
+						api.get<DailySales[]>(
+							`/api/analytics/sales-by-date?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
+						),
+						api.get<TopProduct[]>("/api/analytics/top-products?limit=5"),
+						api.get<PaymentMethodStats[]>("/api/analytics/payment-methods"),
+						api.get<InventoryAnalytics>("/api/analytics/inventory"),
+					]);
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-lunar-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-lunar-green-700">
-              Total Revenue
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-lunar-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-lunar-green-800">
-              ₦{salesAnalytics.totalRevenue.toFixed(2)}
-            </div>
-            <p className="text-xs text-lunar-green-600 flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +12.5% from last period
-            </p>
-          </CardContent>
-        </Card>
+				setDashboardStats(dashboard);
+				setSalesByDay(salesData);
+				setTopProducts(products);
+				setPaymentMethods(payments);
+				setInventoryAnalytics(inventory);
+			} catch (err: any) {
+				console.error("Failed to fetch analytics:", err);
+				setError(err.message || "Failed to load analytics data");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-        <Card className="border-lunar-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-lunar-green-700">
-              Total Sales
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-lunar-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-lunar-green-800">
-              {salesAnalytics.totalSales}
-            </div>
-            <p className="text-xs text-lunar-green-600 flex items-center mt-1">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +8.2% from last period
-            </p>
-          </CardContent>
-        </Card>
+		if (user) {
+			fetchAnalytics();
+		}
+	}, [user]);
 
-        <Card className="border-lunar-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-lunar-green-700">
-              Avg Order Value
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-lunar-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-lunar-green-800">
-              ₦{salesAnalytics.averageOrderValue.toFixed(2)}
-            </div>
-            <p className="text-xs text-lunar-green-600 flex items-center mt-1">
-              <TrendingDown className="h-3 w-3 mr-1" />
-              -2.1% from last period
-            </p>
-          </CardContent>
-        </Card>
+	if (!user) return null;
 
-        <Card className="border-lunar-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-lunar-green-700">
-              Low Stock Items
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-lunar-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-lunar-green-800">
-              {inventoryAnalytics.lowStockCount}
-            </div>
-            <p className="text-xs text-lunar-green-600">Items below 10 units</p>
-          </CardContent>
-        </Card>
-      </div>
+	const canSeeAll = canViewAllData(user.roles);
 
-      {/* Charts Section */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-lunar-green-200">
-          <CardHeader>
-            <CardTitle className="text-lunar-green-800">Sales Trend</CardTitle>
-            <CardDescription className="text-lunar-green-600">
-              Daily sales over the last 30 days
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SalesChart data={salesAnalytics.salesByDay} />
-          </CardContent>
-        </Card>
+	if (loading) {
+		return (
+			<div className='flex items-center justify-center h-64'>
+				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+			</div>
+		);
+	}
 
-        <Card className="border-lunar-green-200">
-          <CardHeader>
-            <CardTitle className="text-lunar-green-800">
-              Revenue Trend
-            </CardTitle>
-            <CardDescription className="text-lunar-green-600">
-              Daily revenue over the last 30 days
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RevenueChart data={salesAnalytics.salesByDay} />
-          </CardContent>
-        </Card>
-      </div>
+	if (error) {
+		return (
+			<div className='space-y-6 p-6'>
+				<Card className='border-red-200 bg-red-50'>
+					<CardHeader>
+						<CardTitle className='text-red-800'>
+							Error Loading Analytics
+						</CardTitle>
+						<CardDescription className='text-red-700'>{error}</CardDescription>
+					</CardHeader>
+				</Card>
+			</div>
+		);
+	}
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-lunar-green-200">
-          <CardHeader>
-            <CardTitle className="text-lunar-green-800">
-              Payment Methods
-            </CardTitle>
-            <CardDescription className="text-lunar-green-600">
-              Sales distribution by payment type
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PaymentMethodsChart data={salesAnalytics.salesByPaymentMethod} />
-          </CardContent>
-        </Card>
+	if (!dashboardStats || !inventoryAnalytics) {
+		return null;
+	}
 
-        <Card className="border-lunar-green-200">
-          <CardHeader>
-            <CardTitle className="text-lunar-green-800">Top Products</CardTitle>
-            <CardDescription className="text-lunar-green-600">
-              Best selling items
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {salesAnalytics.topSellingProducts.map((product, index) => (
-                <div
-                  key={product.productId}
-                  className="flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-lunar-green-100 text-xs font-medium text-lunar-green-800">
-                      {index + 1}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-lunar-green-800">
-                        {product.productName}
-                      </p>
-                      <p className="text-xs text-lunar-green-600">
-                        {product.quantitySold} units sold
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium text-lunar-green-800">
-                    ₦{product.revenue.toFixed(2)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+	return (
+		<div className='space-y-6 p-6'>
+			<div className='flex items-center justify-between'>
+				<div>
+					<h1 className='text-3xl font-bold text-lunar-green-800'>
+						Analytics Dashboard
+					</h1>
+					<p className='text-lunar-green-600 mt-1'>
+						{canSeeAll
+							? "Store-wide analytics and insights"
+							: "Your personal sales analytics"}
+					</p>
+				</div>
+				<Badge
+					variant='secondary'
+					className='bg-lunar-green-100 text-lunar-green-800'>
+					{canSeeAll ? "All Data" : "Personal Data"}
+				</Badge>
+			</div>
 
-        <Card className="border-lunar-green-200">
-          <CardHeader>
-            <CardTitle className="text-lunar-green-800">Recent Sales</CardTitle>
-            <CardDescription className="text-lunar-green-600">
-              Latest transactions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {salesAnalytics.recentSales.map((sale) => (
-                <div
-                  key={sale.id}
-                  className="flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-lunar-green-800">
-                      {sale.saleNumber}
-                    </p>
-                    <p className="text-xs text-lunar-green-600">
-                      {sale.createdAt.toLocaleDateString()} •{" "}
-                      {sale.paymentMethod}
-                    </p>
-                  </div>
-                  <div className="text-sm font-medium text-lunar-green-800">
-                    ₦{sale.total.toFixed(2)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+			{/* Key Metrics */}
+			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+				<Card className='border-lunar-green-200'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							Total Revenue
+						</CardTitle>
+						<DollarSign className='h-4 w-4 text-lunar-green-600' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold text-lunar-green-800'>
+							{formatNaira(dashboardStats.totalRevenue)}
+						</div>
+						<p className='text-xs text-lunar-green-600 flex items-center mt-1'>
+							<TrendingUp className='h-3 w-3 mr-1' />
+							Total sales revenue
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							Total Sales
+						</CardTitle>
+						<ShoppingCart className='h-4 w-4 text-lunar-green-600' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold text-lunar-green-800'>
+							{dashboardStats.totalSales}
+						</div>
+						<p className='text-xs text-lunar-green-600 flex items-center mt-1'>
+							<TrendingUp className='h-3 w-3 mr-1' />
+							Completed transactions
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							Avg Order Value
+						</CardTitle>
+						<DollarSign className='h-4 w-4 text-lunar-green-600' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold text-lunar-green-800'>
+							{formatNaira(dashboardStats.averageOrderValue)}
+						</div>
+						<p className='text-xs text-lunar-green-600 flex items-center mt-1'>
+							<TrendingDown className='h-3 w-3 mr-1' />
+							Per transaction
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							Low Stock Items
+						</CardTitle>
+						<AlertTriangle className='h-4 w-4 text-lunar-green-600' />
+					</CardHeader>
+					<CardContent>
+						<div className='text-2xl font-bold text-lunar-green-800'>
+							{inventoryAnalytics.lowStockCount}
+						</div>
+						<p className='text-xs text-lunar-green-600'>Items below 10 units</p>
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Charts Section */}
+			<div className='grid gap-4 md:grid-cols-2'>
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>Sales Trend</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Daily sales over the last 30 days
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<SalesChart data={salesByDay} />
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>
+							Revenue Trend
+						</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Daily revenue over the last 30 days
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<RevenueChart data={salesByDay} />
+					</CardContent>
+				</Card>
+			</div>
+
+			<div className='grid gap-4 md:grid-cols-3'>
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>
+							Payment Methods
+						</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Sales distribution by payment type
+						</CardDescription>
+					</CardHeader>
+					<CardContent className='p-3'>
+						<PaymentMethodsChart data={paymentMethods} />
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>Top Products</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Best selling items
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className='space-y-4'>
+							{topProducts.length > 0 ? (
+								topProducts.map((product, index) => (
+									<div
+										key={product.productId}
+										className='flex items-center justify-between'>
+										<div className='flex items-center gap-3'>
+											<div className='flex h-8 w-8 items-center justify-center rounded-full bg-lunar-green-100 text-xs font-medium text-lunar-green-800'>
+												{index + 1}
+											</div>
+											<div>
+												<p className='text-sm font-medium text-lunar-green-800'>
+													{product.productName}
+												</p>
+												<p className='text-xs text-lunar-green-600'>
+													{product.quantitySold} units sold
+												</p>
+											</div>
+										</div>
+										<div className='text-sm font-medium text-lunar-green-800'>
+											{formatNaira(product.revenue)}
+										</div>
+									</div>
+								))
+							) : (
+								<p className='text-sm text-lunar-green-600'>
+									No product data available
+								</p>
+							)}
+						</div>
+					</CardContent>
+				</Card>
+
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>Recent Sales</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Latest transactions
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div className='space-y-4'>
+							{dashboardStats.recentSales.length > 0 ? (
+								dashboardStats.recentSales.map((sale) => (
+									<div
+										key={sale.id}
+										className='flex items-center justify-between'>
+										<div>
+											<p className='text-sm font-medium text-lunar-green-800'>
+												Sale #{sale.id.slice(0, 8)}
+											</p>
+											<p className='text-xs text-lunar-green-600'>
+												{new Date(sale.createdAt).toLocaleDateString()} •{" "}
+												{sale.itemCount} items
+											</p>
+										</div>
+										<div className='text-sm font-medium text-lunar-green-800'>
+											{formatNaira(sale.total)}
+										</div>
+									</div>
+								))
+							) : (
+								<p className='text-sm text-lunar-green-600'>No recent sales</p>
+							)}
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		</div>
+	);
 }

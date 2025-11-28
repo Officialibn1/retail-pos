@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  username  String     @unique
+  name      String
+  password  String
+  roles     UserRole[] @default([CASHIER])
+  shift     Shift      @default(MORNING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  sales               Sale[]
+  activityLogs        ActivityLog[]
+
+  @@map("users")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   String
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("activity_logs")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String?
+  phone     String?  @unique
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sales Sale[]
+
+  @@map("customers")
+}
+
+model InventoryItemCategory {
+  id   String @id @default(cuid())
+  name String @unique
+
+  inventoryItems InventoryItem[]
+
+  @@map("inventory_item_categories")
+}
+
+model InventoryItem {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  stock       Int       @default(0)
+  sku         String    @unique
+  barcode     String?   @unique
+  categoryId  String
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  saleItems      SaleItem[]
+  category       InventoryItemCategory @relation(fields: [categoryId], references: [id])
+  stockMovements StockMovement[]
+
+  @@index([categoryId])
+  @@index([barcode])
+  @@index([deletedAt])
+  @@map("inventory_items")
+}
+
+model StockMovement {
+  id              String   @id @default(cuid())
+  inventoryItemId String
+  quantity        Int
+  reason          String
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([inventoryItemId])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+model Sale {
+  id            String         @id @default(cuid())
+  total         Decimal        @db.Decimal(10, 2)
+  status        SaleStatus     @default(PENDING)
+  paymentMethod PaymentMethod?
+  amountPaid    Decimal?       @db.Decimal(10, 2)
+  changeGiven   Decimal?       @db.Decimal(10, 2)
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  items SaleItem[]
+
+  @@index([userId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sales")
+}
+
+model SaleItem {
+  id       String  @id @default(cuid())
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+
+  saleId String
+  sale   Sale   @relation(fields: [saleId], references: [id])
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@map("sale_items")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  MANAGER
+  CASHIER
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum Shift {
+  MORNING
+  EVENING
+  FULLTIME
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  MOBILE_MONEY
+  BANK_TRANSFER
+}
