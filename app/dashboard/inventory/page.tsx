@@ -153,7 +153,7 @@ export default function InventoryPage() {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
 			</div>
 		);
 	}
@@ -184,16 +184,16 @@ export default function InventoryPage() {
 			<div className='space-y-6 p-6'>
 				<div className='flex items-center justify-between'>
 					<div>
-						<h1 className='text-3xl font-bold text-lunar-green-800'>
+						<h1 className='text-3xl font-bold text-brand-main-800'>
 							Inventory Management
 						</h1>
-						<p className='text-lunar-green-600 mt-1'>
+						<p className='text-brand-main-600 mt-1'>
 							Manage your store's product inventory
 						</p>
 					</div>
 					<Button
 						onClick={() => setShowAddDialog(true)}
-						className='bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 						<Plus className='h-4 w-4 mr-2' />
 						Add Item
 					</Button>
@@ -201,67 +201,67 @@ export default function InventoryPage() {
 
 				{/* Summary Cards */}
 				<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Total Items
 							</CardTitle>
-							<Package className='h-4 w-4 text-lunar-green-600' />
+							<Package className='h-4 w-4 text-brand-main-600' />
 						</CardHeader>
 						<CardContent>
-							<div className='text-2xl font-bold text-lunar-green-800'>
+							<div className='text-2xl font-bold text-brand-main-800'>
 								{totalItems}
 							</div>
-							<p className='text-xs text-lunar-green-600'>Active products</p>
+							<p className='text-xs text-brand-main-600'>Active products</p>
 						</CardContent>
 					</Card>
 
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Low Stock
 							</CardTitle>
 							<AlertTriangle className='h-4 w-4 text-amber-500' />
 						</CardHeader>
 						<CardContent>
-							<div className='text-2xl font-bold text-lunar-green-800'>
+							<div className='text-2xl font-bold text-brand-main-800'>
 								{lowStockItems}
 							</div>
-							<p className='text-xs text-lunar-green-600'>
+							<p className='text-xs text-brand-main-600'>
 								Items below 10 units
 							</p>
 						</CardContent>
 					</Card>
 
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Out of Stock
 							</CardTitle>
 							<AlertTriangle className='h-4 w-4 text-red-500' />
 						</CardHeader>
 						<CardContent>
-							<div className='text-2xl font-bold text-lunar-green-800'>
+							<div className='text-2xl font-bold text-brand-main-800'>
 								{outOfStockItems}
 							</div>
-							<p className='text-xs text-lunar-green-600'>
+							<p className='text-xs text-brand-main-600'>
 								Items with 0 quantity
 							</p>
 						</CardContent>
 					</Card>
 
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200'>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-lunar-green-700'>
+							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Total Value
 							</CardTitle>
-							<DollarSign className='h-4 w-4 text-lunar-green-600' />
+							<DollarSign className='h-4 w-4 text-brand-main-600' />
 						</CardHeader>
 						<CardContent>
-							<div className='text-2xl font-bold text-lunar-green-800'>
+							<div className='text-2xl font-bold text-brand-main-800'>
 								{formatNaira(totalValue)}
 							</div>
-							<p className='text-xs text-lunar-green-600'>Inventory worth</p>
+							<p className='text-xs text-brand-main-600'>Inventory worth</p>
 						</CardContent>
 					</Card>
 				</div>
@@ -308,16 +308,16 @@ export default function InventoryPage() {
 					onOpenChange={setShowDeleteDialog}>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle className='text-lunar-green-800'>
+							<AlertDialogTitle className='text-brand-main-800'>
 								Delete Item
 							</AlertDialogTitle>
-							<AlertDialogDescription className='text-lunar-green-600'>
+							<AlertDialogDescription className='text-brand-main-600'>
 								Are you sure you want to delete "{selectedItem?.name}"? This
 								action cannot be undone.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
-							<AlertDialogCancel className='border-lunar-green-200 text-lunar-green-700 hover:bg-lunar-green-50'>
+							<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
 								Cancel
 							</AlertDialogCancel>
 							<AlertDialogAction

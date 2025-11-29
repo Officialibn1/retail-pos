@@ -82,7 +82,7 @@ inclusion: always
 ### Styling
 
 - Tailwind utility classes for styling
-- Custom color scheme uses "lunar-green" variants
+- Custom color scheme uses "brand-main" variants
 - `cn()` utility from `lib/utils` for conditional classes
 - Component variants use `class-variance-authority`
 

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import type { PaymentMethod, SaleItem } from "@/lib/types";
 import { formatNaira } from "@/lib/utils";
+import { Spinner } from "../ui/spinner";
 
 interface CheckoutDialogProps {
 	open: boolean;
@@ -36,6 +37,7 @@ interface CheckoutDialogProps {
 		shouldShowReceipt?: boolean,
 	) => void;
 	isProcessing: boolean;
+	saleId?: string | null; // Optional saleId for completing pending orders
 }
 
 export function CheckoutDialog({
@@ -48,6 +50,7 @@ export function CheckoutDialog({
 	total,
 	onCompleteSale,
 	isProcessing,
+	saleId,
 }: CheckoutDialogProps) {
 	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD");
 
@@ -55,7 +58,6 @@ export function CheckoutDialog({
 
 	const handleCompleteSale = async () => {
 		onCompleteSale(paymentMethod, generateReceipt);
-		onOpenChange(false);
 	};
 
 	return (
@@ -64,10 +66,10 @@ export function CheckoutDialog({
 			onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[500px]'>
 				<DialogHeader>
-					<DialogTitle className='text-lunar-green-800'>
+					<DialogTitle className='text-brand-main-800'>
 						Complete Sale
 					</DialogTitle>
-					<DialogDescription className='text-lunar-green-600'>
+					<DialogDescription className='text-brand-main-600'>
 						Review the order details and select a payment method to complete the
 						sale.
 					</DialogDescription>
@@ -76,24 +78,24 @@ export function CheckoutDialog({
 				<div className='space-y-4'>
 					{/* Order Summary */}
 					<div className='space-y-3'>
-						<h3 className='font-medium text-lunar-green-800'>Order Summary</h3>
-						<div className='bg-lunar-green-50 p-3 rounded-lg space-y-2'>
-							<div className='flex justify-between text-sm text-lunar-green-700'>
+						<h3 className='font-medium text-brand-main-800'>Order Summary</h3>
+						<div className='bg-brand-main-50 p-3 rounded-lg space-y-2'>
+							<div className='flex justify-between text-sm text-brand-main-700'>
 								<span>Items ({items.length}):</span>
 								<span>{formatNaira(subtotal)}</span>
 							</div>
 							{discount > 0 && (
-								<div className='flex justify-between text-sm text-lunar-green-700'>
+								<div className='flex justify-between text-sm text-brand-main-700'>
 									<span>Discount:</span>
 									<span>-{formatNaira(discount)}</span>
 								</div>
 							)}
-							<div className='flex justify-between text-sm text-lunar-green-700'>
+							<div className='flex justify-between text-sm text-brand-main-700'>
 								<span>Tax:</span>
 								<span>{formatNaira(tax)}</span>
 							</div>
-							<Separator className='bg-lunar-green-200' />
-							<div className='flex justify-between font-medium text-lunar-green-800'>
+							<Separator className='bg-brand-main-200' />
+							<div className='flex justify-between font-medium text-brand-main-800'>
 								<span>Total:</span>
 								<span>{formatNaira(total)}</span>
 							</div>
@@ -102,80 +104,81 @@ export function CheckoutDialog({
 
 					{/* Payment Method */}
 					<div className='space-y-3'>
-						<h3 className='font-medium text-lunar-green-800'>Payment Method</h3>
+						<h3 className='font-medium text-brand-main-800'>Payment Method</h3>
 						<RadioGroup
 							value={paymentMethod}
 							onValueChange={(value) => setPaymentMethod(value as any)}>
-							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+							<div className='flex items-center space-x-2 p-3 border border-brand-main-200 rounded-lg'>
 								<RadioGroupItem
+									disabled={isProcessing}
 									value='CARD'
 									id='CARD'
 								/>
 								<Label
 									htmlFor='CARD'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
-									<CreditCard className='h-4 w-4 text-lunar-green-600' />
-									<span className='text-lunar-green-700'>
-										Credit/Debit Card
-									</span>
+									<CreditCard className='h-4 w-4 text-brand-main-600' />
+									<span className='text-brand-main-700'>Credit/Debit Card</span>
 								</Label>
 							</div>
-							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+							<div className='flex items-center space-x-2 p-3 border border-brand-main-200 rounded-lg'>
 								<RadioGroupItem
+									disabled={isProcessing}
 									value='CASH'
 									id='CASH'
 								/>
 								<Label
 									htmlFor='CASH'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
-									<Banknote className='h-4 w-4 text-lunar-green-600' />
-									<span className='text-lunar-green-700'>Cash</span>
+									<Banknote className='h-4 w-4 text-brand-main-600' />
+									<span className='text-brand-main-700'>Cash</span>
 								</Label>
 							</div>
-							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+							<div className='flex items-center space-x-2 p-3 border border-brand-main-200 rounded-lg'>
 								<RadioGroupItem
+									disabled={isProcessing}
 									value='MOBILE_MONEY'
 									id='MOBILE_MONEY'
 								/>
 								<Label
 									htmlFor='MOBILE_MONEY'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
-									<Smartphone className='h-4 w-4 text-lunar-green-600' />
-									<span className='text-lunar-green-700'>
+									<Smartphone className='h-4 w-4 text-brand-main-600' />
+									<span className='text-brand-main-700'>
 										Mobile Wallet Transfer
 									</span>
 								</Label>
 							</div>
-							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+							<div className='flex items-center space-x-2 p-3 border border-brand-main-200 rounded-lg'>
 								<RadioGroupItem
+									disabled={isProcessing}
 									value='BANK_TRANSFER'
 									id='BANK_TRANSFER'
 								/>
 								<Label
 									htmlFor='BANK_TRANSFER'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
-									<SmartphoneNfc className='h-4 w-4 text-lunar-green-600' />
-									<span className='text-lunar-green-700'>Bank Transfer</span>
+									<SmartphoneNfc className='h-4 w-4 text-brand-main-600' />
+									<span className='text-brand-main-700'>Bank Transfer</span>
 								</Label>
 							</div>
 						</RadioGroup>
 					</div>
 
 					<div className='space-y-3'>
-						<h3 className='font-medium text-lunar-green-800'>
-							Receipt Options
-						</h3>
-						<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+						<h3 className='font-medium text-brand-main-800'>Receipt Options</h3>
+						<div className='flex items-center space-x-2 p-3 border border-brand-main-200 rounded-lg'>
 							<input
+								disabled={isProcessing}
 								type='checkbox'
 								id='generate-receipt'
 								checked={generateReceipt}
 								onChange={(e) => setGenerateReceipt(e.target.checked)}
-								className='rounded border-lunar-green-300 text-lunar-green-600 focus:ring-lunar-green-500'
+								className='rounded border-brand-main-300 text-brand-main-600 focus:ring-brand-main-500'
 							/>
 							<Label
 								htmlFor='generate-receipt'
-								className='cursor-pointer text-lunar-green-700'>
+								className='cursor-pointer text-brand-main-700'>
 								Generate and print receipt
 							</Label>
 						</div>
@@ -187,16 +190,17 @@ export function CheckoutDialog({
 						type='button'
 						variant='outline'
 						onClick={() => onOpenChange(false)}
-						className='border-lunar-green-200 text-lunar-green-700 hover:bg-lunar-green-50'
+						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'
 						disabled={isProcessing}>
 						Cancel
 					</Button>
 					<Button
 						onClick={handleCompleteSale}
 						disabled={isProcessing}
-						className='bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+						className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+						{isProcessing && <Spinner />}
 						{isProcessing
-							? "Processing..."
+							? `Processing Sale... - ${formatNaira(total)}`
 							: `Complete Sale - ${formatNaira(total)}`}
 					</Button>
 				</DialogFooter>

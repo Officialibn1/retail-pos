@@ -260,6 +260,15 @@ export interface DeleteUserResponse {
  * Requirement 10.2: Specify request and response types for all endpoints
  */
 
+// Get sales query parameters
+export interface GetSalesParams {
+	status?: SaleStatus;
+	startDate?: string;
+	endDate?: string;
+	page?: number;
+	limit?: number;
+}
+
 // Sale item in a sale
 export interface SaleItemData {
 	id: string;
@@ -802,16 +811,23 @@ export const api = createApi({
 		 * Fetches all sales with role-based filtering.
 		 * CASHIER sees only their sales, MANAGER+ sees all sales.
 		 * Returns sales with items, customer, and user information.
+		 * Supports optional filtering by status, date range, and pagination.
 		 *
 		 * Requirements:
 		 * - 5.3: Create queries for fetching sales
 		 * - 10.2: Specify TypeScript types for request/response
+		 * - 1.1: Support filtering by status (e.g., PENDING)
+		 * - 1.4: Support date range filtering
 		 *
 		 * Cache Tags: ['Sales']
 		 * - Tagged with 'Sales' so it can be invalidated on mutations
 		 */
-		getSales: builder.query<SaleWithDetails[], void>({
-			query: () => "/api/sales",
+		getSales: builder.query<SaleWithDetails[], GetSalesParams | void>({
+			query: (params) => ({
+				url: "/api/sales",
+				method: "GET",
+				params: params || undefined,
+			}),
 			providesTags: ["Sales"],
 		}),
 

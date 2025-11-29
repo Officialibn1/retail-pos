@@ -43,29 +43,29 @@ export function ShoppingCart({
 	const total = subtotal - discountAmount + taxAmount;
 
 	return (
-		<Card className='border-lunar-green-200'>
+		<Card className='border-brand-main-200 h-full'>
 			<CardHeader>
-				<CardTitle className='text-lunar-green-800'>
+				<CardTitle className='text-brand-main-800'>
 					Shopping Cart ({items.length} items)
 				</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-4'>
 				{items.length === 0 ? (
-					<div className='text-center py-8 text-lunar-green-600'>
+					<div className='text-center py-8 text-brand-main-600'>
 						Your cart is empty
 					</div>
 				) : (
 					<>
-						<div className='space-y-3 max-h-64 overflow-y-auto'>
+						<div className='space-y-3 h-full max-h-60 overflow-y-auto'>
 							{items.map((item) => (
 								<div
 									key={item.id}
-									className='flex items-center gap-3 p-3 bg-lunar-green-50 rounded-lg'>
+									className='flex items-center gap-3 p-3 bg-brand-main-50 rounded-lg'>
 									<div className='flex-1'>
-										<h4 className='font-medium text-lunar-green-800 text-sm'>
+										<h4 className='font-medium text-brand-main-800 text-sm'>
 											{item.product.name}
 										</h4>
-										<p className='text-xs text-lunar-green-600'>
+										<p className='text-xs text-brand-main-600'>
 											{formatNaira(Number(item.price))} each
 										</p>
 									</div>
@@ -80,10 +80,10 @@ export function ShoppingCart({
 													Math.max(1, item.quantity - 1),
 												)
 											}
-											className='h-6 w-6 p-0 border-lunar-green-200'>
+											className='h-6 w-6 p-0 border-brand-main-200'>
 											<Minus className='h-3 w-3' />
 										</Button>
-										<span className='text-sm font-medium text-lunar-green-800 w-8 text-center'>
+										<span className='text-sm font-medium text-brand-main-800 w-8 text-center'>
 											{item.quantity}
 										</span>
 										<Button
@@ -92,14 +92,14 @@ export function ShoppingCart({
 											onClick={() =>
 												onUpdateQuantity(item.id, item.quantity + 1)
 											}
-											className='h-6 w-6 p-0 border-lunar-green-200'
+											className='h-6 w-6 p-0 border-brand-main-200'
 											disabled={
 												item.quantity >= item.product.stock || isProcessing
 											}>
 											<Plus className='h-3 w-3' />
 										</Button>
 									</div>
-									<div className='text-sm font-medium text-lunar-green-800 w-16 text-right'>
+									<div className='text-sm font-medium text-brand-main-800 w-16 text-right'>
 										{formatNaira(Number(item.price) * item.quantity)}
 									</div>
 									<Button
@@ -114,11 +114,11 @@ export function ShoppingCart({
 							))}
 						</div>
 
-						<Separator className='bg-lunar-green-200' />
+						<Separator className='bg-brand-main-200' />
 
 						<div className='space-y-3'>
 							<div className='flex items-center gap-2'>
-								<label className='text-sm text-lunar-green-700'>
+								<label className='text-sm text-brand-main-700'>
 									Discount (%):
 								</label>
 								<Input
@@ -128,27 +128,27 @@ export function ShoppingCart({
 									value={discount}
 									disabled={isProcessing}
 									onChange={(e) => onApplyDiscount(Number(e.target.value) || 0)}
-									className='w-20 h-8 border-lunar-green-200 focus:border-lunar-green-400'
+									className='w-20 h-8 border-brand-main-200 focus:border-brand-main-400'
 								/>
 							</div>
 
 							<div className='space-y-2 text-sm'>
-								<div className='flex justify-between text-lunar-green-700'>
+								<div className='flex justify-between text-brand-main-700'>
 									<span>Subtotal:</span>
 									<span>{formatNaira(subtotal)}</span>
 								</div>
 								{discount > 0 && (
-									<div className='flex justify-between text-lunar-green-700'>
+									<div className='flex justify-between text-brand-main-700'>
 										<span>Discount ({discount}%):</span>
 										<span>-{formatNaira(discountAmount)}</span>
 									</div>
 								)}
-								<div className='flex justify-between text-lunar-green-700'>
+								<div className='flex justify-between text-brand-main-700'>
 									<span>Tax ({Number(taxRate) * 100}%):</span>
 									<span>{formatNaira(taxAmount)}</span>
 								</div>
-								<Separator className='bg-lunar-green-200' />
-								<div className='flex justify-between font-medium text-lunar-green-800'>
+								<Separator className='bg-brand-main-200' />
+								<div className='flex justify-between font-medium text-brand-main-800'>
 									<span>Total:</span>
 									<span>{formatNaira(total)}</span>
 								</div>
@@ -157,7 +157,7 @@ export function ShoppingCart({
 							<Button
 								onClick={onCheckout}
 								disabled={items.length === 0 || isProcessing}
-								className='w-full bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+								className='w-full bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 								{isProcessing ? <Spinner /> : "Proceed to Checkout"}
 							</Button>
 						</div>

@@ -51,11 +51,11 @@ export function DashboardHeader() {
 	const breadcrumbs = getBreadcrumbs();
 
 	return (
-		<header className='flex h-16 shrink-0 items-center gap-2 border-b border-lunar-green-200 px-4'>
-			<SidebarTrigger className='text-lunar-green-700 hover:bg-lunar-green-100' />
+		<header className='flex h-16 shrink-0 items-center gap-2 border-b border-brand-main-200 px-4'>
+			<SidebarTrigger className='text-brand-main-700 hover:bg-brand-main-100' />
 			<Separator
 				orientation='vertical'
-				className='mr-2 h-4 bg-lunar-green-200'
+				className='mr-2 h-4 bg-brand-main-200'
 			/>
 
 			<Breadcrumb>
@@ -66,19 +66,19 @@ export function DashboardHeader() {
 							className='flex items-center'>
 							<BreadcrumbItem>
 								{crumb.isLast ? (
-									<BreadcrumbPage className='text-lunar-green-800'>
+									<BreadcrumbPage className='text-brand-main-800'>
 										{crumb.label}
 									</BreadcrumbPage>
 								) : (
 									<BreadcrumbLink
 										href={crumb.href}
-										className='text-lunar-green-600 hover:text-lunar-green-800'>
+										className='text-brand-main-600 hover:text-brand-main-800'>
 										{crumb.label}
 									</BreadcrumbLink>
 								)}
 							</BreadcrumbItem>
 							{index < breadcrumbs.length - 1 && (
-								<BreadcrumbSeparator className='text-lunar-green-400' />
+								<BreadcrumbSeparator className='text-brand-main-400' />
 							)}
 						</div>
 					))}
@@ -89,7 +89,7 @@ export function DashboardHeader() {
 				<Button
 					variant='ghost'
 					size='icon'
-					className='text-lunar-green-600 hover:bg-lunar-green-100'>
+					className='text-brand-main-600 hover:bg-brand-main-100'>
 					<Bell className='h-4 w-4' />
 				</Button>
 			</div>

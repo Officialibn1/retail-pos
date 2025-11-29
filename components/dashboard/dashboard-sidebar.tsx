@@ -106,21 +106,21 @@ export function DashboardSidebar() {
 	return (
 		<Sidebar
 			variant='inset'
-			className='bg-lunar-green-50 border-lunar-green-200 border-r'
+			className='bg-brand-main-50 border-brand-main-200 border-r'
 			collapsible='icon'>
 			<SidebarHeader className='w-full pb-4'>
 				<SidebarMenu className='flex items-center gap-3'>
 					<SidebarMenuItem className='w-full group-data-[collapsible=icon]:hidden'>
 						<SidebarMenuButton size='lg'>
-							<div className='size-8 aspect-square grid place-items-center rounded-lg bg-lunar-green-600'>
+							<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-600'>
 								<Store className='size-4 text-white' />
 							</div>
 
 							<div className='flex flex-col'>
-								<span className='text-sm font-semibold text-lunar-green-800'>
+								<span className='text-sm font-semibold text-brand-main-800'>
 									{storeName}
 								</span>
-								<span className='text-xs text-lunar-green-600'>
+								<span className='text-xs text-brand-main-600'>
 									Point of Sale System
 								</span>
 							</div>
@@ -128,7 +128,7 @@ export function DashboardSidebar() {
 					</SidebarMenuItem>
 
 					<SidebarMenuItem className='w-full hidden group-data-[collapsible=icon]:block'>
-						<div className='size-8 aspect-square grid place-items-center rounded-lg bg-lunar-green-600'>
+						<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-600'>
 							<Store className='size-4 text-white' />
 						</div>
 					</SidebarMenuItem>
@@ -137,7 +137,7 @@ export function DashboardSidebar() {
 
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-lunar-green-700'>
+					<SidebarGroupLabel className='text-brand-main-700'>
 						Navigation
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -151,7 +151,7 @@ export function DashboardSidebar() {
 											asChild
 											tooltip={item.title}
 											isActive={pathname === item.url}
-											className='text-lunar-green-700 hover:bg-lunar-green-100 hover:text-lunar-green-800 data-[active=true]:bg-lunar-green-600 data-[active=true]:text-white'>
+											className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-600 data-[active=true]:text-white'>
 											<Link href={item.url}>
 												<item.icon className='h-4 w-4' />
 												<span>{item.title}</span>
@@ -164,10 +164,10 @@ export function DashboardSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				<SidebarSeparator className='bg-lunar-green-200 max-w-[90%]' />
+				<SidebarSeparator className='bg-brand-main-200 max-w-[90%]' />
 
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-lunar-green-700'>
+					<SidebarGroupLabel className='text-brand-main-700'>
 						Settings
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -176,7 +176,7 @@ export function DashboardSidebar() {
 								<SidebarMenuButton
 									tooltip={"Settings"}
 									asChild
-									className='text-lunar-green-700 hover:bg-lunar-green-100 hover:text-lunar-green-800'>
+									className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800'>
 									<Link href='/dashboard/settings'>
 										<Settings className='h-4 w-4' />
 										<span>Settings</span>
@@ -188,11 +188,11 @@ export function DashboardSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 
-			<SidebarFooter className='border-t border-lunar-green-200 pt-4'>
+			<SidebarFooter className='border-t border-brand-main-200 pt-4'>
 				<SidebarMenu>
 					<SidebarMenuItem className='hidden group-data-[collapsible=icon]:block'>
 						<Avatar className='h-8 w-8'>
-							<AvatarFallback className='bg-lunar-green-600 text-white text-xs'>
+							<AvatarFallback className='bg-brand-main-600 text-white text-xs'>
 								{user.name
 									.split(" ")
 									.map((n) => n[0])
@@ -203,7 +203,7 @@ export function DashboardSidebar() {
 
 					<SidebarMenuItem className='flex items-center gap-3 px-2 mb-3 group-data-[collapsible=icon]:hidden'>
 						<Avatar className='h-8 w-8'>
-							<AvatarFallback className='bg-lunar-green-600 text-white text-xs'>
+							<AvatarFallback className='bg-brand-main-600 text-white text-xs'>
 								{user.name
 									.split(" ")
 									.map((n) => n[0])
@@ -211,7 +211,7 @@ export function DashboardSidebar() {
 							</AvatarFallback>
 						</Avatar>
 						<div className='flex flex-col min-w-0'>
-							<span className='text-sm font-medium text-lunar-green-800 truncate'>
+							<span className='text-sm font-medium text-brand-main-800 truncate'>
 								{user.name}
 							</span>
 						</div>
@@ -228,7 +228,7 @@ export function DashboardSidebar() {
 									asChild
 									onClick={logout}
 									disabled={loggingOut}
-									className='w-full justify-start text-lunar-green-700'>
+									className='w-full justify-start text-brand-main-700'>
 									<TooltipTrigger>
 										{loggingOut ? (
 											<Spinner className='h-4 w-4 mr-2' />
@@ -249,7 +249,7 @@ export function DashboardSidebar() {
 							size='sm'
 							onClick={logout}
 							disabled={loggingOut}
-							className='w-full justify-start text-lunar-green-700'>
+							className='w-full justify-start text-brand-main-700'>
 							{loggingOut ? (
 								<Spinner className='h-4 w-4 mr-2' />
 							) : (

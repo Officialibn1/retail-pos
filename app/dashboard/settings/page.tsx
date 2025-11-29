@@ -27,17 +27,17 @@ export default function SettingsPage() {
 	return (
 		<div className='space-y-6 p-6'>
 			<div>
-				<h1 className='text-3xl font-bold text-lunar-green-800'>Settings</h1>
-				<p className='text-lunar-green-600 mt-1'>
+				<h1 className='text-3xl font-bold text-brand-main-800'>Settings</h1>
+				<p className='text-brand-main-600 mt-1'>
 					Manage your store settings and preferences
 				</p>
 			</div>
 
 			<div className='grid gap-6'>
 				{/* Store Settings */}
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader>
-						<CardTitle className='text-lunar-green-800 flex items-center gap-2'>
+						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Store className='h-5 w-5' />
 							Store Information
 						</CardTitle>
@@ -46,33 +46,33 @@ export default function SettingsPage() {
 						<div className='grid gap-2'>
 							<Label
 								htmlFor='storeName'
-								className='text-lunar-green-700'>
+								className='text-brand-main-700'>
 								Store Name
 							</Label>
 							<Input
 								id='storeName'
 								value={storeName}
 								onChange={(e) => setStoreName(e.target.value)}
-								className='border-lunar-green-200 focus:border-lunar-green-400'
+								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 						<div className='grid gap-2'>
 							<Label
 								htmlFor='storeAddress'
-								className='text-lunar-green-700'>
+								className='text-brand-main-700'>
 								Store Address
 							</Label>
 							<Input
 								id='storeAddress'
 								value={storeAddress}
 								onChange={(e) => setStoreAddress(e.target.value)}
-								className='border-lunar-green-200 focus:border-lunar-green-400'
+								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 						<div className='grid gap-2'>
 							<Label
 								htmlFor='taxRate'
-								className='text-lunar-green-700'>
+								className='text-brand-main-700'>
 								Tax Rate (%)
 							</Label>
 							<Input
@@ -80,16 +80,16 @@ export default function SettingsPage() {
 								type='number'
 								value={taxRate}
 								onChange={(e) => setTaxRate(e.target.value)}
-								className='border-lunar-green-200 focus:border-lunar-green-400'
+								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 					</CardContent>
 				</Card>
 
 				{/* Notification Settings */}
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader>
-						<CardTitle className='text-lunar-green-800 flex items-center gap-2'>
+						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<DatabaseBackup className='h-5 w-5' />
 							Database
 						</CardTitle>
@@ -97,10 +97,10 @@ export default function SettingsPage() {
 					<CardContent className='space-y-4'>
 						{/* <div className='flex items-center justify-between'>
 							<div>
-								<Label className='text-lunar-green-700'>
+								<Label className='text-brand-main-700'>
 									Enable Notifications
 								</Label>
-								<p className='text-sm text-lunar-green-600'>
+								<p className='text-sm text-brand-main-600'>
 									Receive alerts for low stock and sales
 								</p>
 							</div>
@@ -111,8 +111,8 @@ export default function SettingsPage() {
 						</div> */}
 						<div className='flex items-center justify-between'>
 							<div>
-								<Label className='text-lunar-green-700'>Auto Backup</Label>
-								<p className='text-sm text-lunar-green-600'>
+								<Label className='text-brand-main-700'>Auto Backup</Label>
+								<p className='text-sm text-brand-main-600'>
 									Automatically backup data daily
 								</p>
 							</div>
@@ -125,9 +125,9 @@ export default function SettingsPage() {
 				</Card>
 
 				{/* Appearance Settings */}
-				{/* <Card className='border-lunar-green-200'>
+				{/* <Card className='border-brand-main-200'>
 					<CardHeader>
-						<CardTitle className='text-lunar-green-800 flex items-center gap-2'>
+						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Palette className='h-5 w-5' />
 							Appearance
 						</CardTitle>
@@ -135,8 +135,8 @@ export default function SettingsPage() {
 					<CardContent className='space-y-4'>
 						<div className='flex items-center justify-between'>
 							<div>
-								<Label className='text-lunar-green-700'>Dark Mode</Label>
-								<p className='text-sm text-lunar-green-600'>
+								<Label className='text-brand-main-700'>Dark Mode</Label>
+								<p className='text-sm text-brand-main-600'>
 									Switch to dark theme
 								</p>
 							</div>
@@ -150,9 +150,9 @@ export default function SettingsPage() {
 
 				{/* Security Settings - Only for SuperAdmin */}
 				{user.roles.includes("SUPERADMIN") && (
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200'>
 						<CardHeader>
-							<CardTitle className='text-lunar-green-800 flex items-center gap-2'>
+							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 								<Shield className='h-5 w-5' />
 								Security
 							</CardTitle>
@@ -160,7 +160,7 @@ export default function SettingsPage() {
 						<CardContent className='space-y-4'>
 							<Button
 								variant='outline'
-								className='border-lunar-green-200 text-lunar-green-700 hover:bg-lunar-green-50 bg-transparent'>
+								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
 								Change Password
 							</Button>
 						</CardContent>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
 				)}
 
 				<div className='flex justify-end'>
-					<Button className='bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+					<Button className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 						Save Settings
 					</Button>
 				</div>

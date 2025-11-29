@@ -31,7 +31,12 @@ const chartConfig = {
 	},
 } satisfies ChartConfig;
 
-const COLORS = ["#5c705d", "#768b76", "#9bad9b", "#c2cdc2"];
+const COLORS = [
+	"var(--color-brand-main-400)",
+	"var(--color-brand-main-500)",
+	"var(--color-brand-main-700)",
+	"var(--color-brand-main-600)",
+];
 
 export function PaymentMethodsChart({ data }: PaymentMethodsChartProps) {
 	return (

@@ -38,7 +38,7 @@ export default function ActivityLogsPage() {
 	if (!user || !canViewActivityLogs(user.roles)) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<p className='text-lunar-green-600'>
+				<p className='text-brand-main-600'>
 					You don't have permission to access this page.
 				</p>
 			</div>
@@ -48,7 +48,7 @@ export default function ActivityLogsPage() {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
 			</div>
 		);
 	}
@@ -96,7 +96,7 @@ export default function ActivityLogsPage() {
 		}
 		if (action.includes("Sale") || action.includes("Transaction")) {
 			return (
-				<Badge className='bg-lunar-green-100 text-lunar-green-800 hover:bg-lunar-green-100'>
+				<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
 					Sales
 				</Badge>
 			);
@@ -129,80 +129,78 @@ export default function ActivityLogsPage() {
 	return (
 		<div className='space-y-6 p-6'>
 			<div>
-				<h1 className='text-3xl font-bold text-lunar-green-800'>
+				<h1 className='text-3xl font-bold text-brand-main-800'>
 					Activity Logs
 				</h1>
-				<p className='text-lunar-green-600 mt-1'>
+				<p className='text-brand-main-600 mt-1'>
 					Monitor system activities and user actions
 				</p>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Activities
 						</CardTitle>
-						<Activity className='h-4 w-4 text-lunar-green-600' />
+						<Activity className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{filteredLogs.length}
 						</div>
-						<p className='text-xs text-lunar-green-600'>all time activities</p>
+						<p className='text-xs text-brand-main-600'>all time activities</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Today's Activities
 						</CardTitle>
-						<Clock className='h-4 w-4 text-lunar-green-600' />
+						<Clock className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{todayLogs}
 						</div>
-						<p className='text-xs text-lunar-green-600'>activities today</p>
+						<p className='text-xs text-brand-main-600'>activities today</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Active Users
 						</CardTitle>
-						<User className='h-4 w-4 text-lunar-green-600' />
+						<User className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{uniqueUsers}
 						</div>
-						<p className='text-xs text-lunar-green-600'>
-							users with activities
-						</p>
+						<p className='text-xs text-brand-main-600'>users with activities</p>
 					</CardContent>
 				</Card>
 			</div>
 
-			<Card className='border-lunar-green-200'>
+			<Card className='border-brand-main-200'>
 				<CardHeader>
-					<CardTitle className='text-lunar-green-800'>Activity Logs</CardTitle>
+					<CardTitle className='text-brand-main-800'>Activity Logs</CardTitle>
 					<div className='flex gap-4 mt-4'>
 						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-lunar-green-500' />
+							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							<Input
 								placeholder='Search activities...'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-lunar-green-200 focus:border-lunar-green-400'
+								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 						<select
 							value={actionFilter}
 							onChange={(e) => setActionFilter(e.target.value)}
-							className='px-3 py-2 border border-lunar-green-200 rounded-md text-sm focus:border-lunar-green-400 focus:outline-none'>
+							className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
 							<option value='all'>All Actions</option>
 							<option value='login'>Authentication</option>
 							<option value='sale'>Sales</option>
@@ -214,13 +212,11 @@ export default function ActivityLogsPage() {
 				<CardContent className='overflow-x-auto'>
 					<Table>
 						<TableHeader>
-							<TableRow className='border-lunar-green-200'>
-								<TableHead className='text-lunar-green-700'>
-									Timestamp
-								</TableHead>
-								<TableHead className='text-lunar-green-700'>User</TableHead>
-								<TableHead className='text-lunar-green-700'>Action</TableHead>
-								<TableHead className='text-lunar-green-700'>Details</TableHead>
+							<TableRow className='border-brand-main-200'>
+								<TableHead className='text-brand-main-700'>Timestamp</TableHead>
+								<TableHead className='text-brand-main-700'>User</TableHead>
+								<TableHead className='text-brand-main-700'>Action</TableHead>
+								<TableHead className='text-brand-main-700'>Details</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -233,18 +229,18 @@ export default function ActivityLogsPage() {
 								return (
 									<TableRow
 										key={log.id}
-										className='border-lunar-green-100'>
-										<TableCell className='text-lunar-green-700'>
+										className='border-brand-main-100'>
+										<TableCell className='text-brand-main-700'>
 											{createdAt.toLocaleDateString()}{" "}
 											{createdAt.toLocaleTimeString()}
 										</TableCell>
-										<TableCell className='font-medium text-lunar-green-800'>
+										<TableCell className='font-medium text-brand-main-800'>
 											{log.user.name}
 										</TableCell>
-										<TableCell className='text-lunar-green-700'>
+										<TableCell className='text-brand-main-700'>
 											{log.action}
 										</TableCell>
-										<TableCell className='text-lunar-green-700 truncate'>
+										<TableCell className='text-brand-main-700 truncate'>
 											{log.details}
 										</TableCell>
 									</TableRow>
@@ -253,7 +249,7 @@ export default function ActivityLogsPage() {
 						</TableBody>
 					</Table>
 					{filteredLogs.length === 0 && (
-						<div className='text-center py-8 text-lunar-green-600'>
+						<div className='text-center py-8 text-brand-main-600'>
 							No activity logs found matching your criteria.
 						</div>
 					)}

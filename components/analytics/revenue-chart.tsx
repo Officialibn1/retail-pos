@@ -20,7 +20,7 @@ interface RevenueChartProps {
 const chartConfig = {
 	revenue: {
 		label: "Revenue (₦)",
-		color: "#5c705d",
+		color: "var(--color-brand-main-600)",
 	},
 } satisfies ChartConfig;
 
@@ -33,12 +33,12 @@ export function RevenueChart({ data }: RevenueChartProps) {
 					dataKey='date'
 					tickLine={false}
 					axisLine={false}
-					className='text-lunar-green-600'
+					className='text-brand-main-600'
 				/>
 				<YAxis
 					tickLine={false}
 					axisLine={false}
-					className='text-lunar-green-600'
+					className='text-brand-main-600'
 					tickFormatter={(value) => `₦${formatCurrency(value)}`}
 				/>
 				<ChartTooltip

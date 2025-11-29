@@ -47,7 +47,7 @@ export default function UsersPage() {
 	if (!user || !canManageUsers(user.roles)) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<p className='text-lunar-green-600'>
+				<p className='text-brand-main-600'>
 					You don't have permission to access this page.
 				</p>
 			</div>
@@ -57,7 +57,7 @@ export default function UsersPage() {
 	if (isLoading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
 			</div>
 		);
 	}
@@ -107,7 +107,7 @@ export default function UsersPage() {
 				);
 			case "CASHIER":
 				return (
-					<Badge className='bg-lunar-green-100 text-lunar-green-800 hover:bg-lunar-green-100'>
+					<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
 						Cashier
 					</Badge>
 				);
@@ -172,88 +172,88 @@ export default function UsersPage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-lunar-green-800'>
+					<h1 className='text-3xl font-bold text-brand-main-800'>
 						User Management
 					</h1>
-					<p className='text-lunar-green-600 mt-1'>
+					<p className='text-brand-main-600 mt-1'>
 						Manage store users and their permissions
 					</p>
 				</div>
-				<Button className='bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+				<Button className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 					<Plus className='h-4 w-4 mr-2' />
 					Add User
 				</Button>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Users
 						</CardTitle>
-						<Users className='h-4 w-4 text-lunar-green-600' />
+						<Users className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{usersData?.count}
 						</div>
-						<p className='text-xs text-lunar-green-600'>Active users</p>
+						<p className='text-xs text-brand-main-600'>Active users</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Morning Shift
 						</CardTitle>
-						<Users className='h-4 w-4 text-lunar-green-600' />
+						<Users className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{morningShiftUsers}
 						</div>
-						<p className='text-xs text-lunar-green-600'>
+						<p className='text-xs text-brand-main-600'>
 							Users on morning shift
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Evening Shift
 						</CardTitle>
-						<Users className='h-4 w-4 text-lunar-green-600' />
+						<Users className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{eveningShiftUsers}
 						</div>
-						<p className='text-xs text-lunar-green-600'>
+						<p className='text-xs text-brand-main-600'>
 							Users on evening shift
 						</p>
 					</CardContent>
 				</Card>
 			</div>
 
-			<Card className='border-lunar-green-200'>
+			<Card className='border-brand-main-200'>
 				<CardHeader>
-					<CardTitle className='text-lunar-green-800'>Users</CardTitle>
+					<CardTitle className='text-brand-main-800'>Users</CardTitle>
 					<div className='flex gap-4 mt-4'>
 						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-lunar-green-500' />
+							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							<Input
 								placeholder='Search users...'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-lunar-green-200 focus:border-lunar-green-400'
+								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 
 						<Select
 							value={roleFilter}
 							onValueChange={(value) => setRoleFilter(value)}>
-							<SelectTrigger className='border-lunar-green-200 focus:border-lunar-green-400 w-40'>
+							<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-40'>
 								<SelectValue placeholder='Select role' />
 							</SelectTrigger>
 							<SelectContent>
@@ -268,33 +268,33 @@ export default function UsersPage() {
 				<CardContent>
 					<Table>
 						<TableHeader>
-							<TableRow className='border-lunar-green-200'>
-								<TableHead className='text-lunar-green-700'>Name</TableHead>
-								<TableHead className='text-lunar-green-700'>Email</TableHead>
-								<TableHead className='text-lunar-green-700'>Username</TableHead>
-								<TableHead className='text-lunar-green-700'>Role</TableHead>
-								<TableHead className='text-lunar-green-700'>Shift</TableHead>
-								<TableHead className='text-lunar-green-700'>Created</TableHead>
-								<TableHead className='text-lunar-green-700'>Actions</TableHead>
+							<TableRow className='border-brand-main-200'>
+								<TableHead className='text-brand-main-700'>Name</TableHead>
+								<TableHead className='text-brand-main-700'>Email</TableHead>
+								<TableHead className='text-brand-main-700'>Username</TableHead>
+								<TableHead className='text-brand-main-700'>Role</TableHead>
+								<TableHead className='text-brand-main-700'>Shift</TableHead>
+								<TableHead className='text-brand-main-700'>Created</TableHead>
+								<TableHead className='text-brand-main-700'>Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{filteredUsers?.map((u) => (
 								<TableRow
 									key={u.id}
-									className='border-lunar-green-100'>
-									<TableCell className='font-medium text-lunar-green-800'>
+									className='border-brand-main-100'>
+									<TableCell className='font-medium text-brand-main-800'>
 										{u.name}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{u.email}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{u.username}
 									</TableCell>
 									<TableCell>{getRoleBadge(u.roles)}</TableCell>
 									<TableCell>{getShiftBadge(u.shift)}</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{new Date(u.createdAt).toLocaleDateString()}
 									</TableCell>
 									<TableCell>
@@ -302,7 +302,7 @@ export default function UsersPage() {
 											<Button
 												size='sm'
 												variant='ghost'
-												className='text-lunar-green-600 hover:bg-lunar-green-100'>
+												className='text-brand-main-600 hover:bg-brand-main-100'>
 												<Edit className='h-4 w-4' />
 											</Button>
 											<Button
@@ -319,7 +319,7 @@ export default function UsersPage() {
 						</TableBody>
 					</Table>
 					{filteredUsers?.length === 0 && (
-						<div className='text-center py-8 text-lunar-green-600'>
+						<div className='text-center py-8 text-brand-main-600'>
 							No users found matching your criteria.
 						</div>
 					)}

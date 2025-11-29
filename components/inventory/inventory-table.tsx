@@ -71,23 +71,23 @@ export function InventoryTable({
 	};
 
 	return (
-		<Card className='border-lunar-green-200'>
+		<Card className='border-brand-main-200'>
 			<CardHeader>
-				<CardTitle className='text-lunar-green-800'>Inventory Items</CardTitle>
+				<CardTitle className='text-brand-main-800'>Inventory Items</CardTitle>
 				<div className='flex gap-4 mt-4'>
 					<div className='relative flex-1'>
-						<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-lunar-green-500' />
+						<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 						<Input
 							placeholder='Search items...'
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className='pl-8 border-lunar-green-200 focus:border-lunar-green-400'
+							className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 						/>
 					</div>
 					<select
 						value={categoryFilter}
 						onChange={(e) => setCategoryFilter(e.target.value)}
-						className='px-3 py-2 border border-lunar-green-200 rounded-md text-sm focus:border-lunar-green-400 focus:outline-none'>
+						className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
 						<option value='all'>All Categories</option>
 						{categories.map((category) => (
 							<option
@@ -102,14 +102,14 @@ export function InventoryTable({
 			<CardContent>
 				<Table>
 					<TableHeader>
-						<TableRow className='border-lunar-green-200'>
-							<TableHead className='text-lunar-green-700'>Product</TableHead>
-							<TableHead className='text-lunar-green-700'>SKU</TableHead>
-							<TableHead className='text-lunar-green-700'>Category</TableHead>
-							<TableHead className='text-lunar-green-700'>Price</TableHead>
-							<TableHead className='text-lunar-green-700'>Stock</TableHead>
-							<TableHead className='text-lunar-green-700'>Status</TableHead>
-							<TableHead className='text-lunar-green-700'>Actions</TableHead>
+						<TableRow className='border-brand-main-200'>
+							<TableHead className='text-brand-main-700'>Product</TableHead>
+							<TableHead className='text-brand-main-700'>SKU</TableHead>
+							<TableHead className='text-brand-main-700'>Category</TableHead>
+							<TableHead className='text-brand-main-700'>Price</TableHead>
+							<TableHead className='text-brand-main-700'>Stock</TableHead>
+							<TableHead className='text-brand-main-700'>Status</TableHead>
+							<TableHead className='text-brand-main-700'>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -118,29 +118,29 @@ export function InventoryTable({
 							return (
 								<TableRow
 									key={item.id}
-									className='border-lunar-green-100'>
+									className='border-brand-main-100'>
 									<TableCell>
 										<div>
-											<div className='font-medium text-lunar-green-800'>
+											<div className='font-medium text-brand-main-800'>
 												{item.name}
 											</div>
 											{item.description && (
-												<div className='text-sm text-lunar-green-600'>
+												<div className='text-sm text-brand-main-600'>
 													{item.description}
 												</div>
 											)}
 										</div>
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{item.sku}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{item.category?.name || "Uncategorized"}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{formatNaira(Number(item.price))}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										<div className='flex items-center gap-2'>
 											{item.stock}
 											{item.stock < 10 && (
@@ -167,14 +167,14 @@ export function InventoryTable({
 												<Button
 													variant='ghost'
 													size='sm'
-													className='text-lunar-green-600 hover:bg-lunar-green-100'>
+													className='text-brand-main-600 hover:bg-brand-main-100'>
 													<MoreHorizontal className='h-4 w-4' />
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align='end'>
 												<DropdownMenuItem
 													onClick={() => onEdit(item)}
-													className='text-lunar-green-700'>
+													className='text-brand-main-700'>
 													<Edit className='h-4 w-4 mr-2' />
 													Edit
 												</DropdownMenuItem>
@@ -193,7 +193,7 @@ export function InventoryTable({
 					</TableBody>
 				</Table>
 				{filteredItems.length === 0 && (
-					<div className='text-center py-8 text-lunar-green-600'>
+					<div className='text-center py-8 text-brand-main-600'>
 						No items found matching your search criteria.
 					</div>
 				)}

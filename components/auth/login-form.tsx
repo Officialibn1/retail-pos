@@ -52,13 +52,13 @@ export function LoginForm() {
 	};
 
 	return (
-		<div className='min-h-screen flex items-center justify-center bg-lunar-green-50 p-4'>
+		<div className='min-h-screen flex items-center justify-center bg-brand-main-50 p-4'>
 			<Card className='w-full max-w-md'>
-				<div className='self-center rounded-xl shadow-lg bg-lunar-green-100 text-lunar-green-800 p-2'>
+				<div className='self-center rounded-xl shadow-lg bg-brand-main-100 text-brand-main-800 p-2'>
 					<Store className='size-16' />
 				</div>
 				<CardHeader className='text-center'>
-					<CardTitle className='text-2xl font-bold text-lunar-green-800'>
+					<CardTitle className='text-2xl font-bold text-brand-main-800'>
 						{storeName}
 					</CardTitle>
 					<CardDescription>Sign in to access your dashboard</CardDescription>
@@ -98,17 +98,17 @@ export function LoginForm() {
 						)}
 						<Button
 							type='submit'
-							className='w-full bg-lunar-green-600 hover:bg-lunar-green-700'
+							className='w-full bg-brand-main-600 hover:bg-brand-main-700'
 							disabled={loggingIn}>
 							{loggingIn ? <Spinner /> : "Sign In"}
 						</Button>
 					</form>
 
-					<div className='mt-6 p-4 bg-lunar-green-100 rounded-lg hidden'>
-						<p className='text-sm font-medium text-lunar-green-800 mb-2'>
+					<div className='mt-6 p-4 bg-brand-main-100 rounded-lg hidden'>
+						<p className='text-sm font-medium text-brand-main-800 mb-2'>
 							Demo Accounts:
 						</p>
-						<div className='space-y-1 text-xs text-lunar-green-700'>
+						<div className='space-y-1 text-xs text-brand-main-700'>
 							<p>
 								<strong>SuperAdmin:</strong> admin@store.com
 							</p>

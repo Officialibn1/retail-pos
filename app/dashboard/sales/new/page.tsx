@@ -7,14 +7,15 @@ import { ProductSearch } from "@/components/sales/product-search";
 import { ShoppingCart } from "@/components/sales/shopping-cart";
 import { CheckoutDialog } from "@/components/sales/checkout-dialog";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
+import { PendingOrdersList } from "@/components/sales/pending-orders-list";
 import { useAuth } from "@/components/auth/auth-provider";
 import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
 import { RefreshCw, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import {
 	useGetInventoryQuery,
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
+	useGetSalesQuery,
 	type InventoryItemWithCategory as ApiInventoryItem,
 } from "@/lib/store/api";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
@@ -33,10 +34,10 @@ import {
 	selectCartTotal,
 } from "@/lib/store/slices/cartSlice";
 import { PaymentMethod } from "@/generated/prisma";
+import { toast } from "sonner";
 
 export default function NewSalePage() {
 	const { user } = useAuth();
-	const { toast } = useToast();
 	const dispatch = useAppDispatch();
 
 	// RTK Query hooks for data fetching
@@ -46,6 +47,7 @@ export default function NewSalePage() {
 		isError,
 		error: inventoryError,
 	} = useGetInventoryQuery();
+	const { data: pendingSales = [] } = useGetSalesQuery({ status: "PENDING" });
 	const [createSale, { isLoading: creatingSale }] = useCreateSaleMutation();
 	const [completeSale, { isLoading: completingSale }] =
 		useCompleteSaleMutation();
@@ -62,6 +64,7 @@ export default function NewSalePage() {
 	const [showCheckout, setShowCheckout] = useState(false);
 	const [showReceipt, setShowReceipt] = useState(false);
 	const [completedSale, setCompletedSale] = useState<any>(null);
+	const [pendingSaleId, setPendingSaleId] = useState<string | null>(null);
 
 	// Validate cart when inventory changes
 	useEffect(() => {
@@ -106,55 +109,79 @@ export default function NewSalePage() {
 		dispatch(setDiscount(discountValue));
 	};
 
+	const handleCompletePendingOrder = (saleId: string) => {
+		setPendingSaleId(saleId);
+		setShowCheckout(true);
+	};
+
+	// Get selected pending sale for checkout
+	const selectedPendingSale = pendingSaleId
+		? pendingSales.find((s) => s.id === pendingSaleId)
+		: null;
+
 	const handleCompleteSale = async (
 		paymentMethod: PaymentMethod,
 		shouldShowReceipt = true,
 	) => {
-		// Convert to uppercase for API
 		if (!user) return;
 
 		try {
-			// Create sale with PENDING status
-			const saleData = {
-				userId: user.id,
-				items: cartItems.map((item) => ({
-					inventoryItemId: item.inventoryItemId,
-					quantity: item.quantity,
-					price: Number(item.price),
-				})),
-				customerId: null,
-			};
+			let saleIdToComplete: string;
 
-			const createdSale = await createSale(saleData).unwrap();
+			// If completing a pending order, use that ID
+			if (pendingSaleId) {
+				saleIdToComplete = pendingSaleId;
+			} else {
+				// Create new sale with PENDING status
+				const saleData = {
+					userId: user.id,
+					items: cartItems.map((item) => ({
+						inventoryItemId: item.inventoryItemId,
+						quantity: item.quantity,
+						price: Number(item.price),
+					})),
+					customerId: null,
+				};
+
+				const createdSale = await createSale(saleData).unwrap();
+				saleIdToComplete = createdSale.id;
+			}
 
 			// Complete the sale
+			const amountToPay = pendingSaleId
+				? Number(
+						pendingSales.find((s) => s.id === pendingSaleId)?.total || total,
+				  )
+				: total;
+
 			const completedSaleData = await completeSale({
-				id: createdSale.id,
+				id: saleIdToComplete,
 				data: {
 					paymentMethod,
-					amountPaid: total,
+					amountPaid: amountToPay,
 				},
 			}).unwrap();
 
-			toast({
-				title: "Success",
-				description: "Sale completed successfully",
-			});
+			toast.success("Sale completed successfully");
 
 			setCompletedSale(completedSaleData);
-			setShowReceipt(true);
+			if (shouldShowReceipt) {
+				setShowReceipt(true);
+			}
 
-			// Clear cart from Redux
-			dispatch(clearCart());
+			// Clear cart from Redux if it was a new sale
+			if (!pendingSaleId) {
+				dispatch(clearCart());
+			}
+
+			// Reset pending sale ID
+			setPendingSaleId(null);
+			setShowCheckout((prev) => !prev);
 
 			// Inventory will automatically refetch due to cache invalidation
 		} catch (err: any) {
 			console.error("Failed to complete sale:", err);
-			toast({
-				title: "Error",
-				description: err?.data?.error?.message || "Failed to complete sale",
-				variant: "destructive",
-			});
+			toast.error(err?.data?.error?.message || "Failed to complete sale");
 		}
 	};
 
@@ -163,7 +190,7 @@ export default function NewSalePage() {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
 			</div>
 		);
 	}
@@ -190,16 +217,16 @@ export default function NewSalePage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-lunar-green-800'>New Sale</h1>
-					<p className='text-lunar-green-600 mt-1'>
+					<h1 className='text-3xl font-bold text-brand-main-800'>New Sale</h1>
+					<p className='text-brand-main-600 mt-1'>
 						Create a new sales transaction
 					</p>
 				</div>
 				<Button
 					onClick={handleClearCart}
 					variant='outline'
-					className='border-lunar-green-200 text-lunar-green-700 hover:bg-lunar-green-50 bg-transparent'
-					disabled={cartItems.length === 0}>
+					className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'
+					disabled={cartItems.length === 0 || completingSale || creatingSale}>
 					<RefreshCw className='h-4 w-4 mr-2' />
 					Clear Cart
 				</Button>
@@ -208,14 +235,16 @@ export default function NewSalePage() {
 			<div className='grid gap-6 lg:grid-cols-3'>
 				{/* Product Search */}
 				<div className='lg:col-span-2'>
-					<Card className='border-lunar-green-200'>
+					<Card className='border-brand-main-200 h-full'>
 						<CardHeader>
-							<CardTitle className='text-lunar-green-800'>
+							<CardTitle className='text-brand-main-800'>
 								Select Products
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
 							<ProductSearch
+								creatingSale={creatingSale}
+								completingSale={completingSale}
 								inventory={
 									inventory.map((item) => ({
 										...item,
@@ -248,20 +277,47 @@ export default function NewSalePage() {
 				</div>
 			</div>
 
+			{/* Pending Orders List */}
+			<PendingOrdersList
+				userId={user.id}
+				userRoles={user.roles}
+				onComplete={handleCompletePendingOrder}
+			/>
+
 			{/* Checkout Dialog */}
 			<CheckoutDialog
 				open={showCheckout}
-				onOpenChange={setShowCheckout}
-				items={cartItems.map((item) => ({
-					...item,
-					saleId: "", // Temporary saleId for checkout dialog
-				}))}
-				subtotal={subtotal}
-				discount={discountAmount}
-				tax={taxAmount}
-				total={total}
+				onOpenChange={(open) => {
+					setShowCheckout(open);
+					if (!open) {
+						setPendingSaleId(null);
+					}
+				}}
+				items={
+					selectedPendingSale
+						? selectedPendingSale.items.map((item) => ({
+								id: item.id,
+								saleId: selectedPendingSale.id,
+								inventoryItemId: item.inventoryItem.id,
+								quantity: item.quantity,
+								price: Number(item.price),
+								name: item.inventoryItem.name,
+								sku: item.inventoryItem.sku,
+						  }))
+						: cartItems.map((item) => ({
+								...item,
+								saleId: "", // Temporary saleId for checkout dialog
+						  }))
+				}
+				subtotal={
+					selectedPendingSale ? Number(selectedPendingSale.total) : subtotal
+				}
+				discount={selectedPendingSale ? 0 : discountAmount}
+				tax={selectedPendingSale ? 0 : taxAmount}
+				total={selectedPendingSale ? Number(selectedPendingSale.total) : total}
 				onCompleteSale={handleCompleteSale}
-				isProcessing={creatingSale}
+				isProcessing={creatingSale || completingSale}
+				saleId={pendingSaleId}
 			/>
 
 			{/* Receipt Print Dialog */}

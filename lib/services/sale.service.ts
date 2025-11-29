@@ -232,7 +232,17 @@ export async function completeSale(
 				completedAt: new Date(),
 			},
 			include: {
-				items: true,
+				items: {
+					include: {
+						inventoryItem: {
+							select: {
+								id: true,
+								name: true,
+								sku: true,
+							},
+						},
+					},
+				},
 				user: true,
 			},
 		});
@@ -301,6 +311,20 @@ export async function cancelSale(id: string): Promise<Sale> {
 				status: SaleStatus.CANCELLED,
 				cancelledAt: new Date(),
 			},
+			include: {
+				items: {
+					include: {
+						inventoryItem: {
+							select: {
+								id: true,
+								name: true,
+								sku: true,
+							},
+						},
+					},
+				},
+				user: true,
+			},
 		});
 
 		return cancelledSale;
@@ -310,14 +334,27 @@ export async function cancelSale(id: string): Promise<Sale> {
 }
 
 /**
+ * Sales filters for querying
+ */
+export interface SalesFilters {
+	status?: SaleStatus;
+	startDate?: Date;
+	endDate?: Date;
+	page?: number;
+	limit?: number;
+}
+
+/**
  * List sales with role-based filtering
  * @param userId - User ID for CASHIER filtering
  * @param userRoles - User roles for access control
+ * @param filters - Optional filters for status, date range, and pagination
  * @returns Array of sales with details
  */
 export async function listSales(
 	userId?: string,
 	userRoles?: UserRole[],
+	filters?: SalesFilters,
 ): Promise<SaleWithDetails[]> {
 	// Build where clause based on role
 	const whereClause: any = {};
@@ -333,6 +370,27 @@ export async function listSales(
 	) {
 		whereClause.userId = userId;
 	}
+
+	// Apply status filter
+	if (filters?.status) {
+		whereClause.status = filters.status;
+	}
+
+	// Apply date range filter
+	if (filters?.startDate || filters?.endDate) {
+		whereClause.createdAt = {};
+		if (filters.startDate) {
+			whereClause.createdAt.gte = filters.startDate;
+		}
+		if (filters.endDate) {
+			whereClause.createdAt.lte = filters.endDate;
+		}
+	}
+
+	// Calculate pagination
+	const page = filters?.page ?? 1;
+	const limit = filters?.limit ?? 50;
+	const skip = (page - 1) * limit;
 
 	const sales = await prisma.sale.findMany({
 		where: whereClause,
@@ -366,6 +424,8 @@ export async function listSales(
 		orderBy: {
 			createdAt: "desc",
 		},
+		skip,
+		take: limit,
 	});
 
 	return sales;

@@ -77,7 +77,7 @@ export default function SalesHistoryPage() {
 		switch (status) {
 			case "COMPLETED":
 				return (
-					<Badge className='bg-lunar-green-100 text-lunar-green-800 hover:bg-lunar-green-100'>
+					<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
 						Completed
 					</Badge>
 				);
@@ -116,7 +116,7 @@ export default function SalesHistoryPage() {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
 			</div>
 		);
 	}
@@ -143,10 +143,10 @@ export default function SalesHistoryPage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-lunar-green-800'>
+					<h1 className='text-3xl font-bold text-brand-main-800'>
 						Sales History
 					</h1>
-					<p className='text-lunar-green-600 mt-1'>
+					<p className='text-brand-main-600 mt-1'>
 						{canSeeAll
 							? "View all store sales transactions"
 							: "View your sales transactions"}
@@ -154,7 +154,7 @@ export default function SalesHistoryPage() {
 				</div>
 				<Button
 					asChild
-					className='bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
+					className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 					<Link href='/dashboard/sales/new'>
 						<Plus className='h-4 w-4 mr-2' />
 						New Sale
@@ -163,75 +163,75 @@ export default function SalesHistoryPage() {
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Sales
 						</CardTitle>
-						<Receipt className='h-4 w-4 text-lunar-green-600' />
+						<Receipt className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{totalSales}
 						</div>
-						<p className='text-xs text-lunar-green-600'>
+						<p className='text-xs text-brand-main-600'>
 							{completedSales} completed
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Revenue
 						</CardTitle>
-						<Receipt className='h-4 w-4 text-lunar-green-600' />
+						<Receipt className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{formatNaira(totalRevenue)}
 						</div>
-						<p className='text-xs text-lunar-green-600'>
+						<p className='text-xs text-brand-main-600'>
 							From {canSeeAll ? "all sales" : "your sales"}
 						</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-lunar-green-200'>
+				<Card className='border-brand-main-200'>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-lunar-green-700'>
+						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Avg Order Value
 						</CardTitle>
-						<Receipt className='h-4 w-4 text-lunar-green-600' />
+						<Receipt className='h-4 w-4 text-brand-main-600' />
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-lunar-green-800'>
+						<div className='text-2xl font-bold text-brand-main-800'>
 							{formatNaira(averageOrderValue)}
 						</div>
-						<p className='text-xs text-lunar-green-600'>Per transaction</p>
+						<p className='text-xs text-brand-main-600'>Per transaction</p>
 					</CardContent>
 				</Card>
 			</div>
 
-			<Card className='border-lunar-green-200'>
+			<Card className='border-brand-main-200'>
 				<CardHeader>
-					<CardTitle className='text-lunar-green-800'>
+					<CardTitle className='text-brand-main-800'>
 						Sales Transactions
 					</CardTitle>
 					<div className='flex gap-4 mt-4'>
 						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-lunar-green-500' />
+							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							<Input
 								placeholder='Search sales...'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-lunar-green-200 focus:border-lunar-green-400'
+								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 						<select
 							value={statusFilter}
 							onChange={(e) => setStatusFilter(e.target.value)}
-							className='px-3 py-2 border border-lunar-green-200 rounded-md text-sm focus:border-lunar-green-400 focus:outline-none'>
+							className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
 							<option value='all'>All Status</option>
 							<option value='COMPLETED'>Completed</option>
 							<option value='PENDING'>Pending</option>
@@ -242,47 +242,47 @@ export default function SalesHistoryPage() {
 				<CardContent>
 					<Table>
 						<TableHeader>
-							<TableRow className='border-lunar-green-200'>
-								<TableHead className='text-lunar-green-700'>
+							<TableRow className='border-brand-main-200'>
+								<TableHead className='text-brand-main-700'>
 									Sale Number
 								</TableHead>
-								<TableHead className='text-lunar-green-700'>Date</TableHead>
+								<TableHead className='text-brand-main-700'>Date</TableHead>
 								{canSeeAll && (
-									<TableHead className='text-lunar-green-700'>
+									<TableHead className='text-brand-main-700'>
 										Sales Person
 									</TableHead>
 								)}
-								<TableHead className='text-lunar-green-700'>Items</TableHead>
-								<TableHead className='text-lunar-green-700'>Payment</TableHead>
-								<TableHead className='text-lunar-green-700'>Total</TableHead>
-								<TableHead className='text-lunar-green-700'>Status</TableHead>
-								<TableHead className='text-lunar-green-700'>Actions</TableHead>
+								<TableHead className='text-brand-main-700'>Items</TableHead>
+								<TableHead className='text-brand-main-700'>Payment</TableHead>
+								<TableHead className='text-brand-main-700'>Total</TableHead>
+								<TableHead className='text-brand-main-700'>Status</TableHead>
+								<TableHead className='text-brand-main-700'>Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{filteredSales.map((sale) => (
 								<TableRow
 									key={sale.id}
-									className='border-lunar-green-100'>
-									<TableCell className='font-medium text-lunar-green-800'>
+									className='border-brand-main-100'>
+									<TableCell className='font-medium text-brand-main-800'>
 										{sale.id.slice(0, 8)}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{new Date(sale.createdAt).toLocaleDateString()}{" "}
 										{new Date(sale.createdAt).toLocaleTimeString()}
 									</TableCell>
 									{canSeeAll && (
-										<TableCell className='text-lunar-green-700'>
+										<TableCell className='text-brand-main-700'>
 											{sale.user?.name || "Unknown"}
 										</TableCell>
 									)}
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{sale.items?.length || 0} items
 									</TableCell>
-									<TableCell className='text-lunar-green-700 capitalize'>
+									<TableCell className='text-brand-main-700 capitalize'>
 										{sale.paymentMethod}
 									</TableCell>
-									<TableCell className='text-lunar-green-700'>
+									<TableCell className='text-brand-main-700'>
 										{formatNaira(Number(sale.total))}
 									</TableCell>
 									<TableCell>{getStatusBadge(sale.status)}</TableCell>
@@ -291,7 +291,7 @@ export default function SalesHistoryPage() {
 											<Button
 												size='sm'
 												variant='ghost'
-												className='text-lunar-green-600 hover:bg-lunar-green-100'
+												className='text-brand-main-600 hover:bg-brand-main-100'
 												onClick={() => handleViewSale(sale)}>
 												<Eye className='h-4 w-4 mr-1' />
 												View
@@ -299,7 +299,7 @@ export default function SalesHistoryPage() {
 											<Button
 												size='sm'
 												variant='ghost'
-												className='text-lunar-green-600 hover:bg-lunar-green-100'
+												className='text-brand-main-600 hover:bg-brand-main-100'
 												onClick={() => handlePrintReceipt(sale)}>
 												<Printer className='h-4 w-4 mr-1' />
 												Receipt
@@ -311,7 +311,7 @@ export default function SalesHistoryPage() {
 						</TableBody>
 					</Table>
 					{filteredSales.length === 0 && (
-						<div className='text-center py-8 text-lunar-green-600'>
+						<div className='text-center py-8 text-brand-main-600'>
 							No sales found matching your criteria.
 						</div>
 					)}
@@ -323,7 +323,7 @@ export default function SalesHistoryPage() {
 				onOpenChange={setShowSaleDetails}>
 				<DialogContent className='max-w-2xl'>
 					<DialogHeader>
-						<DialogTitle className='text-lunar-green-800'>
+						<DialogTitle className='text-brand-main-800'>
 							Sale Details
 						</DialogTitle>
 					</DialogHeader>
@@ -331,42 +331,42 @@ export default function SalesHistoryPage() {
 						<div className='space-y-4'>
 							<div className='grid grid-cols-2 gap-4'>
 								<div>
-									<p className='text-sm font-medium text-lunar-green-700'>
+									<p className='text-sm font-medium text-brand-main-700'>
 										Sale ID
 									</p>
-									<p className='text-lunar-green-800 uppercase'>
+									<p className='text-brand-main-800 uppercase'>
 										{viewingSale.id.slice(0, 8)}
 									</p>
 								</div>
 								<div>
-									<p className='text-sm font-medium text-lunar-green-700'>
+									<p className='text-sm font-medium text-brand-main-700'>
 										Date
 									</p>
-									<p className='text-lunar-green-800'>
+									<p className='text-brand-main-800'>
 										{new Date(viewingSale.createdAt).toLocaleDateString()}{" "}
 										{new Date(viewingSale.createdAt).toLocaleTimeString()}
 									</p>
 								</div>
 								<div>
-									<p className='text-sm font-medium text-lunar-green-700'>
+									<p className='text-sm font-medium text-brand-main-700'>
 										Sales Person
 									</p>
-									<p className='text-lunar-green-800'>
+									<p className='text-brand-main-800'>
 										{viewingSale.user?.name || "Unknown"}
 									</p>
 								</div>
 								<div>
-									<p className='text-sm font-medium text-lunar-green-700'>
+									<p className='text-sm font-medium text-brand-main-700'>
 										Payment Method
 									</p>
-									<p className='text-lunar-green-800 capitalize'>
+									<p className='text-brand-main-800 capitalize'>
 										{viewingSale.paymentMethod}
 									</p>
 								</div>
 							</div>
 
 							<div>
-								<p className='text-sm font-medium text-lunar-green-700 mb-2'>
+								<p className='text-sm font-medium text-brand-main-700 mb-2'>
 									Items
 								</p>
 								<Table>
@@ -397,30 +397,30 @@ export default function SalesHistoryPage() {
 
 							<div className='border-t pt-4'>
 								<div className='flex justify-between'>
-									<span className='text-lunar-green-700'>Subtotal:</span>
-									<span className='text-lunar-green-800'>
+									<span className='text-brand-main-700'>Subtotal:</span>
+									<span className='text-brand-main-800'>
 										{formatNaira(Number(viewingSale.total))}
 									</span>
 								</div>
 								{/* {viewingSale.tax > 0 && (
 									<div className='flex justify-between'>
-										<span className='text-lunar-green-700'>Tax:</span>
-										<span className='text-lunar-green-800'>
+										<span className='text-brand-main-700'>Tax:</span>
+										<span className='text-brand-main-800'>
 											{formatNaira(Number(viewingSale.tax))}
 										</span>
 									</div>
 								)}
 								{viewingSale.discount > 0 && (
 									<div className='flex justify-between'>
-										<span className='text-lunar-green-700'>Discount:</span>
-										<span className='text-lunar-green-800'>
+										<span className='text-brand-main-700'>Discount:</span>
+										<span className='text-brand-main-800'>
 											-{formatNaira(Number(viewingSale.discount))}
 										</span>
 									</div>
 								)} */}
 								<div className='flex justify-between font-bold text-lg'>
-									<span className='text-lunar-green-700'>Total:</span>
-									<span className='text-lunar-green-800'>
+									<span className='text-brand-main-700'>Total:</span>
+									<span className='text-brand-main-800'>
 										{formatNaira(Number(viewingSale.total))}
 									</span>
 								</div>
