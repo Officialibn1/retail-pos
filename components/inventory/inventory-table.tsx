@@ -27,7 +27,7 @@ import {
 	AlertTriangle,
 } from "lucide-react";
 import type { InventoryItem } from "@/lib/types";
-import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
+import type { InventoryItemWithCategory } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
 
 interface InventoryTableProps {

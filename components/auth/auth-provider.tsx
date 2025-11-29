@@ -1,90 +1,135 @@
 "use client";
 
-import {
-	createContext,
-	useContext,
-	useState,
-	useEffect,
-	type ReactNode,
-} from "react";
+import { useEffect, useCallback, type ReactNode } from "react";
 import type { User } from "@/lib/types";
-import { api } from "@/lib/api-client";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import {
+	setUser,
+	setLoading,
+	logout as logoutAction,
+	selectUser,
+	selectIsLoading,
+} from "@/lib/store/slices/authSlice";
+import {
+	useValidateSessionQuery,
+	useLoginMutation,
+	useLogoutMutation,
+} from "@/lib/store/api";
 
 interface LoginCredentials {
 	email: string;
 	password: string;
 }
 
-interface AuthContextType {
-	user: User | null;
-	login: (credentials: LoginCredentials) => Promise<void>;
-	logout: () => Promise<void>;
-	isLoading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+/**
+ * AuthProvider - Session validation on app initialization
+ *
+ * This component validates the user session when the application loads
+ * and populates the Redux auth slice with user data if a valid session exists.
+ *
+ * Requirements:
+ * - 2.3: Perform session validation on application initialization
+ * - 2.4: Populate auth slice with user data on session validation success
+ * - 2.5: Set user state to null on session validation failure
+ * - 9.4: Remove Context API implementation after migration complete
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const dispatch = useAppDispatch();
+
+	// Use RTK Query to validate session on mount
+	// Requirement 2.3: Perform session validation on application initialization
+	const {
+		data: sessionData,
+		isLoading,
+		isError,
+		error,
+	} = useValidateSessionQuery();
 
 	useEffect(() => {
-		// Validate session on mount by calling /api/auth/me
-		validateSession();
-	}, []);
-
-	const validateSession = async () => {
-		try {
-			const currentUser = await api.get<User>("/api/auth/me");
-			console.log("CURRENT USER: ", JSON.stringify(currentUser, null, 2));
-			setUser(currentUser);
-		} catch (error) {
-			// If session is invalid or expired, clear user state
-			setUser(null);
-		} finally {
-			setIsLoading(false);
+		if (isLoading) {
+			// Set loading state while validating session
+			dispatch(setLoading(true));
+		} else if (isError || !sessionData || error) {
+			// Requirement 2.5: Set user state to null on session validation failure
+			dispatch(setUser(null));
+		} else {
+			// Requirement 2.4: Populate auth slice with user data on session validation success
+			// Convert UserData from API to User type
+			const user: User = {
+				...sessionData,
+				roles: sessionData.roles as any,
+				shift: sessionData.shift as any,
+			};
+			dispatch(setUser(user));
 		}
-	};
+	}, [sessionData, isLoading, isError, dispatch, error]);
 
-	const login = async (credentials: LoginCredentials) => {
-		try {
-			// Call login API endpoint
-			const response = await api.post<{ user: User; message: string }>(
-				"/api/auth/login",
-				credentials,
-			);
-			// JWT is automatically stored in HTTP-only cookie by the server
-			setUser(response.user);
-		} catch (error) {
-			// Re-throw error to be handled by the login form
-			throw error;
-		}
-	};
+	return <>{children}</>;
+}
 
-	const logout = async () => {
+/**
+ * Hook to access auth state and actions using Redux directly
+ *
+ * This hook replaces the Context API-based useAuth hook and provides
+ * the same interface using Redux selectors and RTK Query mutations.
+ *
+ * Requirements:
+ * - 2.6: Provide access to user information through hooks
+ * - 9.4: Remove Context API implementation
+ * - 9.5: Ensure no components use old API client
+ */
+export function useAuth() {
+	const dispatch = useAppDispatch();
+	const user = useAppSelector(selectUser);
+	const isLoading = useAppSelector(selectIsLoading);
+
+	const [loginMutation, { isLoading: loggingIn }] = useLoginMutation();
+	const [logoutMutation, { isLoading: loggingOut }] = useLogoutMutation();
+
+	/**
+	 * Login user with credentials
+	 *
+	 * Requirement 2.1: Store user data in Redux auth slice on successful login
+	 */
+	const login = useCallback(
+		async (credentials: LoginCredentials) => {
+			try {
+				// Call login mutation using RTK Query
+				const response = await loginMutation(credentials).unwrap();
+				// JWT is automatically stored in HTTP-only cookie by the server
+				// Requirement 2.1: Store user data in Redux auth slice
+				// Convert UserData from API to User type
+				const user: User = {
+					...response.user,
+					roles: response.user.roles as any,
+					shift: response.user.shift as any,
+				};
+				dispatch(setUser(user));
+			} catch (error) {
+				// Re-throw error to be handled by the login form
+				throw error;
+			}
+		},
+		[loginMutation, dispatch],
+	);
+
+	/**
+	 * Logout user and clear session
+	 *
+	 * Requirement 2.2: Clear user data from Redux auth slice on logout
+	 */
+	const logout = useCallback(async () => {
 		try {
-			// Call logout API endpoint to invalidate session
-			await api.post("/api/auth/logout");
+			// Call logout mutation using RTK Query
+			await logoutMutation().unwrap();
 		} catch (error) {
 			// Even if logout fails, clear local state
 			console.error("Logout error:", error);
 		} finally {
-			// Clear user state regardless of API call result
-			setUser(null);
+			// Requirement 2.2: Clear user data from Redux auth slice
+			dispatch(logoutAction());
 		}
-	};
+	}, [logoutMutation, dispatch]);
 
-	return (
-		<AuthContext.Provider value={{ user, login, logout, isLoading }}>
-			{children}
-		</AuthContext.Provider>
-	);
-}
-
-export function useAuth() {
-	const context = useContext(AuthContext);
-	if (context === undefined) {
-		throw new Error("useAuth must be used within an AuthProvider");
-	}
-	return context;
+	return { user, login, logout, isLoading, loggingIn, loggingOut };
 }

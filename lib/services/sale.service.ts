@@ -231,6 +231,10 @@ export async function completeSale(
 				changeGiven,
 				completedAt: new Date(),
 			},
+			include: {
+				items: true,
+				user: true,
+			},
 		});
 
 		return completedSale;

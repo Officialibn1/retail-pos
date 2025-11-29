@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -22,7 +22,6 @@ import { EditItemDialog } from "@/components/inventory/edit-item-dialog";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import type { InventoryItem } from "@/lib/types";
-import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
 import { formatNaira } from "@/lib/utils";
 import { UserRole } from "@/lib/types";
 import {
@@ -35,45 +34,35 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { api } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
+import {
+	useGetInventoryQuery,
+	useCreateInventoryItemMutation,
+	useUpdateInventoryItemMutation,
+	useDeleteInventoryItemMutation,
+	type InventoryItemWithCategory,
+} from "@/lib/store/api";
 
 export default function InventoryPage() {
 	const { user } = useAuth();
 	const { toast } = useToast();
-	const [inventory, setInventory] = useState<InventoryItemWithCategory[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [showAddDialog, setShowAddDialog] = useState(false);
 	const [showEditDialog, setShowEditDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [selectedItem, setSelectedItem] =
 		useState<InventoryItemWithCategory | null>(null);
 
-	const fetchInventory = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const data = await api.get<InventoryItemWithCategory[]>("/api/inventory");
-			setInventory(data);
-		} catch (err: any) {
-			console.error("Failed to fetch inventory:", err);
-			setError(err.message || "Failed to load inventory");
-			toast({
-				title: "Error",
-				description: err.message || "Failed to load inventory",
-				variant: "destructive",
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
+	// RTK Query hooks for data fetching and mutations
+	const {
+		data: inventory = [],
+		isLoading: loading,
+		isError,
+		error: queryError,
+	} = useGetInventoryQuery();
 
-	useEffect(() => {
-		if (user) {
-			fetchInventory();
-		}
-	}, [user]);
+	const [createInventoryItem] = useCreateInventoryItemMutation();
+	const [updateInventoryItem] = useUpdateInventoryItemMutation();
+	const [deleteInventoryItem] = useDeleteInventoryItemMutation();
 
 	const totalItems = inventory.length;
 	const lowStockItems = inventory.filter((item) => item.stock < 10).length;
@@ -87,9 +76,7 @@ export default function InventoryPage() {
 		newItem: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">,
 	) => {
 		try {
-			await api.post<InventoryItem>("/api/inventory", newItem);
-			// Refresh inventory to get the item with category
-			await fetchInventory();
+			await createInventoryItem(newItem).unwrap();
 			setShowAddDialog(false);
 			toast({
 				title: "Success",
@@ -99,7 +86,8 @@ export default function InventoryPage() {
 			console.error("Failed to add item:", err);
 			toast({
 				title: "Error",
-				description: err.message || "Failed to add item",
+				description:
+					err.data?.error?.message || err.message || "Failed to add item",
 				variant: "destructive",
 			});
 		}
@@ -112,12 +100,10 @@ export default function InventoryPage() {
 
 	const handleSaveEdit = async (updatedItem: InventoryItem) => {
 		try {
-			await api.put<InventoryItemWithCategory>(
-				`/api/inventory/${updatedItem.id}`,
-				updatedItem,
-			);
-			// Refresh inventory to get the item with category
-			await fetchInventory();
+			await updateInventoryItem({
+				id: updatedItem.id,
+				data: updatedItem,
+			}).unwrap();
 			setShowEditDialog(false);
 			setSelectedItem(null);
 			toast({
@@ -128,7 +114,8 @@ export default function InventoryPage() {
 			console.error("Failed to update item:", err);
 			toast({
 				title: "Error",
-				description: err.message || "Failed to update item",
+				description:
+					err.data?.error?.message || err.message || "Failed to update item",
 				variant: "destructive",
 			});
 		}
@@ -143,8 +130,7 @@ export default function InventoryPage() {
 		if (!selectedItem) return;
 
 		try {
-			await api.delete(`/api/inventory/${selectedItem.id}`);
-			setInventory(inventory.filter((item) => item.id !== selectedItem.id));
+			await deleteInventoryItem(selectedItem.id).unwrap();
 			setShowDeleteDialog(false);
 			setSelectedItem(null);
 			toast({
@@ -155,7 +141,8 @@ export default function InventoryPage() {
 			console.error("Failed to delete item:", err);
 			toast({
 				title: "Error",
-				description: err.message || "Failed to delete item",
+				description:
+					err.data?.error?.message || err.message || "Failed to delete item",
 				variant: "destructive",
 			});
 		}
@@ -171,7 +158,11 @@ export default function InventoryPage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
+		const errorMessage =
+			(queryError as any)?.data?.error?.message ||
+			(queryError as any)?.message ||
+			"Failed to load inventory";
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
@@ -179,7 +170,9 @@ export default function InventoryPage() {
 						<CardTitle className='text-red-800'>
 							Error Loading Inventory
 						</CardTitle>
-						<CardDescription className='text-red-700'>{error}</CardDescription>
+						<CardDescription className='text-red-700'>
+							{errorMessage}
+						</CardDescription>
 					</CardHeader>
 				</Card>
 			</div>
@@ -306,7 +299,7 @@ export default function InventoryPage() {
 				<EditItemDialog
 					open={showEditDialog}
 					onOpenChange={setShowEditDialog}
-					item={selectedItem}
+					item={selectedItem as InventoryItem | null}
 					onSave={handleSaveEdit}
 				/>
 

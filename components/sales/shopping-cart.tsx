@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Minus, Plus } from "lucide-react";
 import type { SaleItem, InventoryItem } from "@/lib/types";
-import { formatNaira, formatCurrency } from "@/lib/utils";
+import { formatNaira } from "@/lib/utils";
+import { Spinner } from "../ui/spinner";
 
 interface CartItem extends SaleItem {
 	product: InventoryItem;
@@ -19,7 +20,10 @@ interface ShoppingCartProps {
 	onApplyDiscount: (discount: number) => void;
 	discount: number;
 	onCheckout: () => void;
+	isProcessing: boolean;
 }
+
+const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT as string;
 
 export function ShoppingCart({
 	items,
@@ -28,14 +32,14 @@ export function ShoppingCart({
 	onApplyDiscount,
 	discount,
 	onCheckout,
+	isProcessing,
 }: ShoppingCartProps) {
 	const subtotal = items.reduce(
 		(sum, item) => sum + Number(item.price) * item.quantity,
 		0,
 	);
 	const discountAmount = (subtotal * discount) / 100;
-	const taxRate = 0.1; // 10% tax
-	const taxAmount = (subtotal - discountAmount) * taxRate;
+	const taxAmount = (subtotal - discountAmount) * Number(taxRate);
 	const total = subtotal - discountAmount + taxAmount;
 
 	return (
@@ -68,6 +72,7 @@ export function ShoppingCart({
 									<div className='flex items-center gap-2'>
 										<Button
 											size='sm'
+											disabled={isProcessing}
 											variant='outline'
 											onClick={() =>
 												onUpdateQuantity(
@@ -88,7 +93,9 @@ export function ShoppingCart({
 												onUpdateQuantity(item.id, item.quantity + 1)
 											}
 											className='h-6 w-6 p-0 border-lunar-green-200'
-											disabled={item.quantity >= item.product.stock}>
+											disabled={
+												item.quantity >= item.product.stock || isProcessing
+											}>
 											<Plus className='h-3 w-3' />
 										</Button>
 									</div>
@@ -98,6 +105,7 @@ export function ShoppingCart({
 									<Button
 										size='sm'
 										variant='ghost'
+										disabled={isProcessing}
 										onClick={() => onRemoveItem(item.id)}
 										className='h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'>
 										<Trash2 className='h-3 w-3' />
@@ -118,6 +126,7 @@ export function ShoppingCart({
 									min='0'
 									max='100'
 									value={discount}
+									disabled={isProcessing}
 									onChange={(e) => onApplyDiscount(Number(e.target.value) || 0)}
 									className='w-20 h-8 border-lunar-green-200 focus:border-lunar-green-400'
 								/>
@@ -135,7 +144,7 @@ export function ShoppingCart({
 									</div>
 								)}
 								<div className='flex justify-between text-lunar-green-700'>
-									<span>Tax (10%):</span>
+									<span>Tax ({Number(taxRate) * 100}%):</span>
 									<span>{formatNaira(taxAmount)}</span>
 								</div>
 								<Separator className='bg-lunar-green-200' />
@@ -147,9 +156,9 @@ export function ShoppingCart({
 
 							<Button
 								onClick={onCheckout}
-								disabled={items.length === 0}
+								disabled={items.length === 0 || isProcessing}
 								className='w-full bg-lunar-green-600 hover:bg-lunar-green-700 text-white'>
-								Proceed to Checkout
+								{isProcessing ? <Spinner /> : "Proceed to Checkout"}
 							</Button>
 						</div>
 					</>

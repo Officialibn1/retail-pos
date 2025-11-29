@@ -52,7 +52,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
 					type='monotone'
 					dataKey='revenue'
 					stroke='var(--color-revenue)'
-					strokeWidth={3}
+					strokeWidth={2}
 					dot={{ fill: "var(--color-revenue)", strokeWidth: 2, r: 4 }}
 				/>
 			</LineChart>

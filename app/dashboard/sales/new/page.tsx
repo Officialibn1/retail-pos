@@ -8,124 +8,112 @@ import { ShoppingCart } from "@/components/sales/shopping-cart";
 import { CheckoutDialog } from "@/components/sales/checkout-dialog";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
-import type { SaleItem } from "@/lib/types";
 import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
 import { RefreshCw, Loader2 } from "lucide-react";
-import { api } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
-
-interface CartItem extends SaleItem {
-	product: InventoryItemWithCategory;
-}
+import {
+	useGetInventoryQuery,
+	useCreateSaleMutation,
+	useCompleteSaleMutation,
+	type InventoryItemWithCategory as ApiInventoryItem,
+} from "@/lib/store/api";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import {
+	addItem,
+	updateQuantity,
+	removeItem,
+	setDiscount,
+	clearCart,
+	validateCart,
+	selectCartItems,
+	selectCartDiscount,
+	selectCartSubtotal,
+	selectCartDiscountAmount,
+	selectCartTaxAmount,
+	selectCartTotal,
+} from "@/lib/store/slices/cartSlice";
+import { PaymentMethod } from "@/generated/prisma";
 
 export default function NewSalePage() {
 	const { user } = useAuth();
 	const { toast } = useToast();
-	const [inventory, setInventory] = useState<InventoryItemWithCategory[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [cartItems, setCartItems] = useState<CartItem[]>([]);
-	const [discount, setDiscount] = useState(0);
+	const dispatch = useAppDispatch();
+
+	// RTK Query hooks for data fetching
+	const {
+		data: inventory = [],
+		isLoading: loading,
+		isError,
+		error: inventoryError,
+	} = useGetInventoryQuery();
+	const [createSale, { isLoading: creatingSale }] = useCreateSaleMutation();
+	const [completeSale, { isLoading: completingSale }] =
+		useCompleteSaleMutation();
+
+	// Redux cart state
+	const cartItems = useAppSelector(selectCartItems);
+	const discount = useAppSelector(selectCartDiscount);
+	const subtotal = useAppSelector(selectCartSubtotal);
+	const discountAmount = useAppSelector(selectCartDiscountAmount);
+	const taxAmount = useAppSelector(selectCartTaxAmount);
+	const total = useAppSelector(selectCartTotal);
+
+	// Local UI state
 	const [showCheckout, setShowCheckout] = useState(false);
 	const [showReceipt, setShowReceipt] = useState(false);
 	const [completedSale, setCompletedSale] = useState<any>(null);
-	const [processing, setProcessing] = useState(false);
 
-	const fetchInventory = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const data = await api.get<InventoryItemWithCategory[]>("/api/inventory");
-			setInventory(data);
-		} catch (err: any) {
-			console.error("Failed to fetch inventory:", err);
-			setError(err.message || "Failed to load inventory");
-			toast({
-				title: "Error",
-				description: err.message || "Failed to load inventory",
-				variant: "destructive",
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-
+	// Validate cart when inventory changes
 	useEffect(() => {
-		if (user) {
-			fetchInventory();
+		if (inventory.length > 0) {
+			// Convert API inventory to the format expected by cart slice
+			const convertedInventory = inventory.map((item) => ({
+				...item,
+				price: item.price as any, // Prisma.Decimal compatibility
+				deletedAt: item.deletedAt ? new Date(item.deletedAt) : null,
+				createdAt: new Date(item.createdAt),
+				updatedAt: new Date(item.updatedAt),
+			})) as InventoryItemWithCategory[];
+			dispatch(validateCart(convertedInventory));
 		}
-	}, [user]);
+	}, [inventory, dispatch]);
 
-	const addToCart = (product: InventoryItemWithCategory, quantity: number) => {
-		const existingItem = cartItems.find(
-			(item) => item.inventoryItemId === product.id,
-		);
-
-		if (existingItem) {
-			const newQuantity = Math.min(
-				existingItem.quantity + quantity,
-				product.stock,
-			);
-			updateQuantity(existingItem.id, newQuantity);
-		} else {
-			const newItem: CartItem = {
-				id: `cart-${Date.now()}-${Math.random()}`,
-				inventoryItemId: product.id,
-				quantity: Math.min(quantity, product.stock),
-				price: product.price,
-				saleId: "",
-				product,
-			};
-			setCartItems([...cartItems, newItem]);
-		}
+	const handleAddToCart = (product: ApiInventoryItem, quantity: number) => {
+		// Convert API inventory item to the format expected by cart slice
+		const convertedProduct = {
+			...product,
+			price: product.price as any, // Prisma.Decimal compatibility
+			deletedAt: product.deletedAt ? new Date(product.deletedAt) : null,
+			createdAt: new Date(product.createdAt),
+			updatedAt: new Date(product.updatedAt),
+		} as InventoryItemWithCategory;
+		dispatch(addItem({ product: convertedProduct, quantity }));
 	};
 
-	const updateQuantity = (itemId: string, quantity: number) => {
-		setCartItems(
-			cartItems.map((item) => {
-				if (item.id === itemId) {
-					const newQuantity = Math.min(quantity, item.product.stock);
-					return {
-						...item,
-						quantity: newQuantity,
-					};
-				}
-				return item;
-			}),
-		);
+	const handleUpdateQuantity = (itemId: string, quantity: number) => {
+		dispatch(updateQuantity({ itemId, quantity }));
 	};
 
-	const removeItem = (itemId: string) => {
-		setCartItems(cartItems.filter((item) => item.id !== itemId));
+	const handleRemoveItem = (itemId: string) => {
+		dispatch(removeItem(itemId));
 	};
 
-	const clearCart = () => {
-		setCartItems([]);
-		setDiscount(0);
+	const handleClearCart = () => {
+		dispatch(clearCart());
 	};
 
-	const subtotal = cartItems.reduce(
-		(sum, item) => sum + Number(item.price) * item.quantity,
-		0,
-	);
-	const discountAmount = (subtotal * discount) / 100;
-	const taxAmount = (subtotal - discountAmount) * 0.1;
-	const total = subtotal - discountAmount + taxAmount;
+	const handleApplyDiscount = (discountValue: number) => {
+		dispatch(setDiscount(discountValue));
+	};
 
-	const completeSale = async (
-		paymentMethod: "cash" | "card" | "digital",
+	const handleCompleteSale = async (
+		paymentMethod: PaymentMethod,
 		shouldShowReceipt = true,
 	) => {
 		// Convert to uppercase for API
-		const apiPaymentMethod = paymentMethod.toUpperCase() as
-			| "CASH"
-			| "CARD"
-			| "DIGITAL";
 		if (!user) return;
 
 		try {
-			setProcessing(true);
-
 			// Create sale with PENDING status
 			const saleData = {
 				userId: user.id,
@@ -137,64 +125,36 @@ export default function NewSalePage() {
 				customerId: null,
 			};
 
-			const createdSale = await api.post<any>("/api/sales", saleData);
+			const createdSale = await createSale(saleData).unwrap();
 
 			// Complete the sale
-			const completedSaleData = await api.post<any>(
-				`/api/sales/${createdSale.id}/complete`,
-				{
-					paymentMethod: apiPaymentMethod,
+			const completedSaleData = await completeSale({
+				id: createdSale.id,
+				data: {
+					paymentMethod,
 					amountPaid: total,
-					changeGiven: 0,
 				},
-			);
+			}).unwrap();
 
 			toast({
 				title: "Success",
 				description: "Sale completed successfully",
 			});
 
-			if (shouldShowReceipt) {
-				const receiptSale = {
-					id: completedSaleData.id,
-					saleNumber: completedSaleData.saleNumber,
-					items: cartItems.map((item) => ({
-						id: item.id,
-						inventoryItemId: item.inventoryItemId,
-						name: item.product.name,
-						unitPrice: Number(item.price),
-						quantity: item.quantity,
-						discount: 0,
-						total: Number(item.price) * item.quantity,
-					})),
-					subtotal,
-					tax: taxAmount,
-					discount: discountAmount,
-					total,
-					paymentMethod: apiPaymentMethod,
-					salesPersonId: user.id,
-					salesperson: user.name,
-					createdAt: new Date().toISOString(),
-					customer: undefined,
-				};
+			setCompletedSale(completedSaleData);
+			setShowReceipt(true);
 
-				setCompletedSale(receiptSale);
-				setShowReceipt(true);
-			}
+			// Clear cart from Redux
+			dispatch(clearCart());
 
-			clearCart();
-
-			// Refresh inventory to get updated stock levels
-			await fetchInventory();
+			// Inventory will automatically refetch due to cache invalidation
 		} catch (err: any) {
 			console.error("Failed to complete sale:", err);
 			toast({
 				title: "Error",
-				description: err.message || "Failed to complete sale",
+				description: err?.data?.error?.message || "Failed to complete sale",
 				variant: "destructive",
 			});
-		} finally {
-			setProcessing(false);
 		}
 	};
 
@@ -208,7 +168,7 @@ export default function NewSalePage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
@@ -216,7 +176,10 @@ export default function NewSalePage() {
 						<CardTitle className='text-red-800'>
 							Error Loading Inventory
 						</CardTitle>
-						<p className='text-red-700'>{error}</p>
+						<p className='text-red-700'>
+							{(inventoryError as any)?.data?.error?.message ||
+								"Failed to load inventory"}
+						</p>
 					</CardHeader>
 				</Card>
 			</div>
@@ -233,7 +196,7 @@ export default function NewSalePage() {
 					</p>
 				</div>
 				<Button
-					onClick={clearCart}
+					onClick={handleClearCart}
 					variant='outline'
 					className='border-lunar-green-200 text-lunar-green-700 hover:bg-lunar-green-50 bg-transparent'
 					disabled={cartItems.length === 0}>
@@ -253,8 +216,16 @@ export default function NewSalePage() {
 						</CardHeader>
 						<CardContent>
 							<ProductSearch
-								inventory={inventory}
-								onAddToCart={addToCart}
+								inventory={
+									inventory.map((item) => ({
+										...item,
+										price: item.price as any,
+										deletedAt: item.deletedAt ? new Date(item.deletedAt) : null,
+										createdAt: new Date(item.createdAt),
+										updatedAt: new Date(item.updatedAt),
+									})) as InventoryItemWithCategory[]
+								}
+								onAddToCart={handleAddToCart as any}
 							/>
 						</CardContent>
 					</Card>
@@ -263,12 +234,16 @@ export default function NewSalePage() {
 				{/* Shopping Cart */}
 				<div className='lg:col-span-1'>
 					<ShoppingCart
-						items={cartItems}
-						onUpdateQuantity={updateQuantity}
-						onRemoveItem={removeItem}
-						onApplyDiscount={setDiscount}
+						items={cartItems.map((item) => ({
+							...item,
+							saleId: "", // Temporary saleId for shopping cart
+						}))}
+						onUpdateQuantity={handleUpdateQuantity}
+						onRemoveItem={handleRemoveItem}
+						onApplyDiscount={handleApplyDiscount}
 						discount={discount}
 						onCheckout={() => setShowCheckout(true)}
+						isProcessing={creatingSale || completingSale}
 					/>
 				</div>
 			</div>
@@ -277,12 +252,16 @@ export default function NewSalePage() {
 			<CheckoutDialog
 				open={showCheckout}
 				onOpenChange={setShowCheckout}
-				items={cartItems}
+				items={cartItems.map((item) => ({
+					...item,
+					saleId: "", // Temporary saleId for checkout dialog
+				}))}
 				subtotal={subtotal}
 				discount={discountAmount}
 				tax={taxAmount}
 				total={total}
-				onCompleteSale={completeSale}
+				onCompleteSale={handleCompleteSale}
+				isProcessing={creatingSale}
 			/>
 
 			{/* Receipt Print Dialog */}

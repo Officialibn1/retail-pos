@@ -4,7 +4,7 @@ import { completeSaleSchema } from "@/lib/validations/sale.schema";
 import { completeSale } from "@/lib/services/sale.service";
 import { logActivity } from "@/lib/services/activity-log.service";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/sales/[id]/complete

@@ -14,34 +14,40 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ApiClientError } from "@/lib/api-client";
 import { Store } from "lucide-react";
+import { Spinner } from "../ui/spinner";
+import { useAuth } from "./auth-provider";
+import { toast } from "sonner";
 
-interface LoginFormProps {
-	onLogin: (credentials: { email: string; password: string }) => Promise<void>;
-}
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
 
-export function LoginForm({ onLogin }: LoginFormProps) {
+export function LoginForm() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+
+	const { login, loggingIn } = useAuth();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsLoading(true);
 		setError("");
 
 		try {
-			await onLogin({ email, password });
-		} catch (err) {
-			if (err instanceof ApiClientError) {
+			await login({ email, password });
+			toast.success("Login successfully.");
+		} catch (err: any) {
+			console.log("LOGIN ERROR: ", JSON.stringify(err, null, 2));
+			// Handle RTK Query errors
+			if (err?.data?.error?.message) {
+				setError(err.data.error.message);
+				toast.error(err.data.error.message);
+			} else if (err?.message) {
 				setError(err.message);
+				toast.error(err.message);
 			} else {
 				setError("An unexpected error occurred. Please try again.");
+				toast.error("An unexpected error occurred. Please try again.");
 			}
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -53,7 +59,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 				</div>
 				<CardHeader className='text-center'>
 					<CardTitle className='text-2xl font-bold text-lunar-green-800'>
-						Retail POS System
+						{storeName}
 					</CardTitle>
 					<CardDescription>Sign in to access your dashboard</CardDescription>
 				</CardHeader>
@@ -70,6 +76,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								required
+								disabled={loggingIn}
 							/>
 						</div>
 						<div className='space-y-2'>
@@ -81,6 +88,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								required
+								disabled={loggingIn}
 							/>
 						</div>
 						{error && (
@@ -91,8 +99,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 						<Button
 							type='submit'
 							className='w-full bg-lunar-green-600 hover:bg-lunar-green-700'
-							disabled={isLoading}>
-							{isLoading ? "Signing in..." : "Sign In"}
+							disabled={loggingIn}>
+							{loggingIn ? <Spinner /> : "Sign In"}
 						</Button>
 					</form>
 

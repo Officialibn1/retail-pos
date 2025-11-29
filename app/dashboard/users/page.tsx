@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,47 +23,26 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
-import type { User } from "@/lib/types";
+import { useGetUsersQuery, useDeleteUserMutation } from "@/lib/store/api";
 
-interface UserResponse {
-	users: User[];
-	count: number;
-}
 export default function UsersPage() {
 	const { user } = useAuth();
 	const { toast } = useToast();
-	const [users, setUsers] = useState<UserResponse>();
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [roleFilter, setRoleFilter] = useState("all");
 
-	const fetchUsers = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const data = await api.get<UserResponse>("/api/users");
-			setUsers(data);
-		} catch (err: any) {
-			console.error("Failed to fetch users:", err);
-			setError(err.message || "Failed to load users");
-			toast({
-				title: "Error",
-				description: err.message || "Failed to load users",
-				variant: "destructive",
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
+	// RTK Query hooks
+	const {
+		data: usersData,
+		isLoading,
+		isError,
+		error,
+	} = useGetUsersQuery(undefined, {
+		skip: !user || !canManageUsers(user.roles),
+	});
 
-	useEffect(() => {
-		if (user && canManageUsers(user.roles)) {
-			fetchUsers();
-		}
-	}, [user]);
+	const [deleteUser] = useDeleteUserMutation();
 
 	if (!user || !canManageUsers(user.roles)) {
 		return (
@@ -75,7 +54,7 @@ export default function UsersPage() {
 		);
 	}
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
 				<Loader2 className='h-8 w-8 animate-spin text-lunar-green-600' />
@@ -83,20 +62,24 @@ export default function UsersPage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
+		const errorMessage =
+			(error as any)?.data?.error?.message ||
+			(error as any)?.data?.message ||
+			"Failed to load users";
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
 					<CardHeader>
 						<CardTitle className='text-red-800'>Error Loading Users</CardTitle>
-						<p className='text-red-700'>{error}</p>
+						<p className='text-red-700'>{errorMessage}</p>
 					</CardHeader>
 				</Card>
 			</div>
 		);
 	}
 
-	const filteredUsers = users?.users.filter((u) => {
+	const filteredUsers = usersData?.users.filter((u) => {
 		const matchesSearch =
 			u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			u.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -166,17 +149,20 @@ export default function UsersPage() {
 		}
 
 		try {
-			await api.delete(`/api/users/${userId}`);
+			await deleteUser(userId).unwrap();
 			toast({
 				title: "Success",
 				description: "User deleted successfully",
 			});
-			fetchUsers();
 		} catch (err: any) {
 			console.error("Failed to delete user:", err);
+			const errorMessage =
+				err?.data?.error?.message ||
+				err?.data?.message ||
+				"Failed to delete user";
 			toast({
 				title: "Error",
-				description: err.message || "Failed to delete user",
+				description: errorMessage,
 				variant: "destructive",
 			});
 		}
@@ -209,7 +195,7 @@ export default function UsersPage() {
 					</CardHeader>
 					<CardContent>
 						<div className='text-2xl font-bold text-lunar-green-800'>
-							{users?.count}
+							{usersData?.count}
 						</div>
 						<p className='text-xs text-lunar-green-600'>Active users</p>
 					</CardContent>

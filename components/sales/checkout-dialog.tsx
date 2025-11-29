@@ -13,8 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Banknote, Smartphone } from "lucide-react";
-import type { SaleItem } from "@/lib/types";
+import {
+	CreditCard,
+	Banknote,
+	Smartphone,
+	BanknoteIcon,
+	SmartphoneNfc,
+} from "lucide-react";
+import type { PaymentMethod, SaleItem } from "@/lib/types";
 import { formatNaira } from "@/lib/utils";
 
 interface CheckoutDialogProps {
@@ -26,9 +32,10 @@ interface CheckoutDialogProps {
 	tax: number;
 	total: number;
 	onCompleteSale: (
-		paymentMethod: "cash" | "card" | "digital",
+		paymentMethod: PaymentMethod,
 		shouldShowReceipt?: boolean,
 	) => void;
+	isProcessing: boolean;
 }
 
 export function CheckoutDialog({
@@ -40,21 +47,14 @@ export function CheckoutDialog({
 	tax,
 	total,
 	onCompleteSale,
+	isProcessing,
 }: CheckoutDialogProps) {
-	const [paymentMethod, setPaymentMethod] = useState<
-		"cash" | "card" | "digital"
-	>("card");
-	const [isProcessing, setIsProcessing] = useState(false);
+	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD");
+
 	const [generateReceipt, setGenerateReceipt] = useState(true);
 
 	const handleCompleteSale = async () => {
-		setIsProcessing(true);
-
-		// Simulate payment processing
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-
 		onCompleteSale(paymentMethod, generateReceipt);
-		setIsProcessing(false);
 		onOpenChange(false);
 	};
 
@@ -108,11 +108,11 @@ export function CheckoutDialog({
 							onValueChange={(value) => setPaymentMethod(value as any)}>
 							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
 								<RadioGroupItem
-									value='card'
-									id='card'
+									value='CARD'
+									id='CARD'
 								/>
 								<Label
-									htmlFor='card'
+									htmlFor='CARD'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
 									<CreditCard className='h-4 w-4 text-lunar-green-600' />
 									<span className='text-lunar-green-700'>
@@ -122,11 +122,11 @@ export function CheckoutDialog({
 							</div>
 							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
 								<RadioGroupItem
-									value='cash'
-									id='cash'
+									value='CASH'
+									id='CASH'
 								/>
 								<Label
-									htmlFor='cash'
+									htmlFor='CASH'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
 									<Banknote className='h-4 w-4 text-lunar-green-600' />
 									<span className='text-lunar-green-700'>Cash</span>
@@ -134,14 +134,28 @@ export function CheckoutDialog({
 							</div>
 							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
 								<RadioGroupItem
-									value='digital'
-									id='digital'
+									value='MOBILE_MONEY'
+									id='MOBILE_MONEY'
 								/>
 								<Label
-									htmlFor='digital'
+									htmlFor='MOBILE_MONEY'
 									className='flex items-center gap-2 cursor-pointer flex-1'>
 									<Smartphone className='h-4 w-4 text-lunar-green-600' />
-									<span className='text-lunar-green-700'>Digital Wallet</span>
+									<span className='text-lunar-green-700'>
+										Mobile Wallet Transfer
+									</span>
+								</Label>
+							</div>
+							<div className='flex items-center space-x-2 p-3 border border-lunar-green-200 rounded-lg'>
+								<RadioGroupItem
+									value='BANK_TRANSFER'
+									id='BANK_TRANSFER'
+								/>
+								<Label
+									htmlFor='BANK_TRANSFER'
+									className='flex items-center gap-2 cursor-pointer flex-1'>
+									<SmartphoneNfc className='h-4 w-4 text-lunar-green-600' />
+									<span className='text-lunar-green-700'>Bank Transfer</span>
 								</Label>
 							</div>
 						</RadioGroup>

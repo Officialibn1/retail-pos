@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
 	Card,
 	CardContent,
@@ -15,48 +14,21 @@ import { SalesChart } from "@/components/analytics/sales-chart";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Loader2 } from "lucide-react";
-import { api } from "@/lib/api-client";
+import { useGetDashboardStatsQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
-
-interface DashboardStats {
-	totalRevenue: number;
-	totalSales: number;
-	averageOrderValue: number;
-	salesByDay: Array<{ date: string; sales: number; revenue: number }>;
-	recentSales: Array<{
-		id: string;
-		saleNumber: string;
-		total: number;
-		paymentMethod: string;
-		createdAt: string;
-	}>;
-}
 
 export default function DashboardPage() {
 	const { user } = useAuth();
-	const [stats, setStats] = useState<DashboardStats | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		const fetchDashboardStats = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const data = await api.get<DashboardStats>("/api/analytics/dashboard");
-				setStats(data);
-			} catch (err: any) {
-				console.error("Failed to fetch dashboard stats:", err);
-				setError(err.message || "Failed to load dashboard data");
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		if (user) {
-			fetchDashboardStats();
-		}
-	}, [user]);
+	// Use RTK Query hook to fetch dashboard stats
+	const {
+		data: stats,
+		isLoading: loading,
+		isError,
+		error,
+	} = useGetDashboardStatsQuery(undefined, {
+		skip: !user,
+	});
 
 	if (!user) return null;
 
@@ -70,7 +42,12 @@ export default function DashboardPage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
+		const errorMessage =
+			error && "data" in error
+				? (error.data as any)?.message || "Failed to load dashboard data"
+				: "Failed to load dashboard data";
+
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
@@ -78,7 +55,9 @@ export default function DashboardPage() {
 						<CardTitle className='text-red-800'>
 							Error Loading Dashboard
 						</CardTitle>
-						<CardDescription className='text-red-700'>{error}</CardDescription>
+						<CardDescription className='text-red-700'>
+							{errorMessage}
+						</CardDescription>
 					</CardHeader>
 				</Card>
 			</div>
@@ -251,7 +230,7 @@ export default function DashboardPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className='pl-2'>
-						<SalesChart data={stats.salesByDay} />
+						<SalesChart data={[]} />
 					</CardContent>
 				</Card>
 				<Card className='col-span-3 border-lunar-green-200'>
@@ -272,11 +251,11 @@ export default function DashboardPage() {
 										className='flex items-center'>
 										<div className='ml-4 space-y-1'>
 											<p className='text-sm font-medium leading-none text-lunar-green-800'>
-												{sale.saleNumber}
+												{sale.id.slice(0, 8)}
 											</p>
 											<p className='text-sm text-lunar-green-600'>
 												{new Date(sale.createdAt).toLocaleDateString()} •{" "}
-												{sale.paymentMethod}
+												{sale.customerName || "Walk-in"}
 											</p>
 										</div>
 										<div className='ml-auto font-medium text-lunar-green-800'>

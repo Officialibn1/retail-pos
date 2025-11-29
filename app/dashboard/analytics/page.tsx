@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
 	Card,
 	CardContent,
@@ -22,122 +22,90 @@ import {
 	Loader2,
 } from "lucide-react";
 import { canViewAllData } from "@/lib/auth";
-import { api } from "@/lib/api-client";
 import { formatNaira } from "@/lib/utils";
-
-interface SalesAnalytics {
-	totalRevenue: number;
-	totalSales: number;
-	averageOrderValue: number;
-}
-
-interface DailySales {
-	date: string;
-	sales: number;
-	revenue: number;
-}
-
-interface TopProduct {
-	productId: string;
-	productName: string;
-	quantitySold: number;
-	revenue: number;
-}
-
-interface PaymentMethodStats {
-	method: string;
-	count: number;
-	revenue: number;
-}
-
-interface InventoryAnalytics {
-	totalProducts: number;
-	totalValue: number;
-	lowStockCount: number;
-	lowStockItems: Array<{
-		id: string;
-		name: string;
-		stock: number;
-		price: number;
-	}>;
-	categoryDistribution: Array<{
-		category: string;
-		count: number;
-		totalValue: number;
-	}>;
-}
-
-interface DashboardStats {
-	totalSales: number;
-	totalRevenue: number;
-	averageOrderValue: number;
-	totalProducts: number;
-	lowStockCount: number;
-	recentSales: Array<{
-		id: string;
-		total: number;
-		status: string;
-		createdAt: Date;
-		customerName: string | null;
-		itemCount: number;
-	}>;
-}
+import {
+	useGetDashboardStatsQuery,
+	useGetSalesByDateQuery,
+	useGetTopProductsQuery,
+	useGetPaymentMethodsQuery,
+	useGetInventoryAnalyticsQuery,
+} from "@/lib/store/api";
 
 export default function AnalyticsPage() {
 	const { user } = useAuth();
-	const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
-		null,
-	);
-	const [salesByDay, setSalesByDay] = useState<DailySales[]>([]);
-	const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
-	const [paymentMethods, setPaymentMethods] = useState<PaymentMethodStats[]>(
-		[],
-	);
-	const [inventoryAnalytics, setInventoryAnalytics] =
-		useState<InventoryAnalytics | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		const fetchAnalytics = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-
-				// Calculate date range for last 30 days
-				const endDate = new Date();
-				const startDate = new Date();
-				startDate.setDate(startDate.getDate() - 30);
-
-				// Fetch all analytics data in parallel
-				const [dashboard, salesData, products, payments, inventory] =
-					await Promise.all([
-						api.get<DashboardStats>("/api/analytics/dashboard"),
-						api.get<DailySales[]>(
-							`/api/analytics/sales-by-date?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
-						),
-						api.get<TopProduct[]>("/api/analytics/top-products?limit=5"),
-						api.get<PaymentMethodStats[]>("/api/analytics/payment-methods"),
-						api.get<InventoryAnalytics>("/api/analytics/inventory"),
-					]);
-
-				setDashboardStats(dashboard);
-				setSalesByDay(salesData);
-				setTopProducts(products);
-				setPaymentMethods(payments);
-				setInventoryAnalytics(inventory);
-			} catch (err: any) {
-				console.error("Failed to fetch analytics:", err);
-				setError(err.message || "Failed to load analytics data");
-			} finally {
-				setLoading(false);
-			}
+	// Calculate date range for last 30 days
+	const dateRange = useMemo(() => {
+		const endDate = new Date();
+		const startDate = new Date();
+		startDate.setDate(startDate.getDate() - 30);
+		return {
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
 		};
+	}, []);
 
-		if (user) {
-			fetchAnalytics();
-		}
-	}, [user]);
+	// Fetch all analytics data using RTK Query hooks
+	const {
+		data: dashboardStats,
+		isLoading: isDashboardLoading,
+		isError: isDashboardError,
+		error: dashboardError,
+	} = useGetDashboardStatsQuery();
+
+	const {
+		data: salesByDay = [],
+		isLoading: isSalesLoading,
+		isError: isSalesError,
+		error: salesError,
+	} = useGetSalesByDateQuery(dateRange);
+
+	const {
+		data: topProducts = [],
+		isLoading: isProductsLoading,
+		isError: isProductsError,
+		error: productsError,
+	} = useGetTopProductsQuery({ limit: 5 });
+
+	const {
+		data: paymentMethods = [],
+		isLoading: isPaymentsLoading,
+		isError: isPaymentsError,
+		error: paymentsError,
+	} = useGetPaymentMethodsQuery();
+
+	const {
+		data: inventoryAnalytics,
+		isLoading: isInventoryLoading,
+		isError: isInventoryError,
+		error: inventoryError,
+	} = useGetInventoryAnalyticsQuery();
+
+	// Combine loading states
+	const loading =
+		isDashboardLoading ||
+		isSalesLoading ||
+		isProductsLoading ||
+		isPaymentsLoading ||
+		isInventoryLoading;
+
+	// Combine error states
+	const isError =
+		isDashboardError ||
+		isSalesError ||
+		isProductsError ||
+		isPaymentsError ||
+		isInventoryError;
+
+	// Get first error message
+	const error = isError
+		? (dashboardError as any)?.data?.error?.message ||
+		  (salesError as any)?.data?.error?.message ||
+		  (productsError as any)?.data?.error?.message ||
+		  (paymentsError as any)?.data?.error?.message ||
+		  (inventoryError as any)?.data?.error?.message ||
+		  "Failed to load analytics data"
+		: null;
 
 	if (!user) return null;
 
@@ -263,20 +231,8 @@ export default function AnalyticsPage() {
 			</div>
 
 			{/* Charts Section */}
-			<div className='grid gap-4 md:grid-cols-2'>
-				<Card className='border-lunar-green-200'>
-					<CardHeader>
-						<CardTitle className='text-lunar-green-800'>Sales Trend</CardTitle>
-						<CardDescription className='text-lunar-green-600'>
-							Daily sales over the last 30 days
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<SalesChart data={salesByDay} />
-					</CardContent>
-				</Card>
-
-				<Card className='border-lunar-green-200'>
+			<div className='grid w-full h-[450px] lg:h-[550px]'>
+				<Card className='border-lunar-green-200 w-full flex flex-col h-full'>
 					<CardHeader>
 						<CardTitle className='text-lunar-green-800'>
 							Revenue Trend
@@ -285,13 +241,13 @@ export default function AnalyticsPage() {
 							Daily revenue over the last 30 days
 						</CardDescription>
 					</CardHeader>
-					<CardContent>
+					<CardContent className='flex-1'>
 						<RevenueChart data={salesByDay} />
 					</CardContent>
 				</Card>
 			</div>
 
-			<div className='grid gap-4 md:grid-cols-3'>
+			<div className='grid gap-4 md:grid-cols-2 h-[450px] lg:h-[550px]'>
 				<Card className='border-lunar-green-200'>
 					<CardHeader>
 						<CardTitle className='text-lunar-green-800'>
@@ -301,11 +257,25 @@ export default function AnalyticsPage() {
 							Sales distribution by payment type
 						</CardDescription>
 					</CardHeader>
-					<CardContent className='p-3'>
+					<CardContent className='p-3 flex-1'>
 						<PaymentMethodsChart data={paymentMethods} />
 					</CardContent>
 				</Card>
 
+				<Card className='border-lunar-green-200'>
+					<CardHeader>
+						<CardTitle className='text-lunar-green-800'>Sales Trend</CardTitle>
+						<CardDescription className='text-lunar-green-600'>
+							Daily sales over the last 30 days
+						</CardDescription>
+					</CardHeader>
+					<CardContent className='flex-1 '>
+						<SalesChart data={salesByDay} />
+					</CardContent>
+				</Card>
+			</div>
+
+			<div className='grid gap-4 md:grid-cols-2'>
 				<Card className='border-lunar-green-200'>
 					<CardHeader>
 						<CardTitle className='text-lunar-green-800'>Top Products</CardTitle>

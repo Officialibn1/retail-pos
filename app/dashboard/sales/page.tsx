@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,49 +23,29 @@ import { Search, Eye, Receipt, Plus, Printer, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewAllData } from "@/lib/auth";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
-import type { Sale } from "@/lib/types";
 import Link from "next/link";
-import { api } from "@/lib/api-client";
-import { useToast } from "@/hooks/use-toast";
+import { useGetSalesQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
+import { SaleWithDetails } from "@/lib/services/sale.service";
 
 export default function SalesHistoryPage() {
 	const { user } = useAuth();
-	const { toast } = useToast();
-	const [sales, setSales] = useState<any[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [showReceipt, setShowReceipt] = useState(false);
-	const [selectedSale, setSelectedSale] = useState<any>(null);
+	const [selectedSale, setSelectedSale] = useState<SaleWithDetails>();
 	const [showSaleDetails, setShowSaleDetails] = useState(false);
-	const [viewingSale, setViewingSale] = useState<any>(null);
+	const [viewingSale, setViewingSale] = useState<SaleWithDetails>();
 
-	const fetchSales = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const data = await api.get<any[]>("/api/sales");
-			setSales(data);
-		} catch (err: any) {
-			console.error("Failed to fetch sales:", err);
-			setError(err.message || "Failed to load sales");
-			toast({
-				title: "Error",
-				description: err.message || "Failed to load sales",
-				variant: "destructive",
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		if (user) {
-			fetchSales();
-		}
-	}, [user]);
+	// Use RTK Query hook to fetch sales
+	const {
+		data: sales = [],
+		isLoading: loading,
+		isError,
+		error,
+	} = useGetSalesQuery(undefined, {
+		skip: !user,
+	});
 
 	if (!user) return null;
 
@@ -83,43 +63,13 @@ export default function SalesHistoryPage() {
 		return matchesSearch && matchesStatus;
 	});
 
-	const handleViewSale = (sale: any) => {
+	const handleViewSale = (sale: SaleWithDetails) => {
 		setViewingSale(sale);
 		setShowSaleDetails(true);
 	};
 
-	const handlePrintReceipt = (sale: any) => {
-		// Calculate totals from items
-		const itemsTotal = sale.items.reduce(
-			(sum: number, item: any) => sum + Number(item.price) * item.quantity,
-			0,
-		);
-		const tax = itemsTotal * 0.1;
-
-		const receiptSale: any = {
-			id: sale.id,
-			saleNumber: sale.id.slice(0, 8),
-			items: sale.items.map((item: any) => ({
-				id: item.id,
-				inventoryItemId: item.inventoryItemId,
-				name: item.inventoryItem?.name || `Item ${item.inventoryItemId}`,
-				unitPrice: Number(item.price),
-				quantity: item.quantity,
-				discount: 0,
-				total: Number(item.price) * item.quantity,
-			})),
-			subtotal: itemsTotal,
-			tax: tax,
-			discount: 0,
-			total: Number(sale.total),
-			paymentMethod: sale.paymentMethod || "CASH",
-			salesPersonId: sale.userId,
-			salesperson: sale.user?.name || "Unknown",
-			createdAt: sale.createdAt,
-			customer: sale.customer?.name,
-		};
-
-		setSelectedSale(receiptSale);
+	const handlePrintReceipt = (sale: SaleWithDetails) => {
+		setSelectedSale(sale);
 		setShowReceipt(true);
 	};
 
@@ -171,13 +121,18 @@ export default function SalesHistoryPage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
+		const errorMessage =
+			error && "data" in error
+				? (error.data as any)?.message || "Failed to load sales"
+				: "Failed to load sales";
+
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
 					<CardHeader>
 						<CardTitle className='text-red-800'>Error Loading Sales</CardTitle>
-						<p className='text-red-700'>{error}</p>
+						<p className='text-red-700'>{errorMessage}</p>
 					</CardHeader>
 				</Card>
 			</div>
@@ -379,7 +334,7 @@ export default function SalesHistoryPage() {
 									<p className='text-sm font-medium text-lunar-green-700'>
 										Sale ID
 									</p>
-									<p className='text-lunar-green-800'>
+									<p className='text-lunar-green-800 uppercase'>
 										{viewingSale.id.slice(0, 8)}
 									</p>
 								</div>
@@ -424,17 +379,16 @@ export default function SalesHistoryPage() {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{viewingSale.items?.map((item: any, index: number) => (
+										{viewingSale.items?.map((item, index: number) => (
 											<TableRow key={index}>
-												<TableCell>
-													{item.inventoryItem?.name ||
-														`Item ${item.inventoryItemId}`}
-												</TableCell>
+												<TableCell>{item.inventoryItem.name}</TableCell>
 												<TableCell>{item.quantity}</TableCell>
 												<TableCell>
-													{formatNaira(Number(item.unitPrice))}
+													{formatNaira(Number(item.price))}{" "}
 												</TableCell>
-												<TableCell>{formatNaira(Number(item.total))}</TableCell>
+												<TableCell>
+													{formatNaira(Number(item.price * item.quantity))}
+												</TableCell>
 											</TableRow>
 										))}
 									</TableBody>
@@ -445,10 +399,10 @@ export default function SalesHistoryPage() {
 								<div className='flex justify-between'>
 									<span className='text-lunar-green-700'>Subtotal:</span>
 									<span className='text-lunar-green-800'>
-										{formatNaira(Number(viewingSale.subtotal))}
+										{formatNaira(Number(viewingSale.total))}
 									</span>
 								</div>
-								{viewingSale.tax > 0 && (
+								{/* {viewingSale.tax > 0 && (
 									<div className='flex justify-between'>
 										<span className='text-lunar-green-700'>Tax:</span>
 										<span className='text-lunar-green-800'>
@@ -463,7 +417,7 @@ export default function SalesHistoryPage() {
 											-{formatNaira(Number(viewingSale.discount))}
 										</span>
 									</div>
-								)}
+								)} */}
 								<div className='flex justify-between font-bold text-lg'>
 									<span className='text-lunar-green-700'>Total:</span>
 									<span className='text-lunar-green-800'>

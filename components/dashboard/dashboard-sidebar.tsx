@@ -33,31 +33,47 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { UserRole } from "@/lib/types";
+import { Spinner } from "../ui/spinner";
 
 const navigationItems = [
 	{
 		title: "Dashboard",
 		url: "/dashboard",
 		icon: Home,
-		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.CASHIER] as const,
+		roles: [
+			UserRole.SUPERADMIN,
+			UserRole.MANAGER,
+			UserRole.CASHIER,
+			UserRole.ADMIN,
+		] as const,
 	},
 	{
 		title: "Analytics",
 		url: "/dashboard/analytics",
 		icon: BarChart3,
-		roles: [UserRole.SUPERADMIN, UserRole.MANAGER] as const,
+		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.ADMIN] as const,
 	},
 	{
 		title: "New Sale",
 		url: "/dashboard/sales/new",
 		icon: ShoppingCart,
-		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.CASHIER] as const,
+		roles: [
+			UserRole.SUPERADMIN,
+			UserRole.MANAGER,
+			UserRole.CASHIER,
+			UserRole.ADMIN,
+		] as const,
 	},
 	{
 		title: "Sales History",
 		url: "/dashboard/sales",
 		icon: Receipt,
-		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.CASHIER] as const,
+		roles: [
+			UserRole.SUPERADMIN,
+			UserRole.MANAGER,
+			UserRole.CASHIER,
+			UserRole.ADMIN,
+		] as const,
 	},
 	{
 		title: "Inventory",
@@ -79,8 +95,10 @@ const navigationItems = [
 	},
 ];
 
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+
 export function DashboardSidebar() {
-	const { user, logout } = useAuth();
+	const { user, logout, loggingOut } = useAuth();
 	const pathname = usePathname();
 
 	if (!user) return null;
@@ -100,7 +118,7 @@ export function DashboardSidebar() {
 
 							<div className='flex flex-col'>
 								<span className='text-sm font-semibold text-lunar-green-800'>
-									Retail POS
+									{storeName}
 								</span>
 								<span className='text-xs text-lunar-green-600'>
 									Point of Sale System
@@ -209,9 +227,15 @@ export function DashboardSidebar() {
 									size='sm'
 									asChild
 									onClick={logout}
+									disabled={loggingOut}
 									className='w-full justify-start text-lunar-green-700'>
 									<TooltipTrigger>
-										<LogOut className='h-4 w-4 mr-2' />
+										{loggingOut ? (
+											<Spinner className='h-4 w-4 mr-2' />
+										) : (
+											<LogOut className='h-4 w-4 mr-2' />
+										)}
+
 										<TooltipContent side='right'>Log Out</TooltipContent>
 									</TooltipTrigger>
 								</Button>
@@ -224,8 +248,13 @@ export function DashboardSidebar() {
 							variant='ghost'
 							size='sm'
 							onClick={logout}
+							disabled={loggingOut}
 							className='w-full justify-start text-lunar-green-700'>
-							<LogOut className='h-4 w-4 mr-2' />
+							{loggingOut ? (
+								<Spinner className='h-4 w-4 mr-2' />
+							) : (
+								<LogOut className='h-4 w-4 mr-2' />
+							)}
 							Sign Out
 						</Button>
 					</SidebarMenuItem>

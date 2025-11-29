@@ -1,59 +1,28 @@
 "use client";
 
-import { mockUsers } from "@/lib/dummy-data/mock-users";
 import { format } from "date-fns";
 import { formatNaira } from "@/lib/utils";
-
-interface ReceiptItem {
-	id: string;
-	inventoryItemId: string;
-	name: string;
-	unitPrice: number;
-	quantity: number;
-	discount?: number;
-	total: number;
-}
-
-interface ReceiptSale {
-	id: string;
-	saleNumber?: string;
-	items: ReceiptItem[];
-	subtotal: number;
-	tax: number;
-	discount: number;
-	total: number;
-	paymentMethod: string;
-	salesPersonId?: string;
-	salesperson?: string;
-	createdAt?: string | Date;
-	customer?: string;
-}
+import { SaleWithDetails } from "@/lib/services/sale.service";
 
 interface ReceiptTemplateProps {
-	sale: ReceiptSale;
+	sale: SaleWithDetails;
 	storeName?: string;
 	storeAddress?: string;
 	storePhone?: string;
 }
 
-export function ReceiptTemplate({
-	sale,
-	storeName = "Retail Store POS",
-	storeAddress = "123 Main Street, City, State 12345",
-	storePhone = "(555) 123-4567",
-}: ReceiptTemplateProps) {
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
+const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
+
+export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 	const subtotal = sale.items.reduce(
-		(sum, item) => sum + item.unitPrice * item.quantity,
+		(sum, item) => sum + item.price * item.quantity,
 		0,
 	);
-	const tax = sale.tax || 0;
-	const discount = sale.discount || 0;
-	const total = subtotal + tax - discount;
-
-	const findSalesPersonName = (salePersonId: string) => {
-		const salePerson = mockUsers.find((u) => u.id === salePersonId);
-		return salePerson ? salePerson.name : "";
-	};
+	// const tax = sale.tax || 0;
+	// const discount = sale.discount || 0;
+	// const total = subtotal + tax - discount;
 
 	return (
 		<div className='receipt-template bg-white text-black p-6 max-w-sm mx-auto font-mono text-sm'>
@@ -68,7 +37,7 @@ export function ReceiptTemplate({
 			<div className='mb-4 text-xs'>
 				<div className='flex justify-between'>
 					<span>Receipt #:</span>
-					<span>{sale.saleNumber || sale.id}</span>
+					<span>{sale.id.slice(0, 8) || sale.id}</span>
 				</div>
 				<div className='flex justify-between'>
 					<span>Date:</span>
@@ -80,17 +49,12 @@ export function ReceiptTemplate({
 				</div>
 				<div className='flex justify-between'>
 					<span>Cashier:</span>
-					<span>
-						{sale.salesperson ||
-							(sale.salesPersonId
-								? findSalesPersonName(sale.salesPersonId)
-								: "N/A")}
-					</span>
+					<span>{sale.user.name}</span>
 				</div>
 				{sale.customer && (
 					<div className='flex justify-between'>
 						<span>Customer:</span>
-						<span>{sale.customer}</span>
+						<span>{sale.customer.name}</span>
 					</div>
 				)}
 			</div>
@@ -102,12 +66,12 @@ export function ReceiptTemplate({
 						key={index}
 						className='mb-2'>
 						<div className='flex justify-between'>
-							<span className='truncate flex-1'>{item.name}</span>
-							<span className='ml-2'>{formatNaira(item.unitPrice)}</span>
+							<span className='truncate flex-1'>{item.inventoryItem.name}</span>
+							<span className='ml-2'>{formatNaira(item.price)}</span>
 						</div>
 						<div className='flex justify-between text-xs text-gray-600'>
 							<span>Qty: {item.quantity}</span>
-							<span>{formatNaira(item.unitPrice * item.quantity)}</span>
+							<span>{formatNaira(item.price * item.quantity)}</span>
 						</div>
 					</div>
 				))}
@@ -119,7 +83,7 @@ export function ReceiptTemplate({
 					<span>Subtotal:</span>
 					<span>{formatNaira(subtotal)}</span>
 				</div>
-				{discount > 0 && (
+				{/* {discount > 0 && (
 					<div className='flex justify-between'>
 						<span>Discount:</span>
 						<span>-{formatNaira(discount)}</span>
@@ -128,10 +92,10 @@ export function ReceiptTemplate({
 				<div className='flex justify-between'>
 					<span>Tax:</span>
 					<span>{formatNaira(tax)}</span>
-				</div>
+				</div> */}
 				<div className='flex justify-between font-bold text-lg border-t border-gray-300 pt-1'>
 					<span>Total:</span>
-					<span>{formatNaira(total)}</span>
+					<span>{formatNaira(sale.total)}</span>
 				</div>
 			</div>
 
@@ -143,15 +107,15 @@ export function ReceiptTemplate({
 				</div>
 				<div className='flex justify-between'>
 					<span>Amount Paid:</span>
-					<span>{formatNaira(total)}</span>
+					<span>{formatNaira(sale.total)}</span>
 				</div>
 			</div>
 
 			{/* Footer */}
 			<div className='text-center text-xs border-t border-gray-300 pt-4'>
-				<p>Thank you for your business!</p>
+				<p>Thank you for your patronage!</p>
 				<p>Please keep this receipt for your records</p>
-				<p className='mt-2'>Return Policy: 30 days with receipt</p>
+				{/* <p className='mt-2'>Return Policy: 30 days with receipt</p> */}
 			</div>
 		</div>
 	);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,57 +15,25 @@ import {
 import { Search, Activity, Clock, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewActivityLogs } from "@/lib/auth";
-import { api } from "@/lib/api-client";
-import { useToast } from "@/hooks/use-toast";
-
-interface ActivityLog {
-	id: string;
-	userId: string;
-	action: string;
-	details: string;
-	ipAddress: string | null;
-	userAgent: string | null;
-	createdAt: string;
-	user: {
-		id: string;
-		name: string;
-		email: string;
-	};
-}
+import { useGetActivityLogsQuery } from "@/lib/store/api";
 
 export default function ActivityLogsPage() {
 	const { user } = useAuth();
-	const { toast } = useToast();
-	const [logs, setLogs] = useState<ActivityLog[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [actionFilter, setActionFilter] = useState("all");
 
-	const fetchActivityLogs = async () => {
-		try {
-			setLoading(true);
-			setError(null);
-			const data = await api.get<ActivityLog[]>("/api/activity-logs?limit=200");
-			setLogs(data);
-		} catch (err: any) {
-			console.error("Failed to fetch activity logs:", err);
-			setError(err.message || "Failed to load activity logs");
-			toast({
-				title: "Error",
-				description: err.message || "Failed to load activity logs",
-				variant: "destructive",
-			});
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		if (user && canViewActivityLogs(user.roles)) {
-			fetchActivityLogs();
-		}
-	}, [user]);
+	// Use RTK Query hook to fetch activity logs
+	const {
+		data: logs = [],
+		isLoading: loading,
+		isError,
+		error,
+	} = useGetActivityLogsQuery(
+		{ limit: 200 },
+		{
+			skip: !user || !canViewActivityLogs(user.roles),
+		},
+	);
 
 	if (!user || !canViewActivityLogs(user.roles)) {
 		return (
@@ -85,7 +53,12 @@ export default function ActivityLogsPage() {
 		);
 	}
 
-	if (error) {
+	if (isError) {
+		const errorMessage =
+			error && "data" in error
+				? (error.data as any)?.message || "Failed to load activity logs"
+				: "Failed to load activity logs";
+
 		return (
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
@@ -93,7 +66,7 @@ export default function ActivityLogsPage() {
 						<CardTitle className='text-red-800'>
 							Error Loading Activity Logs
 						</CardTitle>
-						<p className='text-red-700'>{error}</p>
+						<p className='text-red-700'>{errorMessage}</p>
 					</CardHeader>
 				</Card>
 			</div>
@@ -251,25 +224,32 @@ export default function ActivityLogsPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{filteredLogs.map((log) => (
-								<TableRow
-									key={log.id}
-									className='border-lunar-green-100'>
-									<TableCell className='text-lunar-green-700'>
-										{new Date(log.createdAt).toLocaleDateString()}{" "}
-										{new Date(log.createdAt).toLocaleTimeString()}
-									</TableCell>
-									<TableCell className='font-medium text-lunar-green-800'>
-										{log.user.name}
-									</TableCell>
-									<TableCell className='text-lunar-green-700'>
-										{log.action}
-									</TableCell>
-									<TableCell className='text-lunar-green-700 truncate'>
-										{log.details}
-									</TableCell>
-								</TableRow>
-							))}
+							{filteredLogs.map((log) => {
+								const createdAt =
+									typeof log.createdAt === "string"
+										? new Date(log.createdAt)
+										: log.createdAt;
+
+								return (
+									<TableRow
+										key={log.id}
+										className='border-lunar-green-100'>
+										<TableCell className='text-lunar-green-700'>
+											{createdAt.toLocaleDateString()}{" "}
+											{createdAt.toLocaleTimeString()}
+										</TableCell>
+										<TableCell className='font-medium text-lunar-green-800'>
+											{log.user.name}
+										</TableCell>
+										<TableCell className='text-lunar-green-700'>
+											{log.action}
+										</TableCell>
+										<TableCell className='text-lunar-green-700 truncate'>
+											{log.details}
+										</TableCell>
+									</TableRow>
+								);
+							})}
 						</TableBody>
 					</Table>
 					{filteredLogs.length === 0 && (

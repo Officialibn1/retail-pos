@@ -18,11 +18,11 @@ export interface User {
 	email: string;
 	username: string;
 	name: string;
-	password: string;
+	password?: string; // Optional - never sent to client for security
 	roles: UserRole[];
 	shift: Shift;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt: Date | string;
+	updatedAt: Date | string;
 }
 
 export interface Session {

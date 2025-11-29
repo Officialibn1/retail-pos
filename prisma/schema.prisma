@@ -138,6 +138,8 @@ model Sale {
   paymentMethod PaymentMethod?
   amountPaid    Decimal?       @db.Decimal(10, 2)
   changeGiven   Decimal?       @db.Decimal(10, 2)
+  tax           Int?
+  discount      Int?
   completedAt   DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime       @default(now())

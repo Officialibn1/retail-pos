@@ -1,19 +1,11 @@
-import type { User, UserRole } from "./types";
-import { api } from "./api-client";
+import type { UserRole } from "./types";
 
 /**
- * Fetches the current authenticated user from the API
- * Returns null if not authenticated
+ * Authentication utility functions for role-based access control
+ *
+ * Note: User authentication state is now managed through Redux.
+ * Use useAppSelector(selectUser) to get the current user.
  */
-export async function getCurrentUser(): Promise<User | null> {
-	try {
-		const user = await api.get<User>("/api/auth/me");
-		return user;
-	} catch (error) {
-		// If unauthorized or any error, return null
-		return null;
-	}
-}
 
 export function hasPermission(
 	userRoles: UserRole[],
