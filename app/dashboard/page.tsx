@@ -8,7 +8,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
-import { canViewAllData } from "@/lib/auth";
+import { canViewAllData, canViewDashboardPage } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { SalesChart } from "@/components/analytics/sales-chart";
 import Link from "next/link";
@@ -16,23 +16,35 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, Loader2 } from "lucide-react";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
 	const { user } = useAuth();
+	const router = useRouter();
 
-	// Use RTK Query hook to fetch dashboard stats
 	const {
 		data: stats,
 		isLoading: loading,
 		isError,
 		error,
 	} = useGetDashboardStatsQuery(undefined, {
-		skip: !user,
+		skip: !user || user?.roles.includes("CASHIER"),
 	});
+
+	const pathName = usePathname();
 
 	if (!user) return null;
 
 	const canSeeAllData = canViewAllData(user.roles);
+
+	useEffect(() => {
+		if (!canViewDashboardPage(user.roles) && pathName === "/dashboard") {
+			router.replace("/dashboard/sales/new");
+
+			return;
+		}
+	}, [user, pathName]);
 
 	if (loading) {
 		return (

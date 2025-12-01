@@ -13,6 +13,7 @@
 
 import { PaymentMethod, SaleStatus } from "@/generated/prisma";
 import { SaleWithDetails } from "@/lib/services/sale.service";
+import { CompleteSaleInput, CreateSaleInput } from "@/lib/validations";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 /**
@@ -309,23 +310,6 @@ export interface SaleData {
 	updatedAt: string;
 	userId: string;
 	customerId: string | null;
-}
-
-// Create sale request
-export interface CreateSaleRequest {
-	items: Array<{
-		inventoryItemId: string;
-		quantity: number;
-		price: number | string;
-	}>;
-	customerId?: string | null;
-	userId: string;
-}
-
-// Complete sale request
-export interface CompleteSaleRequest {
-	paymentMethod: PaymentMethod;
-	amountPaid: number | string;
 }
 
 // Cancel sale request (no body required, but keeping for consistency)
@@ -865,7 +849,7 @@ export const api = createApi({
 		 * Cache Invalidation: ['Sales']
 		 * - Invalidates 'Sales' tag to trigger refetch of sales lists
 		 */
-		createSale: builder.mutation<SaleData, CreateSaleRequest>({
+		createSale: builder.mutation<SaleData, CreateSaleInput>({
 			query: (data) => ({
 				url: "/api/sales",
 				method: "POST",
@@ -892,7 +876,7 @@ export const api = createApi({
 		 */
 		completeSale: builder.mutation<
 			SaleData,
-			{ id: string; data: CompleteSaleRequest }
+			{ id: string; data: CompleteSaleInput }
 		>({
 			query: ({ id, data }) => ({
 				url: `/api/sales/${id}/complete`,

@@ -5,18 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductSearch } from "@/components/sales/product-search";
 import { ShoppingCart } from "@/components/sales/shopping-cart";
-import { CheckoutDialog } from "@/components/sales/checkout-dialog";
+import { CheckoutDialogV2 } from "@/components/sales/checkout-dialog-v2";
+import { PaymentDialog } from "@/components/sales/payment-dialog";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
 import { PendingOrdersList } from "@/components/sales/pending-orders-list";
 import { useAuth } from "@/components/auth/auth-provider";
 import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
-import { RefreshCw, Loader2 } from "lucide-react";
+import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
 	useGetInventoryQuery,
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useGetSalesQuery,
 	type InventoryItemWithCategory as ApiInventoryItem,
+	type SaleItemData,
 } from "@/lib/store/api";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import {
@@ -61,10 +64,17 @@ export default function NewSalePage() {
 	const total = useAppSelector(selectCartTotal);
 
 	// Local UI state
-	const [showCheckout, setShowCheckout] = useState(false);
+	const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
+	const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 	const [showReceipt, setShowReceipt] = useState(false);
 	const [completedSale, setCompletedSale] = useState<any>(null);
 	const [pendingSaleId, setPendingSaleId] = useState<string | null>(null);
+	const [pendingSaleData, setPendingSaleData] = useState<{
+		items: SaleItemData[];
+		total: number;
+	} | null>(null);
+	const [checkoutError, setCheckoutError] = useState<string | null>(null);
+	const [paymentError, setPaymentError] = useState<string | null>(null);
 
 	// Validate cart when inventory changes
 	useEffect(() => {
@@ -109,56 +119,93 @@ export default function NewSalePage() {
 		dispatch(setDiscount(discountValue));
 	};
 
-	const handleCompletePendingOrder = (saleId: string) => {
-		setPendingSaleId(saleId);
-		setShowCheckout(true);
+	// Handler to create pending order when checkout is initiated
+	const handleCreatePendingOrder = async () => {
+		if (!user) return;
+
+		// Clear previous errors
+		setCheckoutError(null);
+
+		try {
+			// Create new sale with PENDING status
+			const saleData = {
+				userId: user.id,
+				items: cartItems.map((item) => ({
+					inventoryItemId: item.inventoryItemId,
+					quantity: item.quantity,
+					price: Number(item.price),
+				})),
+				customerId: null,
+				discountRate: discount,
+			};
+
+			const createdSale = await createSale(saleData).unwrap();
+
+			// Store pending sale data
+			setPendingSaleId(createdSale.id);
+			setPendingSaleData({
+				items: cartItems.map((item) => ({
+					id: item.id,
+					quantity: item.quantity,
+					price: Number(item.price),
+					inventoryItem: {
+						id: item.inventoryItemId,
+						name: item.product.name,
+						sku: item.product.sku,
+					},
+				})),
+				total,
+			});
+
+			// Open checkout dialog
+			setShowCheckoutDialog(true);
+			dispatch(clearCart());
+
+			toast.success("Order created successfully");
+		} catch (err: any) {
+			console.error("Failed to create pending order:", err);
+
+			// Extract error message from API response
+			const errorMessage =
+				err?.data?.error?.message ||
+				"Failed to create order. Please try again.";
+
+			// Set error state for display
+			setCheckoutError(errorMessage);
+
+			toast.error(errorMessage);
+
+			// Cart remains intact on error
+		}
 	};
 
-	// Get selected pending sale for checkout
-	const selectedPendingSale = pendingSaleId
-		? pendingSales.find((s) => s.id === pendingSaleId)
-		: null;
+	// Handler to open payment dialog
+	const handleCompletePayment = () => {
+		// Close checkout dialog when opening payment dialog
+		setShowCheckoutDialog(false);
+		setShowPaymentDialog(true);
+	};
 
+	// Handler to complete sale with payment details
 	const handleCompleteSale = async (
+		saleId: string,
 		paymentMethod: PaymentMethod,
+		amountPaid: number,
 		shouldShowReceipt = true,
 	) => {
 		if (!user) return;
 
+		// Clear previous errors
+		setPaymentError(null);
+
 		try {
-			let saleIdToComplete: string;
-
-			// If completing a pending order, use that ID
-			if (pendingSaleId) {
-				saleIdToComplete = pendingSaleId;
-			} else {
-				// Create new sale with PENDING status
-				const saleData = {
-					userId: user.id,
-					items: cartItems.map((item) => ({
-						inventoryItemId: item.inventoryItemId,
-						quantity: item.quantity,
-						price: Number(item.price),
-					})),
-					customerId: null,
-				};
-
-				const createdSale = await createSale(saleData).unwrap();
-				saleIdToComplete = createdSale.id;
-			}
-
 			// Complete the sale
-			const amountToPay = pendingSaleId
-				? Number(
-						pendingSales.find((s) => s.id === pendingSaleId)?.total || total,
-				  )
-				: total;
-
 			const completedSaleData = await completeSale({
-				id: saleIdToComplete,
+				id: saleId,
 				data: {
 					paymentMethod,
-					amountPaid: amountToPay,
+					amountPaid: amountPaid ?? total,
+					total,
 				},
 			}).unwrap();
 
@@ -169,20 +216,65 @@ export default function NewSalePage() {
 				setShowReceipt(true);
 			}
 
-			// Clear cart from Redux if it was a new sale
-			if (!pendingSaleId) {
-				dispatch(clearCart());
-			}
+			// Close dialogs
+			setShowPaymentDialog(false);
+			setShowCheckoutDialog(false);
 
-			// Reset pending sale ID
+			// Clear cart and reset state
 			setPendingSaleId(null);
-			setShowCheckout((prev) => !prev);
+			setPendingSaleData(null);
 
 			// Inventory will automatically refetch due to cache invalidation
 		} catch (err: any) {
 			console.error("Failed to complete sale:", err);
-			toast.error(err?.data?.error?.message || "Failed to complete sale");
+			const errorMessage =
+				err?.data?.error?.message ||
+				"Failed to complete sale. Please try again.";
+
+			// Set error state for display
+			setPaymentError(errorMessage);
+
+			toast.error(errorMessage);
+			// Keep dialog open on error so user can retry
 		}
+	};
+
+	// Handler to close checkout dialog
+	const handleCloseCheckout = () => {
+		setShowCheckoutDialog(false);
+		// Clear cart when closing checkout
+		dispatch(clearCart());
+		// Reset pending sale state
+		setPendingSaleId(null);
+		setPendingSaleData(null);
+		// Clear errors
+		setCheckoutError(null);
+	};
+
+	// Handler for completing pending orders from the list
+	const handleCompletePendingOrder = (saleId: string, saleTotal: number) => {
+		const sale = pendingSales.find((s) => s.id === saleId);
+		if (sale) {
+			setPendingSaleId(saleId);
+			setPendingSaleData({
+				items: sale.items,
+				total: saleTotal,
+			});
+			setShowPaymentDialog(true);
+		}
+	};
+
+	// Handler to close payment dialog
+	const handleClosePayment = () => {
+		setShowPaymentDialog(false);
+		// Reset pending sale state only if not from checkout flow
+		// (if checkout dialog is not open, we're completing from pending list)
+		if (!showCheckoutDialog) {
+			setPendingSaleId(null);
+			setPendingSaleData(null);
+		}
+		// Clear errors
+		setPaymentError(null);
 	};
 
 	if (!user) return null;
@@ -196,19 +288,32 @@ export default function NewSalePage() {
 	}
 
 	if (isError) {
+		const errorMessage =
+			(inventoryError as any)?.data?.error?.message ||
+			"Failed to load inventory. Please check your connection and try again.";
+		const isNetworkError =
+			(inventoryError as any)?.status === "FETCH_ERROR" ||
+			errorMessage.toLowerCase().includes("network");
+
 		return (
 			<div className='space-y-6 p-6'>
-				<Card className='border-red-200 bg-red-50'>
-					<CardHeader>
-						<CardTitle className='text-red-800'>
-							Error Loading Inventory
-						</CardTitle>
-						<p className='text-red-700'>
-							{(inventoryError as any)?.data?.error?.message ||
-								"Failed to load inventory"}
-						</p>
-					</CardHeader>
-				</Card>
+				<Alert variant='destructive'>
+					<AlertCircle className='h-4 w-4' />
+					<AlertTitle>Error Loading Inventory</AlertTitle>
+					<AlertDescription className='space-y-3'>
+						<p>{errorMessage}</p>
+						{isNetworkError && (
+							<Button
+								onClick={() => window.location.reload()}
+								variant='outline'
+								size='sm'
+								className='mt-2'>
+								<RefreshCw className='h-4 w-4 mr-2' />
+								Retry
+							</Button>
+						)}
+					</AlertDescription>
+				</Alert>
 			</div>
 		);
 	}
@@ -231,6 +336,26 @@ export default function NewSalePage() {
 					Clear Cart
 				</Button>
 			</div>
+
+			{/* Checkout Error Display */}
+			{checkoutError && (
+				<Alert variant='destructive'>
+					<AlertCircle className='h-4 w-4' />
+					<AlertTitle>Checkout Error</AlertTitle>
+					<AlertDescription className='space-y-3'>
+						<p>{checkoutError}</p>
+						<Button
+							onClick={handleCreatePendingOrder}
+							variant='outline'
+							size='sm'
+							disabled={creatingSale}
+							className='mt-2'>
+							<RefreshCw className='h-4 w-4 mr-2' />
+							Retry Checkout
+						</Button>
+					</AlertDescription>
+				</Alert>
+			)}
 
 			<div className='grid gap-6 lg:grid-cols-3'>
 				{/* Product Search */}
@@ -271,7 +396,7 @@ export default function NewSalePage() {
 						onRemoveItem={handleRemoveItem}
 						onApplyDiscount={handleApplyDiscount}
 						discount={discount}
-						onCheckout={() => setShowCheckout(true)}
+						onCheckout={handleCreatePendingOrder}
 						isProcessing={creatingSale || completingSale}
 					/>
 				</div>
@@ -285,40 +410,40 @@ export default function NewSalePage() {
 			/>
 
 			{/* Checkout Dialog */}
-			<CheckoutDialog
-				open={showCheckout}
-				onOpenChange={(open) => {
-					setShowCheckout(open);
-					if (!open) {
-						setPendingSaleId(null);
-					}
-				}}
-				items={
-					selectedPendingSale
-						? selectedPendingSale.items.map((item) => ({
-								id: item.id,
-								saleId: selectedPendingSale.id,
-								inventoryItemId: item.inventoryItem.id,
-								quantity: item.quantity,
-								price: Number(item.price),
-								name: item.inventoryItem.name,
-								sku: item.inventoryItem.sku,
-						  }))
-						: cartItems.map((item) => ({
-								...item,
-								saleId: "", // Temporary saleId for checkout dialog
-						  }))
-				}
-				subtotal={
-					selectedPendingSale ? Number(selectedPendingSale.total) : subtotal
-				}
-				discount={selectedPendingSale ? 0 : discountAmount}
-				tax={selectedPendingSale ? 0 : taxAmount}
-				total={selectedPendingSale ? Number(selectedPendingSale.total) : total}
-				onCompleteSale={handleCompleteSale}
-				isProcessing={creatingSale || completingSale}
-				saleId={pendingSaleId}
-			/>
+			{pendingSaleId && pendingSaleData && (
+				<CheckoutDialogV2
+					open={showCheckoutDialog}
+					onOpenChange={setShowCheckoutDialog}
+					saleId={pendingSaleId}
+					items={pendingSaleData.items.map((item) => ({
+						id: item.id,
+						saleId: pendingSaleId,
+						inventoryItemId: item.inventoryItem.id,
+						quantity: item.quantity,
+						price: item.price,
+					}))}
+					subtotal={subtotal}
+					discount={discountAmount}
+					tax={taxAmount}
+					total={pendingSaleData.total}
+					onCompletePayment={handleCompletePayment}
+					onClose={handleCloseCheckout}
+					isProcessing={completingSale}
+				/>
+			)}
+
+			{/* Payment Dialog */}
+			{pendingSaleId && pendingSaleData && (
+				<PaymentDialog
+					open={showPaymentDialog}
+					onOpenChange={handleClosePayment}
+					saleId={pendingSaleId}
+					total={pendingSaleData.total}
+					onCompleteSale={handleCompleteSale}
+					isProcessing={completingSale}
+					error={paymentError}
+				/>
+			)}
 
 			{/* Receipt Print Dialog */}
 			<ReceiptPrintDialog

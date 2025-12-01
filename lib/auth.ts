@@ -18,6 +18,12 @@ export function canViewAllData(userRoles: UserRole[]): boolean {
 	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }
 
+export function canViewDashboardPage(userRoles: UserRole[]): boolean {
+	return userRoles.some(
+		(role) => role === "SUPERADMIN" || role === "MANAGER" || role === "ADMIN",
+	);
+}
+
 export function canViewActivityLogs(userRoles: UserRole[]): boolean {
 	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }

@@ -28,23 +28,45 @@ export const createSaleSchema = z.object({
 		.max(100, "Cannot have more than 100 items in a sale"),
 	customerId: z.string().cuid("Invalid customer ID").optional().nullable(),
 	userId: z.string().cuid("Invalid user ID"),
+	discountRate: z.number().max(100, "Discount must not be more than 100%"),
 });
 
-export const completeSaleSchema = z.object({
-	paymentMethod: z.nativeEnum(PaymentMethod, {
-		errorMap: () => ({ message: "Invalid payment method" }),
-	}),
-	amountPaid: z
-		.number()
-		.positive("Amount paid must be positive")
-		.max(999999999.99, "Amount is too large")
-		.or(
+export const completeSaleSchema = z
+	.object({
+		paymentMethod: z.nativeEnum(PaymentMethod, {
+			errorMap: () => ({ message: "Invalid payment method" }),
+		}),
+		amountPaid: z.union([
+			z
+				.number()
+				.nonnegative("Amount paid cannot be negative")
+				.max(999999999.99, "Amount is too large"),
 			z
 				.string()
 				.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
 				.transform(Number),
-		),
-});
+		]),
+		total: z.union([
+			z
+				.number()
+				.nonnegative("Amount paid cannot be negative")
+				.max(999999999.99, "Amount is too large"),
+			z
+				.string()
+				.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
+				.transform(Number),
+		]),
+	})
+	.superRefine((data, ctx) => {
+		if (Number(data.amountPaid) < Number(data.total)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message:
+					"Amount paid must be equal to or greater than the total amount to be paid",
+				path: ["amountPaid"],
+			});
+		}
+	});
 
 export const cancelSaleSchema = z.object({
 	reason: z

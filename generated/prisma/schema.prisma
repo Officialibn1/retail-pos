@@ -132,16 +132,19 @@ model StockMovement {
 }
 
 model Sale {
-  id            String         @id @default(cuid())
-  total         Decimal        @db.Decimal(10, 2)
-  status        SaleStatus     @default(PENDING)
-  paymentMethod PaymentMethod?
-  amountPaid    Decimal?       @db.Decimal(10, 2)
-  changeGiven   Decimal?       @db.Decimal(10, 2)
-  completedAt   DateTime?
-  cancelledAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id             String         @id @default(cuid())
+  subTotal       Decimal        @db.Decimal(10, 2)
+  total          Decimal        @db.Decimal(10, 2)
+  status         SaleStatus     @default(PENDING)
+  paymentMethod  PaymentMethod?
+  amountPaid     Decimal?       @db.Decimal(10, 2)
+  changeGiven    Decimal?       @db.Decimal(10, 2)
+  taxAmount      Int?
+  discountAmount Int?
+  completedAt    DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   userId     String
   user       User      @relation(fields: [userId], references: [id])

@@ -133,13 +133,14 @@ model StockMovement {
 
 model Sale {
   id            String         @id @default(cuid())
+  subTotal         Decimal        @db.Decimal(10, 2)
   total         Decimal        @db.Decimal(10, 2)
   status        SaleStatus     @default(PENDING)
   paymentMethod PaymentMethod?
   amountPaid    Decimal?       @db.Decimal(10, 2)
   changeGiven   Decimal?       @db.Decimal(10, 2)
-  tax           Int?
-  discount      Int?
+  taxAmount           Int?
+  discountAmount      Int?
   completedAt   DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime       @default(now())

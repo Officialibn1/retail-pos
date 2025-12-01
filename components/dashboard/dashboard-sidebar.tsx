@@ -34,18 +34,14 @@ import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { UserRole } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
+import { canViewDashboardPage } from "@/lib/auth";
 
 const navigationItems = [
 	{
 		title: "Dashboard",
 		url: "/dashboard",
 		icon: Home,
-		roles: [
-			UserRole.SUPERADMIN,
-			UserRole.MANAGER,
-			UserRole.CASHIER,
-			UserRole.ADMIN,
-		] as const,
+		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.ADMIN] as const,
 	},
 	{
 		title: "Analytics",

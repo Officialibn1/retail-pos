@@ -198,11 +198,14 @@ exports.Prisma.StockMovementScalarFieldEnum = {
 
 exports.Prisma.SaleScalarFieldEnum = {
   id: 'id',
+  subTotal: 'subTotal',
   total: 'total',
   status: 'status',
   paymentMethod: 'paymentMethod',
   amountPaid: 'amountPaid',
   changeGiven: 'changeGiven',
+  taxAmount: 'taxAmount',
+  discountAmount: 'discountAmount',
   completedAt: 'completedAt',
   cancelledAt: 'cancelledAt',
   createdAt: 'createdAt',

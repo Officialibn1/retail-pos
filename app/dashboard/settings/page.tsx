@@ -6,21 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/components/auth/auth-provider";
-import { Store, Bell, Shield, Palette, DatabaseBackup } from "lucide-react";
-import { UserRole } from "@/lib/types";
+import { Store, Shield, DatabaseBackup, User2 } from "lucide-react";
+
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
+const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT;
+const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
 
 export default function SettingsPage() {
 	const { user } = useAuth();
-	const [storeName, setStoreName] = useState("Retail Store POS");
-	const [storeAddress, setStoreAddress] = useState(
-		"123 Main Street, City, State 12345",
-	);
-	const [taxRate, setTaxRate] = useState("10");
-	const [notifications, setNotifications] = useState(true);
+
 	const [autoBackup, setAutoBackup] = useState(true);
-	const [darkMode, setDarkMode] = useState(false);
 
 	if (!user) return null;
 
@@ -34,7 +31,6 @@ export default function SettingsPage() {
 			</div>
 
 			<div className='grid gap-6'>
-				{/* Store Settings */}
 				<Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -52,7 +48,20 @@ export default function SettingsPage() {
 							<Input
 								id='storeName'
 								value={storeName}
-								onChange={(e) => setStoreName(e.target.value)}
+								disabled
+								className='border-brand-main-200 focus:border-brand-main-400'
+							/>
+						</div>
+						<div className='grid gap-2'>
+							<Label
+								htmlFor='storeName'
+								className='text-brand-main-700'>
+								Store Phone
+							</Label>
+							<Input
+								id='storePhone'
+								value={storePhone}
+								disabled
 								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
@@ -64,8 +73,8 @@ export default function SettingsPage() {
 							</Label>
 							<Input
 								id='storeAddress'
+								disabled
 								value={storeAddress}
-								onChange={(e) => setStoreAddress(e.target.value)}
 								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
@@ -78,24 +87,105 @@ export default function SettingsPage() {
 							<Input
 								id='taxRate'
 								type='number'
-								value={taxRate}
-								onChange={(e) => setTaxRate(e.target.value)}
+								disabled
+								className='border-brand-main-200 focus:border-brand-main-400'
+								value={Number(taxRate || 0) * 100}
+							/>
+						</div>
+					</CardContent>
+				</Card>
+
+				<Card className='border-brand-main-200'>
+					<CardHeader>
+						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
+							<User2 className='h-5 w-5' />
+							Personal Information
+						</CardTitle>
+					</CardHeader>
+					<CardContent className='space-y-4'>
+						<div className='grid gap-2'>
+							<Label
+								htmlFor='userName'
+								className='text-brand-main-700'>
+								Name
+							</Label>
+							<Input
+								id='userName'
+								value={user.name}
+								disabled
+								className='border-brand-main-200 focus:border-brand-main-400'
+							/>
+						</div>
+						<div className='grid gap-2'>
+							<Label
+								htmlFor='userName'
+								className='text-brand-main-700'>
+								Username
+							</Label>
+							<Input
+								id='userName'
+								value={user.username}
+								disabled
+								className='border-brand-main-200 focus:border-brand-main-400'
+							/>
+						</div>
+						<div className='grid gap-2'>
+							<Label
+								htmlFor='storeName'
+								className='text-brand-main-700'>
+								Email
+							</Label>
+							<Input
+								id='storePhone'
+								value={user.email}
+								disabled
+								className='border-brand-main-200 focus:border-brand-main-400'
+							/>
+						</div>
+						<div className='grid gap-2'>
+							<Label
+								htmlFor='storeAddress'
+								className='text-brand-main-700'>
+								Role
+							</Label>
+							<Input
+								id='storeAddress'
+								disabled
+								value={user.roles.map((role, i) =>
+									i === user.roles.length - 1 ? `${role}.` : `${role}, `,
+								)}
 								className='border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
 					</CardContent>
 				</Card>
 
-				{/* Notification Settings */}
 				<Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
-							<DatabaseBackup className='h-5 w-5' />
-							Database
+							<Shield className='h-5 w-5' />
+							Security
 						</CardTitle>
 					</CardHeader>
 					<CardContent className='space-y-4'>
-						{/* <div className='flex items-center justify-between'>
+						<Button
+							variant='outline'
+							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
+							Change Password
+						</Button>
+					</CardContent>
+				</Card>
+
+				{user.roles.includes("SUPERADMIN") && (
+					<Card className='border-brand-main-200'>
+						<CardHeader>
+							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
+								<DatabaseBackup className='h-5 w-5' />
+								Database
+							</CardTitle>
+						</CardHeader>
+						<CardContent className='space-y-4'>
+							{/* <div className='flex items-center justify-between'>
 							<div>
 								<Label className='text-brand-main-700'>
 									Enable Notifications
@@ -109,22 +199,22 @@ export default function SettingsPage() {
 								onCheckedChange={setNotifications}
 							/>
 						</div> */}
-						<div className='flex items-center justify-between'>
-							<div>
-								<Label className='text-brand-main-700'>Auto Backup</Label>
-								<p className='text-sm text-brand-main-600'>
-									Automatically backup data daily
-								</p>
+							<div className='flex items-center justify-between'>
+								<div>
+									<Label className='text-brand-main-700'>Auto Backup</Label>
+									<p className='text-sm text-brand-main-600'>
+										Automatically backup data daily
+									</p>
+								</div>
+								<Switch
+									checked={autoBackup}
+									onCheckedChange={setAutoBackup}
+								/>
 							</div>
-							<Switch
-								checked={autoBackup}
-								onCheckedChange={setAutoBackup}
-							/>
-						</div>
-					</CardContent>
-				</Card>
+						</CardContent>
+					</Card>
+				)}
 
-				{/* Appearance Settings */}
 				{/* <Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -147,31 +237,6 @@ export default function SettingsPage() {
 						</div>
 					</CardContent>
 				</Card> */}
-
-				{/* Security Settings - Only for SuperAdmin */}
-				{user.roles.includes("SUPERADMIN") && (
-					<Card className='border-brand-main-200'>
-						<CardHeader>
-							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
-								<Shield className='h-5 w-5' />
-								Security
-							</CardTitle>
-						</CardHeader>
-						<CardContent className='space-y-4'>
-							<Button
-								variant='outline'
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
-								Change Password
-							</Button>
-						</CardContent>
-					</Card>
-				)}
-
-				<div className='flex justify-end'>
-					<Button className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
-						Save Settings
-					</Button>
-				</div>
 			</div>
 		</div>
 	);

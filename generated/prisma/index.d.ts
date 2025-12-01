@@ -10793,24 +10793,33 @@ export namespace Prisma {
   }
 
   export type SaleAvgAggregateOutputType = {
+    subTotal: Decimal | null
     total: Decimal | null
     amountPaid: Decimal | null
     changeGiven: Decimal | null
+    taxAmount: number | null
+    discountAmount: number | null
   }
 
   export type SaleSumAggregateOutputType = {
+    subTotal: Decimal | null
     total: Decimal | null
     amountPaid: Decimal | null
     changeGiven: Decimal | null
+    taxAmount: number | null
+    discountAmount: number | null
   }
 
   export type SaleMinAggregateOutputType = {
     id: string | null
+    subTotal: Decimal | null
     total: Decimal | null
     status: $Enums.SaleStatus | null
     paymentMethod: $Enums.PaymentMethod | null
     amountPaid: Decimal | null
     changeGiven: Decimal | null
+    taxAmount: number | null
+    discountAmount: number | null
     completedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date | null
@@ -10821,11 +10830,14 @@ export namespace Prisma {
 
   export type SaleMaxAggregateOutputType = {
     id: string | null
+    subTotal: Decimal | null
     total: Decimal | null
     status: $Enums.SaleStatus | null
     paymentMethod: $Enums.PaymentMethod | null
     amountPaid: Decimal | null
     changeGiven: Decimal | null
+    taxAmount: number | null
+    discountAmount: number | null
     completedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date | null
@@ -10836,11 +10848,14 @@ export namespace Prisma {
 
   export type SaleCountAggregateOutputType = {
     id: number
+    subTotal: number
     total: number
     status: number
     paymentMethod: number
     amountPaid: number
     changeGiven: number
+    taxAmount: number
+    discountAmount: number
     completedAt: number
     cancelledAt: number
     createdAt: number
@@ -10852,24 +10867,33 @@ export namespace Prisma {
 
 
   export type SaleAvgAggregateInputType = {
+    subTotal?: true
     total?: true
     amountPaid?: true
     changeGiven?: true
+    taxAmount?: true
+    discountAmount?: true
   }
 
   export type SaleSumAggregateInputType = {
+    subTotal?: true
     total?: true
     amountPaid?: true
     changeGiven?: true
+    taxAmount?: true
+    discountAmount?: true
   }
 
   export type SaleMinAggregateInputType = {
     id?: true
+    subTotal?: true
     total?: true
     status?: true
     paymentMethod?: true
     amountPaid?: true
     changeGiven?: true
+    taxAmount?: true
+    discountAmount?: true
     completedAt?: true
     cancelledAt?: true
     createdAt?: true
@@ -10880,11 +10904,14 @@ export namespace Prisma {
 
   export type SaleMaxAggregateInputType = {
     id?: true
+    subTotal?: true
     total?: true
     status?: true
     paymentMethod?: true
     amountPaid?: true
     changeGiven?: true
+    taxAmount?: true
+    discountAmount?: true
     completedAt?: true
     cancelledAt?: true
     createdAt?: true
@@ -10895,11 +10922,14 @@ export namespace Prisma {
 
   export type SaleCountAggregateInputType = {
     id?: true
+    subTotal?: true
     total?: true
     status?: true
     paymentMethod?: true
     amountPaid?: true
     changeGiven?: true
+    taxAmount?: true
+    discountAmount?: true
     completedAt?: true
     cancelledAt?: true
     createdAt?: true
@@ -10997,11 +11027,14 @@ export namespace Prisma {
 
   export type SaleGroupByOutputType = {
     id: string
+    subTotal: Decimal
     total: Decimal
     status: $Enums.SaleStatus
     paymentMethod: $Enums.PaymentMethod | null
     amountPaid: Decimal | null
     changeGiven: Decimal | null
+    taxAmount: number | null
+    discountAmount: number | null
     completedAt: Date | null
     cancelledAt: Date | null
     createdAt: Date
@@ -11031,11 +11064,14 @@ export namespace Prisma {
 
   export type SaleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    subTotal?: boolean
     total?: boolean
     status?: boolean
     paymentMethod?: boolean
     amountPaid?: boolean
     changeGiven?: boolean
+    taxAmount?: boolean
+    discountAmount?: boolean
     completedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
@@ -11050,11 +11086,14 @@ export namespace Prisma {
 
   export type SaleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    subTotal?: boolean
     total?: boolean
     status?: boolean
     paymentMethod?: boolean
     amountPaid?: boolean
     changeGiven?: boolean
+    taxAmount?: boolean
+    discountAmount?: boolean
     completedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
@@ -11067,11 +11106,14 @@ export namespace Prisma {
 
   export type SaleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    subTotal?: boolean
     total?: boolean
     status?: boolean
     paymentMethod?: boolean
     amountPaid?: boolean
     changeGiven?: boolean
+    taxAmount?: boolean
+    discountAmount?: boolean
     completedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
@@ -11084,11 +11126,14 @@ export namespace Prisma {
 
   export type SaleSelectScalar = {
     id?: boolean
+    subTotal?: boolean
     total?: boolean
     status?: boolean
     paymentMethod?: boolean
     amountPaid?: boolean
     changeGiven?: boolean
+    taxAmount?: boolean
+    discountAmount?: boolean
     completedAt?: boolean
     cancelledAt?: boolean
     createdAt?: boolean
@@ -11097,7 +11142,7 @@ export namespace Prisma {
     customerId?: boolean
   }
 
-  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "total" | "status" | "paymentMethod" | "amountPaid" | "changeGiven" | "completedAt" | "cancelledAt" | "createdAt" | "updatedAt" | "userId" | "customerId", ExtArgs["result"]["sale"]>
+  export type SaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subTotal" | "total" | "status" | "paymentMethod" | "amountPaid" | "changeGiven" | "taxAmount" | "discountAmount" | "completedAt" | "cancelledAt" | "createdAt" | "updatedAt" | "userId" | "customerId", ExtArgs["result"]["sale"]>
   export type SaleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     customer?: boolean | Sale$customerArgs<ExtArgs>
@@ -11122,11 +11167,14 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      subTotal: Prisma.Decimal
       total: Prisma.Decimal
       status: $Enums.SaleStatus
       paymentMethod: $Enums.PaymentMethod | null
       amountPaid: Prisma.Decimal | null
       changeGiven: Prisma.Decimal | null
+      taxAmount: number | null
+      discountAmount: number | null
       completedAt: Date | null
       cancelledAt: Date | null
       createdAt: Date
@@ -11560,11 +11608,14 @@ export namespace Prisma {
    */
   interface SaleFieldRefs {
     readonly id: FieldRef<"Sale", 'String'>
+    readonly subTotal: FieldRef<"Sale", 'Decimal'>
     readonly total: FieldRef<"Sale", 'Decimal'>
     readonly status: FieldRef<"Sale", 'SaleStatus'>
     readonly paymentMethod: FieldRef<"Sale", 'PaymentMethod'>
     readonly amountPaid: FieldRef<"Sale", 'Decimal'>
     readonly changeGiven: FieldRef<"Sale", 'Decimal'>
+    readonly taxAmount: FieldRef<"Sale", 'Int'>
+    readonly discountAmount: FieldRef<"Sale", 'Int'>
     readonly completedAt: FieldRef<"Sale", 'DateTime'>
     readonly cancelledAt: FieldRef<"Sale", 'DateTime'>
     readonly createdAt: FieldRef<"Sale", 'DateTime'>
@@ -13248,11 +13299,14 @@ export namespace Prisma {
 
   export const SaleScalarFieldEnum: {
     id: 'id',
+    subTotal: 'subTotal',
     total: 'total',
     status: 'status',
     paymentMethod: 'paymentMethod',
     amountPaid: 'amountPaid',
     changeGiven: 'changeGiven',
+    taxAmount: 'taxAmount',
+    discountAmount: 'discountAmount',
     completedAt: 'completedAt',
     cancelledAt: 'cancelledAt',
     createdAt: 'createdAt',
@@ -13957,11 +14011,14 @@ export namespace Prisma {
     OR?: SaleWhereInput[]
     NOT?: SaleWhereInput | SaleWhereInput[]
     id?: StringFilter<"Sale"> | string
+    subTotal?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     total?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFilter<"Sale"> | $Enums.SaleStatus
     paymentMethod?: EnumPaymentMethodNullableFilter<"Sale"> | $Enums.PaymentMethod | null
     amountPaid?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
     changeGiven?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: IntNullableFilter<"Sale"> | number | null
+    discountAmount?: IntNullableFilter<"Sale"> | number | null
     completedAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -13975,11 +14032,14 @@ export namespace Prisma {
 
   export type SaleOrderByWithRelationInput = {
     id?: SortOrder
+    subTotal?: SortOrder
     total?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     amountPaid?: SortOrderInput | SortOrder
     changeGiven?: SortOrderInput | SortOrder
+    taxAmount?: SortOrderInput | SortOrder
+    discountAmount?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -13996,11 +14056,14 @@ export namespace Prisma {
     AND?: SaleWhereInput | SaleWhereInput[]
     OR?: SaleWhereInput[]
     NOT?: SaleWhereInput | SaleWhereInput[]
+    subTotal?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     total?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFilter<"Sale"> | $Enums.SaleStatus
     paymentMethod?: EnumPaymentMethodNullableFilter<"Sale"> | $Enums.PaymentMethod | null
     amountPaid?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
     changeGiven?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: IntNullableFilter<"Sale"> | number | null
+    discountAmount?: IntNullableFilter<"Sale"> | number | null
     completedAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -14014,11 +14077,14 @@ export namespace Prisma {
 
   export type SaleOrderByWithAggregationInput = {
     id?: SortOrder
+    subTotal?: SortOrder
     total?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrderInput | SortOrder
     amountPaid?: SortOrderInput | SortOrder
     changeGiven?: SortOrderInput | SortOrder
+    taxAmount?: SortOrderInput | SortOrder
+    discountAmount?: SortOrderInput | SortOrder
     completedAt?: SortOrderInput | SortOrder
     cancelledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -14037,11 +14103,14 @@ export namespace Prisma {
     OR?: SaleScalarWhereWithAggregatesInput[]
     NOT?: SaleScalarWhereWithAggregatesInput | SaleScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Sale"> | string
+    subTotal?: DecimalWithAggregatesFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     total?: DecimalWithAggregatesFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusWithAggregatesFilter<"Sale"> | $Enums.SaleStatus
     paymentMethod?: EnumPaymentMethodNullableWithAggregatesFilter<"Sale"> | $Enums.PaymentMethod | null
     amountPaid?: DecimalNullableWithAggregatesFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
     changeGiven?: DecimalNullableWithAggregatesFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: IntNullableWithAggregatesFilter<"Sale"> | number | null
+    discountAmount?: IntNullableWithAggregatesFilter<"Sale"> | number | null
     completedAt?: DateTimeNullableWithAggregatesFilter<"Sale"> | Date | string | null
     cancelledAt?: DateTimeNullableWithAggregatesFilter<"Sale"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Sale"> | Date | string
@@ -14671,11 +14740,14 @@ export namespace Prisma {
 
   export type SaleCreateInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -14687,11 +14759,14 @@ export namespace Prisma {
 
   export type SaleUncheckedCreateInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -14703,11 +14778,14 @@ export namespace Prisma {
 
   export type SaleUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14719,11 +14797,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14735,11 +14816,14 @@ export namespace Prisma {
 
   export type SaleCreateManyInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -14750,11 +14834,14 @@ export namespace Prisma {
 
   export type SaleUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14763,11 +14850,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15384,6 +15474,17 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type CustomerNullableScalarRelationFilter = {
     is?: CustomerWhereInput | null
     isNot?: CustomerWhereInput | null
@@ -15391,11 +15492,14 @@ export namespace Prisma {
 
   export type SaleCountOrderByAggregateInput = {
     id?: SortOrder
+    subTotal?: SortOrder
     total?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrder
     amountPaid?: SortOrder
     changeGiven?: SortOrder
+    taxAmount?: SortOrder
+    discountAmount?: SortOrder
     completedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
@@ -15405,18 +15509,24 @@ export namespace Prisma {
   }
 
   export type SaleAvgOrderByAggregateInput = {
+    subTotal?: SortOrder
     total?: SortOrder
     amountPaid?: SortOrder
     changeGiven?: SortOrder
+    taxAmount?: SortOrder
+    discountAmount?: SortOrder
   }
 
   export type SaleMaxOrderByAggregateInput = {
     id?: SortOrder
+    subTotal?: SortOrder
     total?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrder
     amountPaid?: SortOrder
     changeGiven?: SortOrder
+    taxAmount?: SortOrder
+    discountAmount?: SortOrder
     completedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
@@ -15427,11 +15537,14 @@ export namespace Prisma {
 
   export type SaleMinOrderByAggregateInput = {
     id?: SortOrder
+    subTotal?: SortOrder
     total?: SortOrder
     status?: SortOrder
     paymentMethod?: SortOrder
     amountPaid?: SortOrder
     changeGiven?: SortOrder
+    taxAmount?: SortOrder
+    discountAmount?: SortOrder
     completedAt?: SortOrder
     cancelledAt?: SortOrder
     createdAt?: SortOrder
@@ -15441,9 +15554,12 @@ export namespace Prisma {
   }
 
   export type SaleSumOrderByAggregateInput = {
+    subTotal?: SortOrder
     total?: SortOrder
     amountPaid?: SortOrder
     changeGiven?: SortOrder
+    taxAmount?: SortOrder
+    discountAmount?: SortOrder
   }
 
   export type EnumSaleStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -15480,6 +15596,22 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type SaleScalarRelationFilter = {
@@ -16014,6 +16146,14 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type UserUpdateOneRequiredWithoutSalesNestedInput = {
     create?: XOR<UserCreateWithoutSalesInput, UserUncheckedCreateWithoutSalesInput>
     connectOrCreate?: UserCreateOrConnectWithoutSalesInput
@@ -16354,6 +16494,33 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     email: string
@@ -16558,11 +16725,14 @@ export namespace Prisma {
 
   export type SaleCreateWithoutUserInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -16573,11 +16743,14 @@ export namespace Prisma {
 
   export type SaleUncheckedCreateWithoutUserInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -16700,11 +16873,14 @@ export namespace Prisma {
     OR?: SaleScalarWhereInput[]
     NOT?: SaleScalarWhereInput | SaleScalarWhereInput[]
     id?: StringFilter<"Sale"> | string
+    subTotal?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     total?: DecimalFilter<"Sale"> | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFilter<"Sale"> | $Enums.SaleStatus
     paymentMethod?: EnumPaymentMethodNullableFilter<"Sale"> | $Enums.PaymentMethod | null
     amountPaid?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
     changeGiven?: DecimalNullableFilter<"Sale"> | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: IntNullableFilter<"Sale"> | number | null
+    discountAmount?: IntNullableFilter<"Sale"> | number | null
     completedAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     cancelledAt?: DateTimeNullableFilter<"Sale"> | Date | string | null
     createdAt?: DateTimeFilter<"Sale"> | Date | string
@@ -16820,11 +16996,14 @@ export namespace Prisma {
 
   export type SaleCreateWithoutCustomerInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -16835,11 +17014,14 @@ export namespace Prisma {
 
   export type SaleUncheckedCreateWithoutCustomerInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -17334,11 +17516,14 @@ export namespace Prisma {
 
   export type SaleCreateWithoutItemsInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -17349,11 +17534,14 @@ export namespace Prisma {
 
   export type SaleUncheckedCreateWithoutItemsInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -17415,11 +17603,14 @@ export namespace Prisma {
 
   export type SaleUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17430,11 +17621,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17501,11 +17695,14 @@ export namespace Prisma {
 
   export type SaleCreateManyUserInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -17569,11 +17766,14 @@ export namespace Prisma {
 
   export type SaleUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17584,11 +17784,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17599,11 +17802,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17640,11 +17846,14 @@ export namespace Prisma {
 
   export type SaleCreateManyCustomerInput = {
     id?: string
+    subTotal: Decimal | DecimalJsLike | number | string
     total: Decimal | DecimalJsLike | number | string
     status?: $Enums.SaleStatus
     paymentMethod?: $Enums.PaymentMethod | null
     amountPaid?: Decimal | DecimalJsLike | number | string | null
     changeGiven?: Decimal | DecimalJsLike | number | string | null
+    taxAmount?: number | null
+    discountAmount?: number | null
     completedAt?: Date | string | null
     cancelledAt?: Date | string | null
     createdAt?: Date | string
@@ -17654,11 +17863,14 @@ export namespace Prisma {
 
   export type SaleUpdateWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17669,11 +17881,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17684,11 +17899,14 @@ export namespace Prisma {
 
   export type SaleUncheckedUpdateManyWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
+    subTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     status?: EnumSaleStatusFieldUpdateOperationsInput | $Enums.SaleStatus
     paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
     amountPaid?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     changeGiven?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    taxAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    discountAmount?: NullableIntFieldUpdateOperationsInput | number | null
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

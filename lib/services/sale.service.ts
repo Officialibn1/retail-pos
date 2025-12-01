@@ -31,6 +31,8 @@ export type SaleWithDetails = Sale & {
 	};
 };
 
+const taxRate = process.env.TAX_AMOUNT;
+
 /**
  * Create a new sale with stock validation
  * @param data - Sale creation data
@@ -39,6 +41,7 @@ export type SaleWithDetails = Sale & {
  */
 export async function createSale(data: CreateSaleInput): Promise<Sale> {
 	// Use transaction to ensure atomicity
+
 	const result = await prisma.$transaction(async (tx) => {
 		// Validate inventory availability for all items
 		for (const item of data.items) {
@@ -63,10 +66,13 @@ export async function createSale(data: CreateSaleInput): Promise<Sale> {
 		}
 
 		// Calculate total
-		const total = data.items.reduce(
+		const subtotal = data.items.reduce(
 			(sum, item) => sum + item.price * item.quantity,
 			0,
 		);
+		const discountAmount = (subtotal * data.discountRate) / 100;
+		const taxAmount = (subtotal - discountAmount) * Number(taxRate);
+		const total = subtotal - discountAmount + taxAmount;
 
 		// Create sale with PENDING status
 		const sale = await tx.sale.create({
@@ -74,6 +80,9 @@ export async function createSale(data: CreateSaleInput): Promise<Sale> {
 				userId: data.userId,
 				customerId: data.customerId,
 				total,
+				subTotal: subtotal,
+				taxAmount,
+				discountAmount,
 				status: SaleStatus.PENDING,
 				items: {
 					create: data.items.map((item) => ({
@@ -218,8 +227,14 @@ export async function completeSale(
 			});
 		}
 
-		// Calculate change
-		const changeGiven = Number(paymentData.amountPaid) - Number(sale.total);
+		// Default amountPaid to sale.total if not provided (Requirements 6.1, 6.4)
+		const amountPaid =
+			paymentData.amountPaid !== undefined
+				? paymentData.amountPaid
+				: Number(sale.total);
+
+		// Calculate change (handles negative, zero, and positive cases - Requirements 4.3, 4.4, 4.5, 6.2)
+		const changeGiven = amountPaid - Number(sale.total);
 
 		// Update sale status to COMPLETED
 		const completedSale = await tx.sale.update({
@@ -227,7 +242,7 @@ export async function completeSale(
 			data: {
 				status: SaleStatus.COMPLETED,
 				paymentMethod: paymentData.paymentMethod,
-				amountPaid: paymentData.amountPaid,
+				amountPaid,
 				changeGiven,
 				completedAt: new Date(),
 			},

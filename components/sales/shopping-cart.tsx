@@ -43,24 +43,24 @@ export function ShoppingCart({
 	const total = subtotal - discountAmount + taxAmount;
 
 	return (
-		<Card className='border-brand-main-200 h-full'>
+		<Card className='border-brand-main-200 h-fit'>
 			<CardHeader>
 				<CardTitle className='text-brand-main-800'>
 					Shopping Cart ({items.length} items)
 				</CardTitle>
 			</CardHeader>
-			<CardContent className='space-y-4'>
+			<CardContent className='space-y-4 pb-4'>
 				{items.length === 0 ? (
 					<div className='text-center py-8 text-brand-main-600'>
 						Your cart is empty
 					</div>
 				) : (
 					<>
-						<div className='space-y-3 h-full max-h-60 overflow-y-auto'>
+						<div className='space-y-3 h-60 overflow-y-auto border rounded-xl p-1'>
 							{items.map((item) => (
 								<div
 									key={item.id}
-									className='flex items-center gap-3 p-3 bg-brand-main-50 rounded-lg'>
+									className='flex items-center gap-3 p-3 bg-brand-main-50 rounded-lg lg:flex-col lg:items-start xl:flex-row xl:items-center '>
 									<div className='flex-1'>
 										<h4 className='font-medium text-brand-main-800 text-sm'>
 											{item.product.name}
@@ -99,17 +99,20 @@ export function ShoppingCart({
 											<Plus className='h-3 w-3' />
 										</Button>
 									</div>
-									<div className='text-sm font-medium text-brand-main-800 w-16 text-right'>
-										{formatNaira(Number(item.price) * item.quantity)}
+
+									<div className='flex items-center gap-2 justify-between flex-1'>
+										<div className='text-sm font-medium text-brand-main-800 w-16 text-right'>
+											{formatNaira(Number(item.price) * item.quantity)}
+										</div>
+										<Button
+											size='sm'
+											variant='ghost'
+											disabled={isProcessing}
+											onClick={() => onRemoveItem(item.id)}
+											className='h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'>
+											<Trash2 className='h-3 w-3' />
+										</Button>
 									</div>
-									<Button
-										size='sm'
-										variant='ghost'
-										disabled={isProcessing}
-										onClick={() => onRemoveItem(item.id)}
-										className='h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'>
-										<Trash2 className='h-3 w-3' />
-									</Button>
 								</div>
 							))}
 						</div>
@@ -156,6 +159,7 @@ export function ShoppingCart({
 
 							<Button
 								onClick={onCheckout}
+								variant={"depth-soft"}
 								disabled={items.length === 0 || isProcessing}
 								className='w-full bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 								{isProcessing ? <Spinner /> : "Proceed to Checkout"}

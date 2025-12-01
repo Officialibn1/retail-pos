@@ -16,10 +16,6 @@ const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
 const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
 
 export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
-	const subtotal = sale.items.reduce(
-		(sum, item) => sum + item.price * item.quantity,
-		0,
-	);
 	// const tax = sale.tax || 0;
 	// const discount = sale.discount || 0;
 	// const total = subtotal + tax - discount;
@@ -81,18 +77,16 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 			<div className='border-t border-gray-300 pt-2 mb-4'>
 				<div className='flex justify-between'>
 					<span>Subtotal:</span>
-					<span>{formatNaira(subtotal)}</span>
+					<span>{formatNaira(sale.subTotal)}</span>
 				</div>
-				{/* {discount > 0 && (
-					<div className='flex justify-between'>
-						<span>Discount:</span>
-						<span>-{formatNaira(discount)}</span>
-					</div>
-				)}
+				<div className='flex justify-between'>
+					<span>Discount:</span>
+					<span>-{formatNaira(sale.discountAmount || 0)}</span>
+				</div>
 				<div className='flex justify-between'>
 					<span>Tax:</span>
-					<span>{formatNaira(tax)}</span>
-				</div> */}
+					<span>{formatNaira(sale.taxAmount || 0)}</span>
+				</div>
 				<div className='flex justify-between font-bold text-lg border-t border-gray-300 pt-1'>
 					<span>Total:</span>
 					<span>{formatNaira(sale.total)}</span>
@@ -108,6 +102,10 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 				<div className='flex justify-between'>
 					<span>Amount Paid:</span>
 					<span>{formatNaira(sale.total)}</span>
+				</div>
+				<div className='flex justify-between'>
+					<span>Change Given:</span>
+					<span>{formatNaira(sale.changeGiven || 0)}</span>
 				</div>
 			</div>
 

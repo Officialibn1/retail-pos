@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 interface PendingOrdersListProps {
 	userId: string;
 	userRoles: string[];
-	onComplete?: (saleId: string) => void;
+	onComplete?: (saleId: string, saleTotal: number) => void;
 	onCancel?: (saleId: string) => void;
 }
 
@@ -42,10 +42,14 @@ export function PendingOrdersList({
 		["MANAGER", "ADMIN", "SUPERADMIN"].includes(role),
 	);
 
-	// Handle complete action - delegate to parent
+	// Handle complete action - delegate to parent with sale details
 	const handleComplete = (saleId: string) => {
 		if (onComplete) {
-			onComplete(saleId);
+			const sale = pendingSales.find((s) => s.id === saleId);
+			if (sale) {
+				// Pass sale ID and total to parent for payment dialog
+				onComplete(saleId, Number(sale.total));
+			}
 		}
 	};
 
