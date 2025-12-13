@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { InventoryItem } from "@/generated/prisma/client";
+import { InventoryItem, Prisma } from "@/generated/prisma/client";
 import {
 	CreateInventoryItemInput,
 	UpdateInventoryItemInput,
@@ -140,13 +140,57 @@ export async function softDeleteInventoryItem(id: string): Promise<void> {
  */
 export async function listInventoryItems(
 	includeDeleted: boolean = false,
+	params: URLSearchParams,
 ): Promise<InventoryItemWithCategory[]> {
+	const searchTerm = params.get("searchTerm");
+	const category = params.get("category");
+
+	const searchConditions: Prisma.InventoryItemWhereInput[] = [];
+
+	if (searchTerm) {
+		searchConditions.push({
+			name: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			sku: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			category: {
+				name: {
+					contains: searchTerm,
+					mode: "insensitive" as const,
+				},
+			},
+		});
+	}
+
+	if (category) {
+		searchConditions.push({
+			category: {
+				name: {
+					contains: category,
+					mode: "insensitive" as const,
+				},
+			},
+		});
+	}
+
+	const whereCondition =
+		searchConditions.length > 0 ? { OR: searchConditions } : {};
+
 	const items = await prisma.inventoryItem.findMany({
-		where: includeDeleted
-			? undefined
-			: {
-					deletedAt: null, // Exclude soft-deleted items
-			  },
+		where: {
+			deletedAt: null,
+			...whereCondition,
+		},
 		include: {
 			category: {
 				select: {

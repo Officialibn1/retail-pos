@@ -25,17 +25,26 @@ import {
 import type { InventoryItem } from "@/lib/types";
 import { Camera } from "lucide-react"; // Import Camera icon
 import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
+import { useGetCategoriesQuery } from "@/lib/store/api";
+import { Spinner } from "../ui/spinner";
 
 interface AddItemDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">) => void;
+	onSave: (
+		item: Omit<
+			InventoryItem,
+			"id" | "createdAt" | "updatedAt" | "stock" | "deletedAt"
+		>,
+	) => void;
+	isCreatingItem: boolean;
 }
 
 export function AddItemDialog({
 	open,
 	onOpenChange,
 	onSave,
+	isCreatingItem,
 }: AddItemDialogProps) {
 	const [formData, setFormData] = useState({
 		name: "",
@@ -43,8 +52,8 @@ export function AddItemDialog({
 		sku: "",
 		price: "",
 		cost: "",
-		quantity: "",
-		category: "",
+		stock: "",
+		categoryId: "",
 		barcode: "",
 	});
 	const [isScanning, setIsScanning] = useState(false); // State to control scanner visibility
@@ -59,9 +68,9 @@ export function AddItemDialog({
 			sku: formData.sku,
 			price: Number.parseFloat(formData.price),
 			cost: Number.parseFloat(formData.cost),
-			quantity: Number.parseInt(formData.quantity),
-			category: formData.category,
-			barcode: formData.barcode || undefined,
+			stock: Number.parseInt(formData.stock),
+			categoryId: formData.categoryId,
+			barcode: formData.barcode || null,
 		};
 
 		onSave(newItem);
@@ -73,12 +82,11 @@ export function AddItemDialog({
 			sku: "",
 			price: "",
 			cost: "",
-			quantity: "",
-			category: "",
+			stock: "",
+			categoryId: "",
 			barcode: "",
 		});
 
-		onOpenChange(false);
 		setIsScanning(false); // Close scanner when dialog is closed or form is saved
 	};
 
@@ -87,13 +95,7 @@ export function AddItemDialog({
 		setIsScanning(false); // Stop scanning after a successful scan
 	};
 
-	const categories = [
-		"Electronics",
-		"Accessories",
-		"Clothing",
-		"Books",
-		"Home & Garden",
-	];
+	const { isLoading, data: categories, isError } = useGetCategoriesQuery();
 
 	return (
 		<Dialog
@@ -121,6 +123,7 @@ export function AddItemDialog({
 								Product Name *
 							</Label>
 							<Input
+								disabled={isCreatingItem || isLoading || isError}
 								id='name'
 								value={formData.name}
 								onChange={(e) =>
@@ -138,6 +141,7 @@ export function AddItemDialog({
 							</Label>
 							<Input
 								id='sku'
+								disabled={isCreatingItem || isLoading || isError}
 								value={formData.sku}
 								onChange={(e) =>
 									setFormData({ ...formData, sku: e.target.value })
@@ -156,6 +160,7 @@ export function AddItemDialog({
 						</Label>
 						<Textarea
 							id='description'
+							disabled={isCreatingItem || isLoading || isError}
 							value={formData.description}
 							onChange={(e) =>
 								setFormData({ ...formData, description: e.target.value })
@@ -168,26 +173,29 @@ export function AddItemDialog({
 					<div className='grid grid-cols-2 gap-4'>
 						<div className='space-y-2'>
 							<Label
-								htmlFor='category'
+								htmlFor='categoryId'
 								className='text-brand-main-700'>
 								Category *
 							</Label>
 							<Select
-								value={formData.category}
+								value={formData.categoryId}
 								onValueChange={(value) =>
-									setFormData({ ...formData, category: value })
-								}>
+									setFormData({ ...formData, categoryId: value })
+								}
+								disabled={isCreatingItem || isLoading || isError}>
 								<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
 									<SelectValue placeholder='Select category' />
 								</SelectTrigger>
 								<SelectContent>
-									{categories.map((category) => (
-										<SelectItem
-											key={category}
-											value={category}>
-											{category}
-										</SelectItem>
-									))}
+									{categories &&
+										categories.categories.map((category) => (
+											<SelectItem
+												disabled={isCreatingItem || isLoading || isError}
+												key={category.name}
+												value={category.id}>
+												{category.name}
+											</SelectItem>
+										))}
 								</SelectContent>
 							</Select>
 						</div>
@@ -200,16 +208,21 @@ export function AddItemDialog({
 							<div className='flex items-center gap-2'>
 								<Input
 									id='barcode'
+									disabled={
+										isCreatingItem || isLoading || isError || isScanning
+									}
 									value={formData.barcode}
 									onChange={(e) =>
 										setFormData({ ...formData, barcode: e.target.value })
 									}
 									className='border-brand-main-200 focus:border-brand-main-400 flex-grow'
-									disabled={isScanning} // Disable input while scanning
 								/>
 								<Button
 									type='button'
 									variant='outline'
+									disabled={
+										isCreatingItem || isLoading || isError || isScanning
+									}
 									onClick={() => setIsScanning(!isScanning)}
 									className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
 									aria-label='Scan Barcode'>
@@ -248,6 +261,7 @@ export function AddItemDialog({
 							</Label>
 							<Input
 								id='price'
+								disabled={isCreatingItem || isLoading || isError}
 								type='number'
 								step='0.01'
 								value={formData.price}
@@ -266,6 +280,7 @@ export function AddItemDialog({
 							</Label>
 							<Input
 								id='cost'
+								disabled={isCreatingItem || isLoading || isError}
 								type='number'
 								step='0.01'
 								value={formData.cost}
@@ -278,16 +293,17 @@ export function AddItemDialog({
 						</div>
 						<div className='space-y-2'>
 							<Label
-								htmlFor='quantity'
+								htmlFor='stock'
 								className='text-brand-main-700'>
 								Quantity *
 							</Label>
 							<Input
-								id='quantity'
+								id='stock'
+								disabled={isCreatingItem || isLoading || isError}
 								type='number'
-								value={formData.quantity}
+								value={formData.stock}
 								onChange={(e) =>
-									setFormData({ ...formData, quantity: e.target.value })
+									setFormData({ ...formData, stock: e.target.value })
 								}
 								className='border-brand-main-200 focus:border-brand-main-400'
 								required
@@ -298,18 +314,20 @@ export function AddItemDialog({
 					<DialogFooter>
 						<Button
 							type='button'
+							disabled={isCreatingItem || isLoading || isError}
 							variant='outline'
 							onClick={() => {
 								onOpenChange(false);
 								setIsScanning(false); // Ensure scanner is off when dialog closes
 							}}
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
-							className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
-							Add Item
+							disabled={isCreatingItem || isLoading || isError}
+							className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+							{isCreatingItem ? <Spinner /> : "Add Item"}
 						</Button>
 					</DialogFooter>
 				</form>

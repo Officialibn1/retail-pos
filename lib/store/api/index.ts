@@ -270,6 +270,11 @@ export interface GetSalesParams {
 	limit?: number;
 }
 
+export interface SearchParams {
+	searchTerm?: string;
+	category?: string;
+}
+
 // Sale item in a sale
 export interface SaleItemData {
 	id: string;
@@ -665,8 +670,17 @@ export const api = createApi({
 		 * Cache Tags: ['Inventory']
 		 * - Tagged with 'Inventory' so it can be invalidated on mutations
 		 */
-		getInventory: builder.query<InventoryItemWithCategory[], void>({
-			query: () => "/api/inventory",
+		getInventory: builder.query<
+			InventoryItemWithCategory[],
+			SearchParams | void
+		>({
+			query: (searchTerm) => ({
+				url: "/api/inventory",
+				params: {
+					searchTerm: searchTerm ? searchTerm.searchTerm : "",
+					category: searchTerm ? searchTerm.category : "",
+				},
+			}),
 			providesTags: ["Inventory"],
 		}),
 

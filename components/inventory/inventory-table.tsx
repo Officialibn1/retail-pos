@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
 	Table,
 	TableBody,
@@ -29,35 +28,29 @@ import {
 import type { InventoryItem } from "@/lib/types";
 import type { InventoryItemWithCategory } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
+import { Spinner } from "../ui/spinner";
 
 interface InventoryTableProps {
 	items: InventoryItemWithCategory[];
 	onEdit: (item: InventoryItemWithCategory) => void;
 	onDelete: (item: InventoryItemWithCategory) => void;
+	searchTerm: string;
+	setSearchTerm: (item: string) => void;
+	categoryFilter: string;
+	setCategoryFilter: (item: string) => void;
+	isFetching: boolean;
 }
 
 export function InventoryTable({
 	items,
 	onEdit,
 	onDelete,
+	searchTerm,
+	setSearchTerm,
+	isFetching,
+	setCategoryFilter,
+	categoryFilter,
 }: InventoryTableProps) {
-	const [searchTerm, setSearchTerm] = useState("");
-	const [categoryFilter, setCategoryFilter] = useState("all");
-
-	const filteredItems = items.filter((item) => {
-		const matchesSearch =
-			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(item.description?.toLowerCase() || "").includes(
-				searchTerm.toLowerCase(),
-			);
-
-		const matchesCategory =
-			categoryFilter === "all" || item.category?.name === categoryFilter;
-
-		return matchesSearch && matchesCategory;
-	});
-
 	const categories = Array.from(
 		new Set(items.map((item) => item.category?.name).filter(Boolean)),
 	) as string[];
@@ -76,7 +69,12 @@ export function InventoryTable({
 				<CardTitle className='text-brand-main-800'>Inventory Items</CardTitle>
 				<div className='flex gap-4 mt-4'>
 					<div className='relative flex-1'>
-						<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+						{isFetching ? (
+							<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+						) : (
+							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+						)}
+
 						<Input
 							placeholder='Search items...'
 							value={searchTerm}
@@ -113,7 +111,7 @@ export function InventoryTable({
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{filteredItems.map((item) => {
+						{items.map((item) => {
 							const stockStatus = getStockStatus(item.stock);
 							return (
 								<TableRow
@@ -192,7 +190,7 @@ export function InventoryTable({
 						})}
 					</TableBody>
 				</Table>
-				{filteredItems.length === 0 && (
+				{items.length === 0 && (
 					<div className='text-center py-8 text-brand-main-600'>
 						No items found matching your search criteria.
 					</div>

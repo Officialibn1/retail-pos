@@ -103,6 +103,8 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
 	try {
+		const params = request.nextUrl.searchParams;
+
 		// Authenticate user
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
@@ -110,7 +112,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get all non-deleted inventory items
-		const items = await listInventoryItems(false);
+		const items = await listInventoryItems(false, params);
 
 		return NextResponse.json(items);
 	} catch (error) {

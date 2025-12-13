@@ -34,7 +34,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
 import {
 	useGetInventoryQuery,
 	useCreateInventoryItemMutation,
@@ -42,25 +41,36 @@ import {
 	useDeleteInventoryItemMutation,
 	type InventoryItemWithCategory,
 } from "@/lib/store/api";
+import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 
 export default function InventoryPage() {
 	const { user } = useAuth();
-	const { toast } = useToast();
 	const [showAddDialog, setShowAddDialog] = useState(false);
 	const [showEditDialog, setShowEditDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [selectedItem, setSelectedItem] =
 		useState<InventoryItemWithCategory | null>(null);
 
+	const [searchTerm, setSearchTerm] = useState("");
+	const [categoryFilter, setCategoryFilter] = useState("all");
+
+	const [debounceSearchTerm] = useDebounce(searchTerm, 300);
+
 	// RTK Query hooks for data fetching and mutations
 	const {
 		data: inventory = [],
 		isLoading: loading,
+		isFetching,
 		isError,
 		error: queryError,
-	} = useGetInventoryQuery();
+	} = useGetInventoryQuery({
+		searchTerm: debounceSearchTerm,
+		category: categoryFilter === "all" ? undefined : categoryFilter,
+	});
 
-	const [createInventoryItem] = useCreateInventoryItemMutation();
+	const [createInventoryItem, { isLoading: isCreatingItem }] =
+		useCreateInventoryItemMutation();
 	const [updateInventoryItem] = useUpdateInventoryItemMutation();
 	const [deleteInventoryItem] = useDeleteInventoryItemMutation();
 
@@ -73,23 +83,20 @@ export default function InventoryPage() {
 	);
 
 	const handleAddItem = async (
-		newItem: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">,
+		newItem: Omit<
+			InventoryItem,
+			"id" | "createdAt" | "updatedAt" | "stock" | "deletedAt"
+		>,
 	) => {
 		try {
 			await createInventoryItem(newItem).unwrap();
 			setShowAddDialog(false);
-			toast({
-				title: "Success",
-				description: "Item added successfully",
-			});
+			toast.success("Item added successfully");
 		} catch (err: any) {
 			console.error("Failed to add item:", err);
-			toast({
-				title: "Error",
-				description:
-					err.data?.error?.message || err.message || "Failed to add item",
-				variant: "destructive",
-			});
+			toast.error(
+				err.data?.error?.message || err.message || "Failed to add item",
+			);
 		}
 	};
 
@@ -106,18 +113,12 @@ export default function InventoryPage() {
 			}).unwrap();
 			setShowEditDialog(false);
 			setSelectedItem(null);
-			toast({
-				title: "Success",
-				description: "Item updated successfully",
-			});
+			toast.success("Item updated successfully");
 		} catch (err: any) {
 			console.error("Failed to update item:", err);
-			toast({
-				title: "Error",
-				description:
-					err.data?.error?.message || err.message || "Failed to update item",
-				variant: "destructive",
-			});
+			toast.error(
+				err.data?.error?.message || err.message || "Failed to update item",
+			);
 		}
 	};
 
@@ -133,18 +134,12 @@ export default function InventoryPage() {
 			await deleteInventoryItem(selectedItem.id).unwrap();
 			setShowDeleteDialog(false);
 			setSelectedItem(null);
-			toast({
-				title: "Success",
-				description: "Item deleted successfully",
-			});
+			toast.success("Item deleted successfully");
 		} catch (err: any) {
 			console.error("Failed to delete item:", err);
-			toast({
-				title: "Error",
-				description:
-					err.data?.error?.message || err.message || "Failed to delete item",
-				variant: "destructive",
-			});
+			toast.error(
+				err.data?.error?.message || err.message || "Failed to delete item",
+			);
 		}
 	};
 
@@ -284,9 +279,14 @@ export default function InventoryPage() {
 
 				{/* Inventory Table */}
 				<InventoryTable
+					isFetching={isFetching}
 					items={inventory}
 					onEdit={handleEditItem}
 					onDelete={handleDeleteItem}
+					setSearchTerm={setSearchTerm}
+					searchTerm={searchTerm}
+					categoryFilter={categoryFilter}
+					setCategoryFilter={setCategoryFilter}
 				/>
 
 				{/* Dialogs */}
@@ -294,6 +294,7 @@ export default function InventoryPage() {
 					open={showAddDialog}
 					onOpenChange={setShowAddDialog}
 					onSave={handleAddItem}
+					isCreatingItem={isCreatingItem}
 				/>
 
 				<EditItemDialog
