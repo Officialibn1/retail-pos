@@ -28,7 +28,10 @@ export const createSaleSchema = z.object({
 		.max(100, "Cannot have more than 100 items in a sale"),
 	customerId: z.string().cuid("Invalid customer ID").optional().nullable(),
 	userId: z.string().cuid("Invalid user ID"),
-	discountRate: z.number().max(100, "Discount must not be more than 100%"),
+	discountRate: z
+		.number()
+		.max(100, "Discount must not be more than 100%")
+		.default(0),
 });
 
 export const completeSaleSchema = z
@@ -36,29 +39,38 @@ export const completeSaleSchema = z
 		paymentMethod: z.nativeEnum(PaymentMethod, {
 			errorMap: () => ({ message: "Invalid payment method" }),
 		}),
-		amountPaid: z.union([
-			z
-				.number()
-				.nonnegative("Amount paid cannot be negative")
-				.max(999999999.99, "Amount is too large"),
-			z
-				.string()
-				.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
-				.transform(Number),
-		]),
-		total: z.union([
-			z
-				.number()
-				.nonnegative("Amount paid cannot be negative")
-				.max(999999999.99, "Amount is too large"),
-			z
-				.string()
-				.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
-				.transform(Number),
-		]),
+		amountPaid: z
+			.union([
+				z
+					.number()
+					.nonnegative("Amount paid cannot be negative")
+					.max(999999999.99, "Amount is too large"),
+				z
+					.string()
+					.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
+					.transform(Number),
+			])
+			.optional(),
+		total: z
+			.union([
+				z
+					.number()
+					.nonnegative("Amount paid cannot be negative")
+					.max(999999999.99, "Amount is too large"),
+				z
+					.string()
+					.regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")
+					.transform(Number),
+			])
+			.optional(),
 	})
 	.superRefine((data, ctx) => {
-		if (Number(data.amountPaid) < Number(data.total)) {
+		// Only validate if amountPaid is provided
+		if (
+			data.amountPaid !== undefined &&
+			data.total !== undefined &&
+			Number(data.amountPaid) < Number(data.total)
+		) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message:

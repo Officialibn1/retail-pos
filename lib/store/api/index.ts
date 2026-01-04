@@ -1,29 +1,9 @@
-/**
- * RTK Query Base API Configuration
- *
- * This file configures the base API for all RTK Query endpoints.
- * It provides:
- * - Centralized API configuration with fetchBaseQuery
- * - Cookie-based authentication (credentials: 'include')
- * - Cache tag types for automatic invalidation
- * - Memory-only caching (no persistence)
- *
- * Requirements: 4.1, 4.3, 4.8
- */
-
 import { PaymentMethod, SaleStatus } from "@/generated/prisma";
+import { CategoryWithCount } from "@/lib/services/category.service";
 import { SaleWithDetails } from "@/lib/services/sale.service";
 import { CompleteSaleInput, CreateSaleInput } from "@/lib/validations";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-/**
- * Cache tag types for automatic cache invalidation
- *
- * When a mutation invalidates a tag, all queries with that tag will refetch.
- * This ensures the UI always displays up-to-date information.
- *
- * Requirement 4.3: Cache responses with appropriate cache tags
- */
 export const TAG_TYPES = [
 	"Auth",
 	"Inventory",
@@ -36,13 +16,6 @@ export const TAG_TYPES = [
 ] as const;
 
 export type TagType = (typeof TAG_TYPES)[number];
-
-/**
- * Authentication API Types
- *
- * These types define the request and response structures for authentication endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
 
 // User data without password (safe for client-side)
 export interface UserData {
@@ -81,13 +54,6 @@ export interface ApiError {
 		details?: any;
 	};
 }
-
-/**
- * Inventory API Types
- *
- * These types define the request and response structures for inventory endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
 
 // Inventory item with category information
 export interface InventoryItemWithCategory {
@@ -187,13 +153,6 @@ export interface AdjustStockResponse {
 	item: InventoryItemResponse;
 }
 
-/**
- * User Management API Types
- *
- * These types define the request and response structures for user management endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
-
 // Create user request
 export interface CreateUserRequest {
 	email: string;
@@ -253,13 +212,6 @@ export interface UpdateUserResponse {
 export interface DeleteUserResponse {
 	message: string;
 }
-
-/**
- * Sales API Types
- *
- * These types define the request and response structures for sales endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
 
 // Get sales query parameters
 export interface GetSalesParams {
@@ -321,13 +273,6 @@ export interface SaleData {
 export interface CancelSaleRequest {
 	reason?: string;
 }
-
-/**
- * Customer API Types
- *
- * These types define the request and response structures for customer endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
 
 // Customer data
 export interface CustomerData {
@@ -394,24 +339,10 @@ export interface DeleteCustomerResponse {
 	message: string;
 }
 
-/**
- * Category API Types
- *
- * These types define the request and response structures for category endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
-
 // Category data
 export interface CategoryData {
 	id: string;
 	name: string;
-}
-
-// Category with item count
-export interface CategoryWithCount extends CategoryData {
-	_count: {
-		items: number;
-	};
 }
 
 // Category with items
@@ -461,13 +392,6 @@ export interface UpdateCategoryResponse {
 export interface DeleteCategoryResponse {
 	message: string;
 }
-
-/**
- * Analytics API Types
- *
- * These types define the request and response structures for analytics endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
 
 // Dashboard statistics
 export interface DashboardStats {
@@ -537,13 +461,6 @@ export interface InventoryAnalytics {
 	}>;
 }
 
-/**
- * Activity Log API Types
- *
- * These types define the request and response structures for activity log endpoints.
- * Requirement 10.2: Specify request and response types for all endpoints
- */
-
 // Activity log with user information
 export interface ActivityLogWithUser {
 	id: string;
@@ -560,25 +477,10 @@ export interface ActivityLogWithUser {
 	};
 }
 
-// Get activity logs query parameters
 export interface GetActivityLogsParams {
 	limit?: number;
 }
 
-/**
- * Base API configuration using RTK Query
- *
- * Features:
- * - fetchBaseQuery for making HTTP requests
- * - credentials: 'include' for cookie-based authentication
- * - Cache tag types for automatic invalidation
- * - Memory-only caching (cache is cleared on page reload)
- *
- * Requirements:
- * - 4.1: Use RTK Query endpoints for all data fetching
- * - 4.3: Cache responses in memory with appropriate tags
- * - 4.8: Start with empty cache on initialization
- */
 export const api = createApi({
 	reducerPath: "api",
 	baseQuery: fetchBaseQuery({
@@ -593,40 +495,12 @@ export const api = createApi({
 		},
 	}),
 	tagTypes: TAG_TYPES,
-	// Endpoints will be injected in subsequent tasks
-	// This allows for code splitting and organization by feature
 	endpoints: (builder) => ({
-		/**
-		 * Validate Session Query
-		 *
-		 * Validates the current authentication session by fetching user data.
-		 * This endpoint is called on application initialization to restore auth state.
-		 *
-		 * Requirements:
-		 * - 5.1: Create queries for session validation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Auth']
-		 * - Tagged with 'Auth' so it can be invalidated on login/logout
-		 */
 		validateSession: builder.query<UserData, void>({
 			query: () => "/api/auth/me",
 			providesTags: ["Auth"],
 		}),
 
-		/**
-		 * Login Mutation
-		 *
-		 * Authenticates a user with email and password.
-		 * On success, sets an HTTP-only cookie with the JWT token.
-		 *
-		 * Requirements:
-		 * - 5.1: Create mutations for login
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Auth']
-		 * - Invalidates 'Auth' tag to trigger session validation refetch
-		 */
 		login: builder.mutation<LoginResponse, LoginRequest>({
 			query: (credentials) => ({
 				url: "/api/auth/login",
@@ -636,19 +510,6 @@ export const api = createApi({
 			invalidatesTags: ["Auth"],
 		}),
 
-		/**
-		 * Logout Mutation
-		 *
-		 * Logs out the current user by invalidating their session.
-		 * Clears the HTTP-only authentication cookie.
-		 *
-		 * Requirements:
-		 * - 5.1: Create mutations for logout
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Auth']
-		 * - Invalidates 'Auth' tag to clear cached user data
-		 */
 		logout: builder.mutation<LogoutResponse, void>({
 			query: () => ({
 				url: "/api/auth/logout",
@@ -657,19 +518,6 @@ export const api = createApi({
 			invalidatesTags: ["Auth"],
 		}),
 
-		/**
-		 * Get Inventory Query
-		 *
-		 * Fetches all non-deleted inventory items with category information.
-		 * Results are cached with 'Inventory' tag for automatic invalidation.
-		 *
-		 * Requirements:
-		 * - 5.2: Create queries for fetching inventory
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Inventory']
-		 * - Tagged with 'Inventory' so it can be invalidated on mutations
-		 */
 		getInventory: builder.query<
 			InventoryItemWithCategory[],
 			SearchParams | void
@@ -684,38 +532,11 @@ export const api = createApi({
 			providesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Get Inventory Item Query
-		 *
-		 * Fetches a single inventory item by ID with category information.
-		 * Returns null if item is not found or has been deleted.
-		 *
-		 * Requirements:
-		 * - 5.2: Create queries for fetching inventory
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Inventory']
-		 * - Tagged with 'Inventory' so it can be invalidated on mutations
-		 */
 		getInventoryItem: builder.query<GetInventoryItemResponse, string>({
 			query: (id) => `/api/inventory/${id}`,
 			providesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Create Inventory Item Mutation
-		 *
-		 * Creates a new inventory item with the provided data.
-		 * Validates SKU uniqueness and all required fields.
-		 *
-		 * Requirements:
-		 * - 5.2: Create mutations for inventory management
-		 * - 6.2: Invalidate inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Inventory']
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory lists
-		 */
 		createInventoryItem: builder.mutation<
 			CreateInventoryItemResponse,
 			CreateInventoryItemRequest
@@ -728,20 +549,6 @@ export const api = createApi({
 			invalidatesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Update Inventory Item Mutation
-		 *
-		 * Updates an existing inventory item with the provided data.
-		 * Validates SKU uniqueness if SKU is being changed.
-		 *
-		 * Requirements:
-		 * - 5.2: Create mutations for inventory management
-		 * - 6.2: Invalidate inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Inventory']
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory data
-		 */
 		updateInventoryItem: builder.mutation<
 			UpdateInventoryItemResponse,
 			{ id: string; data: UpdateInventoryItemRequest }
@@ -754,20 +561,6 @@ export const api = createApi({
 			invalidatesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Delete Inventory Item Mutation
-		 *
-		 * Soft deletes an inventory item by setting its deletedAt timestamp.
-		 * The item will no longer appear in inventory lists.
-		 *
-		 * Requirements:
-		 * - 5.2: Create mutations for inventory management
-		 * - 6.2: Invalidate inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Inventory']
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory lists
-		 */
 		deleteInventoryItem: builder.mutation<DeleteInventoryItemResponse, string>({
 			query: (id) => ({
 				url: `/api/inventory/${id}`,
@@ -776,21 +569,6 @@ export const api = createApi({
 			invalidatesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Adjust Stock Mutation
-		 *
-		 * Adjusts the stock quantity for an inventory item.
-		 * Creates a stock movement record for audit purposes.
-		 * Validates that stock doesn't go negative.
-		 *
-		 * Requirements:
-		 * - 5.2: Create mutations for stock adjustments
-		 * - 6.2: Invalidate inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Inventory']
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory data
-		 */
 		adjustStock: builder.mutation<
 			AdjustStockResponse,
 			{ id: string; data: AdjustStockRequest }
@@ -803,23 +581,6 @@ export const api = createApi({
 			invalidatesTags: ["Inventory"],
 		}),
 
-		/**
-		 * Get Sales Query
-		 *
-		 * Fetches all sales with role-based filtering.
-		 * CASHIER sees only their sales, MANAGER+ sees all sales.
-		 * Returns sales with items, customer, and user information.
-		 * Supports optional filtering by status, date range, and pagination.
-		 *
-		 * Requirements:
-		 * - 5.3: Create queries for fetching sales
-		 * - 10.2: Specify TypeScript types for request/response
-		 * - 1.1: Support filtering by status (e.g., PENDING)
-		 * - 1.4: Support date range filtering
-		 *
-		 * Cache Tags: ['Sales']
-		 * - Tagged with 'Sales' so it can be invalidated on mutations
-		 */
 		getSales: builder.query<SaleWithDetails[], GetSalesParams | void>({
 			query: (params) => ({
 				url: "/api/sales",
@@ -829,40 +590,11 @@ export const api = createApi({
 			providesTags: ["Sales"],
 		}),
 
-		/**
-		 * Get Sale Query
-		 *
-		 * Fetches a single sale by ID with role-based access control.
-		 * CASHIER can only see their own sales.
-		 * Returns sale with items, customer, and user information.
-		 *
-		 * Requirements:
-		 * - 5.3: Create queries for fetching sales
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Sales']
-		 * - Tagged with 'Sales' so it can be invalidated on mutations
-		 */
 		getSale: builder.query<SaleWithDetails, string>({
 			query: (id) => `/api/sales/${id}`,
 			providesTags: ["Sales"],
 		}),
 
-		/**
-		 * Create Sale Mutation
-		 *
-		 * Creates a new sale with PENDING status.
-		 * Validates inventory availability for all items.
-		 * Does not reduce stock until sale is completed.
-		 *
-		 * Requirements:
-		 * - 5.3: Create mutations for creating sales
-		 * - 6.1: Invalidate sales cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Sales']
-		 * - Invalidates 'Sales' tag to trigger refetch of sales lists
-		 */
 		createSale: builder.mutation<SaleData, CreateSaleInput>({
 			query: (data) => ({
 				url: "/api/sales",
@@ -872,22 +604,6 @@ export const api = createApi({
 			invalidatesTags: ["Sales"],
 		}),
 
-		/**
-		 * Complete Sale Mutation
-		 *
-		 * Completes a sale with payment details.
-		 * Updates status to COMPLETED, reduces inventory stock, creates stock movements.
-		 * Calculates change given based on amount paid and total.
-		 *
-		 * Requirements:
-		 * - 5.3: Create mutations for completing sales
-		 * - 6.1: Invalidate sales and inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Sales', 'Inventory']
-		 * - Invalidates 'Sales' tag to trigger refetch of sales data
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory (stock reduced)
-		 */
 		completeSale: builder.mutation<
 			SaleData,
 			{ id: string; data: CompleteSaleInput }
@@ -900,22 +616,6 @@ export const api = createApi({
 			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
-		/**
-		 * Cancel Sale Mutation
-		 *
-		 * Cancels a sale and restores inventory stock if it was completed.
-		 * Updates status to CANCELLED, restores inventory stock, creates stock movements.
-		 * Can cancel both PENDING and COMPLETED sales.
-		 *
-		 * Requirements:
-		 * - 5.3: Create mutations for canceling sales
-		 * - 6.1: Invalidate sales and inventory cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Sales', 'Inventory']
-		 * - Invalidates 'Sales' tag to trigger refetch of sales data
-		 * - Invalidates 'Inventory' tag to trigger refetch of inventory (stock restored)
-		 */
 		cancelSale: builder.mutation<SaleData, string>({
 			query: (id) => ({
 				url: `/api/sales/${id}/cancel`,
@@ -924,60 +624,16 @@ export const api = createApi({
 			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
-		/**
-		 * Get Users Query
-		 *
-		 * Fetches all users in the system.
-		 * Requires SUPERADMIN role for access.
-		 * Returns users without password information.
-		 *
-		 * Requirements:
-		 * - 5.4: Create queries for fetching users
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Users']
-		 * - Tagged with 'Users' so it can be invalidated on mutations
-		 */
 		getUsers: builder.query<GetUsersResponse, void>({
 			query: () => "/api/users",
 			providesTags: ["Users"],
 		}),
 
-		/**
-		 * Get User Query
-		 *
-		 * Fetches a single user by ID.
-		 * Requires SUPERADMIN role for access.
-		 * Returns user without password information.
-		 *
-		 * Requirements:
-		 * - 5.4: Create queries for fetching users
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Users']
-		 * - Tagged with 'Users' so it can be invalidated on mutations
-		 */
 		getUser: builder.query<GetUserResponse, string>({
 			query: (id) => `/api/users/${id}`,
 			providesTags: ["Users"],
 		}),
 
-		/**
-		 * Create User Mutation
-		 *
-		 * Creates a new user with the provided data.
-		 * Requires SUPERADMIN role for access.
-		 * Validates email and username uniqueness.
-		 * Hashes password before storage.
-		 *
-		 * Requirements:
-		 * - 5.4: Create mutations for user management
-		 * - 6.3: Invalidate users cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Users']
-		 * - Invalidates 'Users' tag to trigger refetch of users lists
-		 */
 		createUser: builder.mutation<CreateUserResponse, CreateUserRequest>({
 			query: (data) => ({
 				url: "/api/users",
@@ -987,22 +643,6 @@ export const api = createApi({
 			invalidatesTags: ["Users"],
 		}),
 
-		/**
-		 * Update User Mutation
-		 *
-		 * Updates an existing user with the provided data.
-		 * Requires SUPERADMIN role for access.
-		 * Validates email and username uniqueness if being changed.
-		 * Hashes password if being updated.
-		 *
-		 * Requirements:
-		 * - 5.4: Create mutations for user management
-		 * - 6.3: Invalidate users cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Users']
-		 * - Invalidates 'Users' tag to trigger refetch of users data
-		 */
 		updateUser: builder.mutation<
 			UpdateUserResponse,
 			{ id: string; data: UpdateUserRequest }
@@ -1015,21 +655,6 @@ export const api = createApi({
 			invalidatesTags: ["Users"],
 		}),
 
-		/**
-		 * Delete User Mutation
-		 *
-		 * Deletes a user from the system.
-		 * Requires SUPERADMIN role for access.
-		 * Cascade deletes associated sessions.
-		 *
-		 * Requirements:
-		 * - 5.4: Create mutations for user management
-		 * - 6.3: Invalidate users cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Users']
-		 * - Invalidates 'Users' tag to trigger refetch of users lists
-		 */
 		deleteUser: builder.mutation<DeleteUserResponse, string>({
 			query: (id) => ({
 				url: `/api/users/${id}`,
@@ -1038,57 +663,16 @@ export const api = createApi({
 			invalidatesTags: ["Users"],
 		}),
 
-		/**
-		 * Get Customers Query
-		 *
-		 * Fetches all customers with sales history.
-		 * Returns customers with total sales count and amount.
-		 *
-		 * Requirements:
-		 * - 5.6: Create queries for fetching customers
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Customers']
-		 * - Tagged with 'Customers' so it can be invalidated on mutations
-		 */
 		getCustomers: builder.query<GetCustomersResponse, void>({
 			query: () => "/api/customers",
 			providesTags: ["Customers"],
 		}),
 
-		/**
-		 * Get Customer Query
-		 *
-		 * Fetches a single customer by ID with all associated sales.
-		 * Returns customer with detailed sales history.
-		 *
-		 * Requirements:
-		 * - 5.6: Create queries for fetching customers
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Customers']
-		 * - Tagged with 'Customers' so it can be invalidated on mutations
-		 */
 		getCustomer: builder.query<GetCustomerResponse, string>({
 			query: (id) => `/api/customers/${id}`,
 			providesTags: ["Customers"],
 		}),
 
-		/**
-		 * Create Customer Mutation
-		 *
-		 * Creates a new customer with the provided data.
-		 * Validates that at least one of name, phone, or email is provided.
-		 * Validates phone uniqueness if provided.
-		 *
-		 * Requirements:
-		 * - 5.6: Create mutations for customer management
-		 * - 6.5: Invalidate customers cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Customers']
-		 * - Invalidates 'Customers' tag to trigger refetch of customers lists
-		 */
 		createCustomer: builder.mutation<
 			CreateCustomerResponse,
 			CreateCustomerRequest
@@ -1101,20 +685,6 @@ export const api = createApi({
 			invalidatesTags: ["Customers"],
 		}),
 
-		/**
-		 * Update Customer Mutation
-		 *
-		 * Updates an existing customer with the provided data.
-		 * Validates phone uniqueness if being changed.
-		 *
-		 * Requirements:
-		 * - 5.6: Create mutations for customer management
-		 * - 6.5: Invalidate customers cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Customers']
-		 * - Invalidates 'Customers' tag to trigger refetch of customers data
-		 */
 		updateCustomer: builder.mutation<
 			UpdateCustomerResponse,
 			{ id: string; data: UpdateCustomerRequest }
@@ -1127,20 +697,6 @@ export const api = createApi({
 			invalidatesTags: ["Customers"],
 		}),
 
-		/**
-		 * Delete Customer Mutation
-		 *
-		 * Deletes a customer from the system.
-		 * Only allowed if customer has no associated sales.
-		 *
-		 * Requirements:
-		 * - 5.6: Create mutations for customer management
-		 * - 6.5: Invalidate customers cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Customers']
-		 * - Invalidates 'Customers' tag to trigger refetch of customers lists
-		 */
 		deleteCustomer: builder.mutation<DeleteCustomerResponse, string>({
 			query: (id) => ({
 				url: `/api/customers/${id}`,
@@ -1149,57 +705,16 @@ export const api = createApi({
 			invalidatesTags: ["Customers"],
 		}),
 
-		/**
-		 * Get Categories Query
-		 *
-		 * Fetches all categories with item counts.
-		 * Returns categories with count of inventory items in each category.
-		 *
-		 * Requirements:
-		 * - 5.7: Create queries for fetching categories
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Categories']
-		 * - Tagged with 'Categories' so it can be invalidated on mutations
-		 */
 		getCategories: builder.query<GetCategoriesResponse, void>({
 			query: () => "/api/categories",
 			providesTags: ["Categories"],
 		}),
 
-		/**
-		 * Get Category Query
-		 *
-		 * Fetches a single category by ID with all inventory items.
-		 * Returns category with detailed inventory item list.
-		 *
-		 * Requirements:
-		 * - 5.7: Create queries for fetching categories
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Categories']
-		 * - Tagged with 'Categories' so it can be invalidated on mutations
-		 */
 		getCategory: builder.query<GetCategoryResponse, string>({
 			query: (id) => `/api/categories/${id}`,
 			providesTags: ["Categories"],
 		}),
 
-		/**
-		 * Create Category Mutation
-		 *
-		 * Creates a new category with the provided data.
-		 * Requires MANAGER+ role for access.
-		 * Validates category name uniqueness.
-		 *
-		 * Requirements:
-		 * - 5.7: Create mutations for category management
-		 * - 6.4: Invalidate categories cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Categories']
-		 * - Invalidates 'Categories' tag to trigger refetch of categories lists
-		 */
 		createCategory: builder.mutation<
 			CreateCategoryResponse,
 			CreateCategoryRequest
@@ -1212,21 +727,6 @@ export const api = createApi({
 			invalidatesTags: ["Categories"],
 		}),
 
-		/**
-		 * Update Category Mutation
-		 *
-		 * Updates an existing category with the provided data.
-		 * Requires MANAGER+ role for access.
-		 * Validates category name uniqueness if being changed.
-		 *
-		 * Requirements:
-		 * - 5.7: Create mutations for category management
-		 * - 6.4: Invalidate categories cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Categories']
-		 * - Invalidates 'Categories' tag to trigger refetch of categories data
-		 */
 		updateCategory: builder.mutation<
 			UpdateCategoryResponse,
 			{ id: string; data: UpdateCategoryRequest }
@@ -1239,21 +739,6 @@ export const api = createApi({
 			invalidatesTags: ["Categories"],
 		}),
 
-		/**
-		 * Delete Category Mutation
-		 *
-		 * Deletes a category from the system.
-		 * Requires MANAGER+ role for access.
-		 * Only allowed if category has no associated inventory items.
-		 *
-		 * Requirements:
-		 * - 5.7: Create mutations for category management
-		 * - 6.4: Invalidate categories cache on mutation
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Invalidation: ['Categories']
-		 * - Invalidates 'Categories' tag to trigger refetch of categories lists
-		 */
 		deleteCategory: builder.mutation<DeleteCategoryResponse, string>({
 			query: (id) => ({
 				url: `/api/categories/${id}`,
@@ -1262,39 +747,11 @@ export const api = createApi({
 			invalidatesTags: ["Categories"],
 		}),
 
-		/**
-		 * Get Dashboard Stats Query
-		 *
-		 * Fetches comprehensive dashboard statistics including sales, revenue, and inventory metrics.
-		 * Requires MANAGER+ role for access.
-		 * Applies role-based filtering (CASHIER sees only their data).
-		 *
-		 * Requirements:
-		 * - 5.5: Create queries for analytics endpoints
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Analytics']
-		 * - Tagged with 'Analytics' so it can be invalidated when data changes
-		 */
 		getDashboardStats: builder.query<DashboardStats, void>({
 			query: () => "/api/analytics/dashboard",
 			providesTags: ["Analytics"],
 		}),
 
-		/**
-		 * Get Sales By Date Query
-		 *
-		 * Fetches sales data grouped by date within a specified date range.
-		 * Requires MANAGER+ role for access.
-		 * Applies role-based filtering (CASHIER sees only their data).
-		 *
-		 * Requirements:
-		 * - 5.5: Create queries for analytics endpoints
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Analytics']
-		 * - Tagged with 'Analytics' so it can be invalidated when data changes
-		 */
 		getSalesByDate: builder.query<DailySales[], GetSalesByDateParams | void>({
 			query: (params) => {
 				const searchParams = new URLSearchParams();
@@ -1312,20 +769,6 @@ export const api = createApi({
 			providesTags: ["Analytics"],
 		}),
 
-		/**
-		 * Get Top Products Query
-		 *
-		 * Fetches top selling products ordered by quantity sold.
-		 * Requires MANAGER+ role for access.
-		 * Applies role-based filtering (CASHIER sees only their data).
-		 *
-		 * Requirements:
-		 * - 5.5: Create queries for analytics endpoints
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Analytics']
-		 * - Tagged with 'Analytics' so it can be invalidated when data changes
-		 */
 		getTopProducts: builder.query<TopProduct[], GetTopProductsParams | void>({
 			query: (params) => {
 				const searchParams = new URLSearchParams();
@@ -1340,57 +783,16 @@ export const api = createApi({
 			providesTags: ["Analytics"],
 		}),
 
-		/**
-		 * Get Payment Methods Query
-		 *
-		 * Fetches aggregated sales data by payment method.
-		 * Requires MANAGER+ role for access.
-		 * Applies role-based filtering (CASHIER sees only their data).
-		 *
-		 * Requirements:
-		 * - 5.5: Create queries for analytics endpoints
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Analytics']
-		 * - Tagged with 'Analytics' so it can be invalidated when data changes
-		 */
 		getPaymentMethods: builder.query<PaymentMethodStats[], void>({
 			query: () => "/api/analytics/payment-methods",
 			providesTags: ["Analytics"],
 		}),
 
-		/**
-		 * Get Inventory Analytics Query
-		 *
-		 * Fetches inventory analytics including total value, low stock items, and category distribution.
-		 * Requires MANAGER+ role for access.
-		 *
-		 * Requirements:
-		 * - 5.5: Create queries for analytics endpoints
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['Analytics']
-		 * - Tagged with 'Analytics' so it can be invalidated when data changes
-		 */
 		getInventoryAnalytics: builder.query<InventoryAnalytics, void>({
 			query: () => "/api/analytics/inventory",
 			providesTags: ["Analytics"],
 		}),
 
-		/**
-		 * Get Activity Logs Query
-		 *
-		 * Fetches activity logs with pagination support.
-		 * Requires MANAGER+ role for access.
-		 * Applies role-based filtering (CASHIER sees only their logs).
-		 *
-		 * Requirements:
-		 * - 5.8: Create queries for activity log endpoints with pagination
-		 * - 10.2: Specify TypeScript types for request/response
-		 *
-		 * Cache Tags: ['ActivityLogs']
-		 * - Tagged with 'ActivityLogs' so it can be invalidated when new logs are created
-		 */
 		getActivityLogs: builder.query<
 			ActivityLogWithUser[],
 			GetActivityLogsParams | void
@@ -1408,29 +810,6 @@ export const api = createApi({
 	}),
 });
 
-/**
- * RTK Query Hooks Export
- *
- * These hooks are auto-generated by RTK Query based on endpoint definitions.
- * All hooks are fully typed with TypeScript for type-safe API calls.
- *
- * Query Hooks (useXxxQuery):
- * - Automatically fetch data when component mounts
- * - Return { data, error, isLoading, isSuccess, isError, refetch }
- * - Automatically cache and deduplicate requests
- * - Automatically refetch when cache is invalidated
- *
- * Mutation Hooks (useXxxMutation):
- * - Return [trigger, { data, error, isLoading, isSuccess, isError, reset }]
- * - Call trigger(args) to execute the mutation
- * - Automatically invalidate cache tags on success
- *
- * Requirements:
- * - 10.2: All endpoints have proper TypeScript types
- * - 10.3: Typed hooks provide automatic type inference
- * - 10.5: Enforce correct argument types based on endpoint definitions
- * - 10.6: Provide typed error objects from RTK Query
- */
 export const {
 	useValidateSessionQuery,
 	useLoginMutation,

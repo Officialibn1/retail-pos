@@ -31,7 +31,9 @@ export type SaleWithDetails = Sale & {
 	};
 };
 
-const taxRate = process.env.TAX_AMOUNT;
+const taxRate = Number(
+	process.env.TAX_AMOUNT || process.env.NEXT_PUBLIC_TAX_AMOUNT || "0.1",
+);
 
 /**
  * Create a new sale with stock validation

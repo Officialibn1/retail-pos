@@ -74,8 +74,8 @@ model ActivityLog {
 model Customer {
   id        String   @id @default(cuid())
   name      String?
-  phone     String?  @unique
-  email     String?
+  phone     String  @unique
+  email     String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

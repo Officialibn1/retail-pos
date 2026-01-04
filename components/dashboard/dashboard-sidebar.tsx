@@ -11,6 +11,8 @@ import {
 	Activity,
 	Receipt,
 	Store,
+	FolderKanban,
+	UserCircle,
 } from "lucide-react";
 import {
 	Sidebar,
@@ -76,6 +78,23 @@ const navigationItems = [
 		url: "/dashboard/inventory",
 		icon: Package,
 		roles: [UserRole.SUPERADMIN, UserRole.MANAGER] as const,
+	},
+	{
+		title: "Categories",
+		url: "/dashboard/categories",
+		icon: FolderKanban,
+		roles: [UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.ADMIN] as const,
+	},
+	{
+		title: "Customers",
+		url: "/dashboard/customers",
+		icon: UserCircle,
+		roles: [
+			UserRole.SUPERADMIN,
+			UserRole.MANAGER,
+			UserRole.CASHIER,
+			UserRole.ADMIN,
+		] as const,
 	},
 	{
 		title: "Users",
