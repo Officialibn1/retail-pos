@@ -1,5 +1,6 @@
-import { PaymentMethod, SaleStatus } from "@/generated/prisma";
+import { Customer, PaymentMethod, SaleStatus } from "@/generated/prisma";
 import { CategoryWithCount } from "@/lib/services/category.service";
+import { CustomerWithSales } from "@/lib/services/customer.service";
 import { SaleWithDetails } from "@/lib/services/sale.service";
 import { CompleteSaleInput, CreateSaleInput } from "@/lib/validations";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -274,29 +275,6 @@ export interface CancelSaleRequest {
 	reason?: string;
 }
 
-// Customer data
-export interface CustomerData {
-	id: string;
-	name: string | null;
-	phone: string | null;
-	email: string | null;
-	createdAt: string;
-	updatedAt: string;
-}
-
-// Customer with sales history
-export interface CustomerWithSales extends CustomerData {
-	sales: Array<{
-		id: string;
-		total: number;
-		status: string;
-		createdAt: string;
-	}>;
-	_count: {
-		sales: number;
-	};
-}
-
 // Create customer request
 export interface CreateCustomerRequest {
 	name?: string | null;
@@ -325,13 +303,13 @@ export interface GetCustomerResponse {
 // Create customer response
 export interface CreateCustomerResponse {
 	message: string;
-	customer: CustomerData;
+	customer: Customer;
 }
 
 // Update customer response
 export interface UpdateCustomerResponse {
 	message: string;
-	customer: CustomerData;
+	customer: Customer;
 }
 
 // Delete customer response

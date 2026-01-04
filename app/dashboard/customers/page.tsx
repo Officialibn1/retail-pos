@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Plus, Users, DollarSign, Loader2, Search } from "lucide-react";
+import { Plus, Users, Loader2, Search } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { UserRole } from "@/lib/types";
 import {
@@ -27,15 +27,16 @@ import {
 	useCreateCustomerMutation,
 	useUpdateCustomerMutation,
 	useDeleteCustomerMutation,
-	type CustomerWithSales,
 } from "@/lib/store/api";
 import { toast } from "sonner";
 import { AddCustomerDialog } from "@/components/customers/add-customer-dialog";
 import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
-import { CustomersTable } from "@/components/customers/customers-table";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
+import { customersTableDef } from "@/components/customers/customers-table-def";
+import DataTable from "@/components/dashboard/data-table";
+import { CustomerWithSales } from "@/lib/services/customer.service";
 
 export default function CustomersPage() {
 	const { user } = useAuth();
@@ -68,11 +69,12 @@ export default function CustomersPage() {
 
 	const customers = customersResponse?.customers || [];
 
-	const canDelete = user?.roles.some((role) =>
-		(
-			[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
-		).includes(role),
-	);
+	const canModify =
+		user?.roles.some((role) =>
+			(
+				[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
+			).includes(role),
+		) || false;
 
 	const handleAddCustomer = async (data: {
 		name?: string | null;
@@ -163,7 +165,7 @@ export default function CustomersPage() {
 		if (!selectedCustomer) return;
 
 		// Requirement 9.4: Display error notification for unauthorized operations
-		if (!canDelete) {
+		if (!canModify) {
 			toast.error("You don't have permission to delete customers");
 			setShowDeleteDialog(false);
 			setSelectedCustomer(null);
@@ -297,36 +299,6 @@ export default function CustomersPage() {
 					</Card>
 				</section>
 
-				<div className='flex gap-4 mt-4'>
-					<div className='relative flex-1'>
-						<label
-							htmlFor='customer-search'
-							className='sr-only'>
-							Search customers
-						</label>
-						{isFetching ? (
-							<Spinner
-								className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
-								aria-label='Loading customers'
-							/>
-						) : (
-							<Search
-								className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
-								aria-hidden='true'
-							/>
-						)}
-
-						<Input
-							id='customer-search'
-							placeholder='Search customers...'
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							className='pl-8 border-brand-main-200 focus:border-brand-main-400'
-							aria-label='Search customers'
-						/>
-					</div>
-				</div>
-
 				{/* Customers Table - Will be implemented in Task 8 */}
 				{customers.length === 0 ? (
 					<Card className='border-brand-main-200'>
@@ -341,51 +313,46 @@ export default function CustomersPage() {
 					</Card>
 				) : (
 					<Card className='border-brand-main-200'>
-						<CardHeader>
-							<CardTitle className='text-brand-main-800'>Customers</CardTitle>
-							<CardDescription className='text-brand-main-600'>
-								{customers.length} customers found
-							</CardDescription>
-						</CardHeader>
 						<CardContent>
-							<div className='space-y-2'>
-								<CustomersTable
-									customers={customers}
-									isFetching={isLoading || isFetching}
-								/>
+							<div className='space-y-4'>
+								<div className='flex gap-4'>
+									<div className='relative flex-1'>
+										<label
+											htmlFor='customer-search'
+											className='sr-only'>
+											Search customers
+										</label>
+										{isFetching ? (
+											<Spinner
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												aria-label='Loading customers'
+											/>
+										) : (
+											<Search
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												aria-hidden='true'
+											/>
+										)}
 
-								{/* <>
-								{customers.map((customer) => (
-									<div
-										key={customer.id}
-										className='flex items-center justify-between p-3 border border-brand-main-200 rounded-lg'>
-										<div>
-											<p className='font-medium text-brand-main-800'>
-												{customer.name || "N/A"}
-											</p>
-											<p className='text-sm text-brand-main-600'>
-												{customer.email || "N/A"} • {customer.phone || "N/A"}
-											</p>
-											
-										</div>
-										<div className='flex gap-2'>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => handleEditCustomer(customer)}
-												className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
-												Edit
-											</Button>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => handleDeleteCustomer(customer)}
-												className='border-red-200 text-red-700 hover:bg-red-50'>
-												Delete
-											</Button>
-										</div>
+										<Input
+											id='customer-search'
+											placeholder='Search customers...'
+											value={searchTerm}
+											onChange={(e) => setSearchTerm(e.target.value)}
+											className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+											aria-label='Search customers'
+										/>
 									</div>
-								))}</> */}
+								</div>
+
+								<DataTable
+									columns={customersTableDef({
+										onDelete: handleDeleteCustomer,
+										onEdit: handleEditCustomer,
+										canModify,
+									})}
+									data={customers}
+								/>
 							</div>
 						</CardContent>
 					</Card>
