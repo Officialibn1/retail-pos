@@ -29,7 +29,7 @@
 	--color-brand-main-900: #273a36;
 	--color-brand-main-950: #13201e; */
 
-	--color-brand-main-50: #f4f4f1;
+	/* --color-brand-main-50: #f4f4f1;
 	--color-brand-main-100: #e5e6e1;
 	--color-brand-main-200: #d0d0c6;
 	--color-brand-main-300: #b2b3a3;
@@ -39,7 +39,7 @@
 	--color-brand-main-700: #4a4c3f;
 	--color-brand-main-800: #3e3f35;
 	--color-brand-main-900: #363730;
-	--color-brand-main-950: #1b1c17;
+	--color-brand-main-950: #1b1c17; */
 
 	/* --color-brand-main-50: #f3f8ed;
 	--color-brand-main-100: #e2f0d7;
@@ -65,7 +65,7 @@
 	--color-brand-main-900: #3a3b3f;
 	--color-brand-main-950: #242428; */
 
-	/* --color-brand-main-50: #fafafa;
+	--color-brand-main-50: #fafafa;
 	--color-brand-main-100: #f4f4f5;
 	--color-brand-main-200: #e4e4e7;
 	--color-brand-main-300: #d4d4d8;
@@ -75,7 +75,7 @@
 	--color-brand-main-700: #3f3f46;
 	--color-brand-main-800: #27272a;
 	--color-brand-main-900: #18181b;
-	--color-brand-main-950: #09090b; */
+	--color-brand-main-950: #09090b;
 
 	/* Light theme - References brand main variables */
 	--background: var(--color-brand-main-50);

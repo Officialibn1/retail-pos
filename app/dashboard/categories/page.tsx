@@ -32,10 +32,11 @@ import { toast } from "sonner";
 import { AddCategoryDialog } from "@/components/categories/add-category-dialog";
 import { EditCategoryDialog } from "@/components/categories/edit-category-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
-import { CategoriesTable } from "@/components/categories/categories-table";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { CategoryWithCount } from "@/lib/services/category.service";
+import DataTable from "@/components/dashboard/data-table";
+import { categoriesTableDef } from "@/components/categories/categories-table-def";
 
 export default function CategoriesPage() {
 	const { user } = useAuth();
@@ -73,14 +74,12 @@ export default function CategoriesPage() {
 		0,
 	);
 
-	// Check if user has permission to modify categories (MANAGER+ roles)
-	// Requirement 9.3: MANAGER, ADMIN, SUPERADMIN can perform all CRUD operations
-	// Requirement 9.5: Conditionally render action buttons based on user role
-	const canModify = user?.roles.some((role) =>
-		(
-			[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
-		).includes(role),
-	);
+	const canModify =
+		user?.roles.some((role) =>
+			(
+				[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
+			).includes(role),
+		) || false;
 
 	const handleAddCategory = async (data: { name: string }) => {
 		// Requirement 9.4: Display error notification for unauthorized operations
@@ -287,45 +286,45 @@ export default function CategoriesPage() {
 					</Card>
 				) : (
 					<Card className='border-brand-main-200'>
-						<CardHeader>
-							<CardTitle className='text-brand-main-800'>Categories</CardTitle>
-						</CardHeader>
 						<CardContent>
-							<div className='flex gap-4'>
-								<div className='relative flex-1'>
-									<label
-										htmlFor='category-search'
-										className='sr-only'>
-										Search categories
-									</label>
-									{isFetching ? (
-										<Spinner
-											className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
-											aria-label='Loading categories'
-										/>
-									) : (
-										<Search
-											className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
-											aria-hidden='true'
-										/>
-									)}
+							<div className='space-y-4'>
+								<div className='flex gap-4'>
+									<div className='relative flex-1'>
+										<label
+											htmlFor='category-search'
+											className='sr-only'>
+											Search categories
+										</label>
+										{isFetching ? (
+											<Spinner
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												aria-label='Loading categories'
+											/>
+										) : (
+											<Search
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												aria-hidden='true'
+											/>
+										)}
 
-									<Input
-										id='category-search'
-										placeholder='Search categories...'
-										value={searchTerm}
-										onChange={(e) => setSearchTerm(e.target.value)}
-										className='pl-8 border-brand-main-200 focus:border-brand-main-400'
-										aria-label='Search categories'
-									/>
+										<Input
+											id='category-search'
+											placeholder='Search categories...'
+											value={searchTerm}
+											onChange={(e) => setSearchTerm(e.target.value)}
+											className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+											aria-label='Search categories'
+										/>
+									</div>
 								</div>
-							</div>
-							<div className='space-y-2'>
-								<CategoriesTable
-									categories={categories}
-									onDelete={handleDeleteCategory}
-									onEdit={handleEditCategory}
-									isFetching={loading || isFetching}
+
+								<DataTable
+									data={categories}
+									columns={categoriesTableDef({
+										canModify,
+										onDelete: handleDeleteCategory,
+										onEdit: handleEditCategory,
+									})}
 								/>
 							</div>
 						</CardContent>

@@ -9,6 +9,8 @@ import {
 
 // Re-export Prisma enums for convenience
 export { UserRole, SaleStatus, Shift, PaymentMethod };
+export type DateStyle = Intl.DateTimeFormatOptions["dateStyle"];
+export type TimeStyle = Intl.DateTimeFormatOptions["timeStyle"];
 
 // Use Decimal from Prisma namespace
 type Decimal = Prisma.Decimal;
