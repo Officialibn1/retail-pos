@@ -27,6 +27,8 @@ import Link from "next/link";
 import { useGetSalesQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
 import { SaleWithDetails } from "@/lib/services/sale.service";
+import DataTable from "@/components/dashboard/data-table";
+import { salesHistoryTableDef } from "@/components/sales-history/sales-history-table-def";
 
 export default function SalesHistoryPage() {
 	const { user } = useAuth();
@@ -215,10 +217,7 @@ export default function SalesHistoryPage() {
 
 			<Card className='border-brand-main-200'>
 				<CardHeader>
-					<CardTitle className='text-brand-main-800'>
-						Sales Transactions
-					</CardTitle>
-					<div className='flex gap-4 mt-4'>
+					<div className='flex gap-4'>
 						<div className='relative flex-1'>
 							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							<Input
@@ -240,80 +239,19 @@ export default function SalesHistoryPage() {
 					</div>
 				</CardHeader>
 				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow className='border-brand-main-200'>
-								<TableHead className='text-brand-main-700'>
-									Sale Number
-								</TableHead>
-								<TableHead className='text-brand-main-700'>Date</TableHead>
-								{canSeeAll && (
-									<TableHead className='text-brand-main-700'>
-										Sales Person
-									</TableHead>
-								)}
-								<TableHead className='text-brand-main-700'>Items</TableHead>
-								<TableHead className='text-brand-main-700'>Payment</TableHead>
-								<TableHead className='text-brand-main-700'>Total</TableHead>
-								<TableHead className='text-brand-main-700'>Status</TableHead>
-								<TableHead className='text-brand-main-700'>Actions</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{filteredSales.map((sale) => (
-								<TableRow
-									key={sale.id}
-									className='border-brand-main-100'>
-									<TableCell className='font-medium text-brand-main-800'>
-										{sale.id.slice(0, 8)}
-									</TableCell>
-									<TableCell className='text-brand-main-700'>
-										{new Date(sale.createdAt).toLocaleDateString()}{" "}
-										{new Date(sale.createdAt).toLocaleTimeString()}
-									</TableCell>
-									{canSeeAll && (
-										<TableCell className='text-brand-main-700'>
-											{sale.user?.name || "Unknown"}
-										</TableCell>
-									)}
-									<TableCell className='text-brand-main-700'>
-										{sale.items?.length || 0} items
-									</TableCell>
-									<TableCell className='text-brand-main-700 capitalize'>
-										{sale.paymentMethod}
-									</TableCell>
-									<TableCell className='text-brand-main-700'>
-										{formatNaira(Number(sale.total))}
-									</TableCell>
-									<TableCell>{getStatusBadge(sale.status)}</TableCell>
-									<TableCell>
-										<div className='flex gap-1'>
-											<Button
-												size='sm'
-												variant='ghost'
-												className='text-brand-main-600 hover:bg-brand-main-100'
-												onClick={() => handleViewSale(sale)}>
-												<Eye className='h-4 w-4 mr-1' />
-												View
-											</Button>
-											<Button
-												size='sm'
-												variant='ghost'
-												className='text-brand-main-600 hover:bg-brand-main-100'
-												onClick={() => handlePrintReceipt(sale)}>
-												<Printer className='h-4 w-4 mr-1' />
-												Receipt
-											</Button>
-										</div>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-					{filteredSales.length === 0 && (
+					{sales.length === 0 ? (
 						<div className='text-center py-8 text-brand-main-600'>
 							No sales found matching your criteria.
 						</div>
+					) : (
+						<DataTable
+							columns={salesHistoryTableDef({
+								canSeeAll,
+								handleViewSale,
+								handlePrintReceipt,
+							})}
+							data={sales}
+						/>
 					)}
 				</CardContent>
 			</Card>
