@@ -10,10 +10,6 @@ import { logActivity } from "@/lib/services/activity-log.service";
 
 export const dynamic = "force-dynamic";
 
-/**
- * POST /api/inventory
- * Create a new inventory item (MANAGER+ only)
- */
 export async function POST(request: NextRequest) {
 	try {
 		// Authenticate user
@@ -97,26 +93,19 @@ export async function POST(request: NextRequest) {
 	}
 }
 
-/**
- * GET /api/inventory
- * List all non-deleted inventory items with categories
- */
 export async function GET(request: NextRequest) {
 	try {
 		const params = request.nextUrl.searchParams;
 
-		// Authenticate user
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
 			return authResult;
 		}
 
-		// Get all non-deleted inventory items
 		const items = await listInventoryItems(false, params);
 
 		return NextResponse.json(items);
 	} catch (error) {
-		// Handle unexpected errors
 		console.error("Error listing inventory items:", error);
 		return NextResponse.json(
 			{

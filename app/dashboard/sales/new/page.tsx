@@ -10,7 +10,6 @@ import { PaymentDialog } from "@/components/sales/payment-dialog";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
 import { PendingOrdersList } from "@/components/sales/pending-orders-list";
 import { useAuth } from "@/components/auth/auth-provider";
-import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
 import { RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -18,7 +17,6 @@ import {
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useGetSalesQuery,
-	type InventoryItemWithCategory as ApiInventoryItem,
 	type SaleItemData,
 } from "@/lib/store/api";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
@@ -38,6 +36,7 @@ import {
 } from "@/lib/store/slices/cartSlice";
 import { PaymentMethod } from "@/generated/prisma";
 import { toast } from "sonner";
+import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
 
 export default function NewSalePage() {
 	const { user } = useAuth();
@@ -91,7 +90,10 @@ export default function NewSalePage() {
 		}
 	}, [inventory, dispatch]);
 
-	const handleAddToCart = (product: ApiInventoryItem, quantity: number) => {
+	const handleAddToCart = (
+		product: InventoryItemWithCategory,
+		quantity: number,
+	) => {
 		// Convert API inventory item to the format expected by cart slice
 		const convertedProduct = {
 			...product,

@@ -1,8 +1,33 @@
-import { Customer, PaymentMethod, SaleStatus } from "@/generated/prisma";
-import { CategoryWithCount } from "@/lib/services/category.service";
+import { Customer, InventoryItem, Sale, User } from "@/generated/prisma";
+import {
+	ActivityLogWithUser,
+	CategoryWithCount,
+	CategoryWithItems,
+	InventoryItemWithCategory,
+	UserWithoutPassword,
+} from "@/lib/prisma-extended-types";
 import { CustomerWithSales } from "@/lib/services/customer.service";
 import { SaleWithDetails } from "@/lib/services/sale.service";
-import { CompleteSaleInput, CreateSaleInput } from "@/lib/validations";
+import {
+	DashboardStats,
+	GetSalesParams,
+	InventoryAnalytics,
+	LoginResponse,
+	LogoutResponse,
+	SearchParams,
+} from "@/lib/types";
+import {
+	AdjustStockInput,
+	CompleteSaleInput,
+	CreateCustomerInput,
+	CreateInventoryItemInput,
+	CreateSaleInput,
+	CreateUserInput,
+	LoginInput,
+	UpdateCustomerInput,
+	UpdateInventoryItemInput,
+	UpdateUserInput,
+} from "@/lib/validations";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const TAG_TYPES = [
@@ -18,118 +43,9 @@ export const TAG_TYPES = [
 
 export type TagType = (typeof TAG_TYPES)[number];
 
-// User data without password (safe for client-side)
-export interface UserData {
-	id: string;
-	email: string;
-	username: string;
-	name: string;
-	roles: string[];
-	shift: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-// Login request body
-export interface LoginRequest {
-	email: string;
-	password: string;
-}
-
-// Login response
-export interface LoginResponse {
-	user: UserData;
-	message: string;
-}
-
-// Logout response
-export interface LogoutResponse {
-	message: string;
-}
-
-// API Error response structure
-export interface ApiError {
-	error: {
-		message: string;
-		code: string;
-		details?: any;
-	};
-}
-
-// Inventory item with category information
-export interface InventoryItemWithCategory {
-	id: string;
-	name: string;
-	description: string | null;
-	price: number;
-	stock: number;
-	sku: string;
-	barcode: string | null;
-	categoryId: string;
-	deletedAt: string | null;
-	createdAt: string;
-	updatedAt: string;
-	category: {
-		id: string;
-		name: string;
-	};
-}
-
-// Create inventory item request
-export interface CreateInventoryItemRequest {
-	name: string;
-	description?: string | null;
-	price: number | string;
-	stock?: number;
-	sku: string;
-	barcode?: string | null;
-	categoryId: string;
-}
-
-// Update inventory item request
-export interface UpdateInventoryItemRequest {
-	name?: string;
-	description?: string | null;
-	price?: number | string;
-	stock?: number;
-	sku?: string;
-	barcode?: string | null;
-	categoryId?: string;
-}
-
-// Adjust stock request
-export interface AdjustStockRequest {
-	quantity: number;
-	reason:
-		| "RESTOCK"
-		| "DAMAGE"
-		| "THEFT"
-		| "ADJUSTMENT"
-		| "RETURN"
-		| "SALE"
-		| "SALE_CANCELLED";
-	notes?: string | null;
-}
-
-// Inventory item response (without category)
 export interface InventoryItemResponse {
-	id: string;
-	name: string;
-	description: string | null;
-	price: number;
-	stock: number;
-	sku: string;
-	barcode: string | null;
-	categoryId: string;
-	deletedAt: string | null;
-	createdAt: string;
-	updatedAt: string;
-}
-
-// Create inventory item response
-export interface CreateInventoryItemResponse {
 	message: string;
-	item: InventoryItemResponse;
+	item: InventoryItem;
 }
 
 // Get inventory item response
@@ -137,107 +53,37 @@ export interface GetInventoryItemResponse {
 	item: InventoryItemWithCategory;
 }
 
-// Update inventory item response
-export interface UpdateInventoryItemResponse {
-	message: string;
-	item: InventoryItemResponse;
-}
-
 // Delete inventory item response
 export interface DeleteInventoryItemResponse {
 	message: string;
 }
 
-// Adjust stock response
-export interface AdjustStockResponse {
-	message: string;
-	item: InventoryItemResponse;
-}
-
-// Create user request
-export interface CreateUserRequest {
-	email: string;
-	username: string;
-	name: string;
-	password: string;
-	roles?: string[];
-	shift?: string;
-}
-
-// Update user request
-export interface UpdateUserRequest {
-	email?: string;
-	username?: string;
-	name?: string;
-	password?: string;
-	roles?: string[];
-	shift?: string;
-}
-
-// User response (without password)
-export interface UserResponse {
-	id: string;
-	email: string;
-	username: string;
-	name: string;
-	roles: string[];
-	shift: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
 // Get users response
 export interface GetUsersResponse {
-	users: UserResponse[];
+	users: UserWithoutPassword[];
 	count: number;
 }
 
 // Get user response
 export interface GetUserResponse {
-	user: UserResponse;
+	user: UserWithoutPassword;
 }
 
 // Create user response
 export interface CreateUserResponse {
 	message: string;
-	user: UserResponse;
+	user: UserWithoutPassword;
 }
 
 // Update user response
 export interface UpdateUserResponse {
 	message: string;
-	user: UserResponse;
+	user: UserWithoutPassword;
 }
 
 // Delete user response
 export interface DeleteUserResponse {
 	message: string;
-}
-
-// Get sales query parameters
-export interface GetSalesParams {
-	status?: SaleStatus;
-	startDate?: string;
-	endDate?: string;
-	page?: number;
-	limit?: number;
-}
-
-export interface SearchParams {
-	searchTerm?: string;
-	category?: string;
-}
-
-// Sale item in a sale
-export interface SaleItemData {
-	id: string;
-	quantity: number;
-	price: number;
-	inventoryItem: {
-		id: string;
-		name: string;
-		sku: string;
-	};
 }
 
 // Customer data in a sale
@@ -248,45 +94,15 @@ export interface SaleCustomerData {
 }
 
 // User data in a sale
-export interface SaleUserData {
+export interface SaleUser {
 	id: string;
 	name: string;
 	email: string;
 }
 
-// Sale without details (basic sale data)
-export interface SaleData {
-	id: string;
-	total: number;
-	status: SaleStatus;
-	paymentMethod: PaymentMethod;
-	amountPaid: number | null;
-	changeGiven: number | null;
-	completedAt: string | null;
-	cancelledAt: string | null;
-	createdAt: string;
-	updatedAt: string;
-	userId: string;
-	customerId: string | null;
-}
-
 // Cancel sale request (no body required, but keeping for consistency)
 export interface CancelSaleRequest {
 	reason?: string;
-}
-
-// Create customer request
-export interface CreateCustomerRequest {
-	name?: string | null;
-	phone?: string | null;
-	email?: string | null;
-}
-
-// Update customer request
-export interface UpdateCustomerRequest {
-	name?: string | null;
-	phone?: string | null;
-	email?: string | null;
 }
 
 // Get customers response
@@ -321,16 +137,6 @@ export interface DeleteCustomerResponse {
 export interface CategoryData {
 	id: string;
 	name: string;
-}
-
-// Category with items
-export interface CategoryWithItems extends CategoryData {
-	items: Array<{
-		id: string;
-		name: string;
-		sku: string;
-		stock: number;
-	}>;
 }
 
 // Create category request
@@ -371,23 +177,6 @@ export interface DeleteCategoryResponse {
 	message: string;
 }
 
-// Dashboard statistics
-export interface DashboardStats {
-	totalSales: number;
-	totalRevenue: number;
-	averageOrderValue: number;
-	totalProducts: number;
-	lowStockCount: number;
-	recentSales: Array<{
-		id: string;
-		total: number;
-		status: string;
-		createdAt: Date;
-		customerName: string | null;
-		itemCount: number;
-	}>;
-}
-
 // Daily sales data
 export interface DailySales {
 	date: string;
@@ -421,40 +210,6 @@ export interface PaymentMethodStats {
 	revenue: number;
 }
 
-// Inventory analytics data
-export interface InventoryAnalytics {
-	totalProducts: number;
-	totalValue: number;
-	lowStockCount: number;
-	lowStockItems: Array<{
-		id: string;
-		name: string;
-		stock: number;
-		price: number;
-	}>;
-	categoryDistribution: Array<{
-		category: string;
-		count: number;
-		totalValue: number;
-	}>;
-}
-
-// Activity log with user information
-export interface ActivityLogWithUser {
-	id: string;
-	userId: string;
-	action: string;
-	details: string;
-	ipAddress: string | null;
-	userAgent: string | null;
-	createdAt: Date;
-	user: {
-		id: string;
-		name: string;
-		email: string;
-	};
-}
-
 export interface GetActivityLogsParams {
 	limit?: number;
 }
@@ -474,12 +229,12 @@ export const api = createApi({
 	}),
 	tagTypes: TAG_TYPES,
 	endpoints: (builder) => ({
-		validateSession: builder.query<UserData, void>({
+		validateSession: builder.query<User, void>({
 			query: () => "/api/auth/me",
 			providesTags: ["Auth"],
 		}),
 
-		login: builder.mutation<LoginResponse, LoginRequest>({
+		login: builder.mutation<LoginResponse, LoginInput>({
 			query: (credentials) => ({
 				url: "/api/auth/login",
 				method: "POST",
@@ -516,8 +271,8 @@ export const api = createApi({
 		}),
 
 		createInventoryItem: builder.mutation<
-			CreateInventoryItemResponse,
-			CreateInventoryItemRequest
+			InventoryItemResponse,
+			CreateInventoryItemInput
 		>({
 			query: (data) => ({
 				url: "/api/inventory",
@@ -528,8 +283,8 @@ export const api = createApi({
 		}),
 
 		updateInventoryItem: builder.mutation<
-			UpdateInventoryItemResponse,
-			{ id: string; data: UpdateInventoryItemRequest }
+			InventoryItemResponse,
+			{ id: string; data: UpdateInventoryItemInput }
 		>({
 			query: ({ id, data }) => ({
 				url: `/api/inventory/${id}`,
@@ -548,8 +303,8 @@ export const api = createApi({
 		}),
 
 		adjustStock: builder.mutation<
-			AdjustStockResponse,
-			{ id: string; data: AdjustStockRequest }
+			InventoryItemResponse,
+			{ id: string; data: AdjustStockInput }
 		>({
 			query: ({ id, data }) => ({
 				url: `/api/inventory/${id}/adjust-stock`,
@@ -573,7 +328,7 @@ export const api = createApi({
 			providesTags: ["Sales"],
 		}),
 
-		createSale: builder.mutation<SaleData, CreateSaleInput>({
+		createSale: builder.mutation<Sale, CreateSaleInput>({
 			query: (data) => ({
 				url: "/api/sales",
 				method: "POST",
@@ -583,7 +338,7 @@ export const api = createApi({
 		}),
 
 		completeSale: builder.mutation<
-			SaleData,
+			Sale,
 			{ id: string; data: CompleteSaleInput }
 		>({
 			query: ({ id, data }) => ({
@@ -594,7 +349,7 @@ export const api = createApi({
 			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
-		cancelSale: builder.mutation<SaleData, string>({
+		cancelSale: builder.mutation<Sale, string>({
 			query: (id) => ({
 				url: `/api/sales/${id}/cancel`,
 				method: "POST",
@@ -612,7 +367,7 @@ export const api = createApi({
 			providesTags: ["Users"],
 		}),
 
-		createUser: builder.mutation<CreateUserResponse, CreateUserRequest>({
+		createUser: builder.mutation<CreateUserResponse, CreateUserInput>({
 			query: (data) => ({
 				url: "/api/users",
 				method: "POST",
@@ -623,7 +378,7 @@ export const api = createApi({
 
 		updateUser: builder.mutation<
 			UpdateUserResponse,
-			{ id: string; data: UpdateUserRequest }
+			{ id: string; data: UpdateUserInput }
 		>({
 			query: ({ id, data }) => ({
 				url: `/api/users/${id}`,
@@ -653,7 +408,7 @@ export const api = createApi({
 
 		createCustomer: builder.mutation<
 			CreateCustomerResponse,
-			CreateCustomerRequest
+			CreateCustomerInput
 		>({
 			query: (data) => ({
 				url: "/api/customers",
@@ -665,7 +420,7 @@ export const api = createApi({
 
 		updateCustomer: builder.mutation<
 			UpdateCustomerResponse,
-			{ id: string; data: UpdateCustomerRequest }
+			{ id: string; data: UpdateCustomerInput }
 		>({
 			query: ({ id, data }) => ({
 				url: `/api/customers/${id}`,

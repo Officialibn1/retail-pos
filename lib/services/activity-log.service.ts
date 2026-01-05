@@ -1,20 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@/generated/prisma/client";
-
-export interface ActivityLogWithUser {
-	id: string;
-	userId: string;
-	action: string;
-	details: string;
-	ipAddress: string | null;
-	userAgent: string | null;
-	createdAt: Date;
-	user: {
-		id: string;
-		name: string;
-		email: string;
-	};
-}
+import { ActivityLogWithUser } from "../prisma-extended-types";
 
 /**
  * Create an activity log entry
@@ -47,13 +33,6 @@ export async function logActivity(
 	}
 }
 
-/**
- * Get activity logs with role-based filtering
- * @param userId - Optional user ID for CASHIER filtering
- * @param userRoles - User roles for access control
- * @param limit - Maximum number of logs to return
- * @returns Array of activity logs with user information
- */
 export async function getActivityLogs(
 	userId?: string,
 	userRoles?: UserRole[],
@@ -94,12 +73,6 @@ export async function getActivityLogs(
 	return logs;
 }
 
-/**
- * Get activity logs for a specific user
- * @param userId - User ID to get logs for
- * @param limit - Maximum number of logs to return
- * @returns Array of activity logs
- */
 export async function getUserActivityLogs(
 	userId: string,
 	limit: number = 50,

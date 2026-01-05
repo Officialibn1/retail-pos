@@ -4,33 +4,7 @@ import {
 	CreateCategoryInput,
 	UpdateCategoryInput,
 } from "@/lib/validations/category.schema";
-
-/**
- * Category with item count
- */
-export type CategoryWithCount = InventoryItemCategory & {
-	_count: {
-		inventoryItems: number;
-	};
-};
-
-/**
- * Category with full inventory items
- */
-export type CategoryWithItems = InventoryItemCategory & {
-	inventoryItems: Array<{
-		id: string;
-		name: string;
-		description: string | null;
-		price: any;
-		stock: number;
-		sku: string;
-		barcode: string | null;
-		deletedAt: Date | null;
-		createdAt: Date;
-		updatedAt: Date;
-	}>;
-};
+import { CategoryWithCount, CategoryWithItems } from "../prisma-extended-types";
 
 /**
  * Create a new category with uniqueness check

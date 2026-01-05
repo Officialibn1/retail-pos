@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@/generated/prisma/client";
+import { DashboardStats, InventoryAnalytics } from "../types";
 
 /**
  * Sales analytics data
@@ -36,45 +37,6 @@ export interface PaymentMethodStats {
 	method: string;
 	count: number;
 	revenue: number;
-}
-
-/**
- * Inventory analytics data
- */
-export interface InventoryAnalytics {
-	totalProducts: number;
-	totalValue: number;
-	lowStockCount: number;
-	lowStockItems: Array<{
-		id: string;
-		name: string;
-		stock: number;
-		price: number;
-	}>;
-	categoryDistribution: Array<{
-		category: string;
-		count: number;
-		totalValue: number;
-	}>;
-}
-
-/**
- * Dashboard statistics
- */
-export interface DashboardStats {
-	totalSales: number;
-	totalRevenue: number;
-	averageOrderValue: number;
-	totalProducts: number;
-	lowStockCount: number;
-	recentSales: Array<{
-		id: string;
-		total: number;
-		status: string;
-		createdAt: Date;
-		customerName: string | null;
-		itemCount: number;
-	}>;
 }
 
 /**

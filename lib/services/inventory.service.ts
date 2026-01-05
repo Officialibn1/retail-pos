@@ -5,16 +5,7 @@ import {
 	UpdateInventoryItemInput,
 	AdjustStockInput,
 } from "@/lib/validations/inventory.schema";
-
-/**
- * Inventory item with category information
- */
-export type InventoryItemWithCategory = InventoryItem & {
-	category: {
-		id: string;
-		name: string;
-	};
-};
+import { InventoryItemWithCategory } from "../prisma-extended-types";
 
 /**
  * Create a new inventory item with SKU uniqueness check
