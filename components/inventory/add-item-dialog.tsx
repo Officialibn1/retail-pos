@@ -22,20 +22,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { InventoryItem } from "@/lib/types";
 import { Camera } from "lucide-react"; // Import Camera icon
 import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/lib/store/api";
 import { Spinner } from "../ui/spinner";
+import { InventoryItem } from "@/generated/prisma";
 
 interface AddItemDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onSave: (
-		item: Omit<
-			InventoryItem,
-			"id" | "createdAt" | "updatedAt" | "stock" | "deletedAt"
-		>,
+		item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt" | "deletedAt">,
 	) => void;
 	isCreatingItem: boolean;
 }

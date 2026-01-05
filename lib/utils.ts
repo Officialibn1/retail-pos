@@ -101,3 +101,10 @@ export const downloadComponentAsPDF = async (
 		return error;
 	}
 };
+
+export const getStockStatus = (stock: number) => {
+	if (stock === 0)
+		return { label: "Out of Stock", variant: "destructive" as const };
+	if (stock < 10) return { label: "Low Stock", variant: "secondary" as const };
+	return { label: "In Stock", variant: "default" as const };
+};

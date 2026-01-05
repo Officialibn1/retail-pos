@@ -48,7 +48,7 @@ export const customersTableDef = ({
 				canModify ? (
 					<div className='w-full flex'>
 						<DropdownMenu>
-							<DropdownMenuTrigger className='ml-auto'>
+							<DropdownMenuTrigger>
 								<Button
 									variant='ghost'
 									size='sm'

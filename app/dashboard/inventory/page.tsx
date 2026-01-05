@@ -15,13 +15,13 @@ import {
 	AlertTriangle,
 	DollarSign,
 	Loader2,
+	Search,
 } from "lucide-react";
 import { InventoryTable } from "@/components/inventory/inventory-table";
 import { AddItemDialog } from "@/components/inventory/add-item-dialog";
 import { EditItemDialog } from "@/components/inventory/edit-item-dialog";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { useAuth } from "@/components/auth/auth-provider";
-import type { InventoryItem } from "@/lib/types";
 import { formatNaira } from "@/lib/utils";
 import { UserRole } from "@/lib/types";
 import {
@@ -39,10 +39,15 @@ import {
 	useCreateInventoryItemMutation,
 	useUpdateInventoryItemMutation,
 	useDeleteInventoryItemMutation,
-	type InventoryItemWithCategory,
 } from "@/lib/store/api";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
+import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
+import { InventoryItem } from "@/generated/prisma";
+import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
+import DataTable from "@/components/dashboard/data-table";
+import { inventoryTableDef } from "@/components/inventory/inventory-table-def";
 
 export default function InventoryPage() {
 	const { user } = useAuth();
@@ -85,7 +90,7 @@ export default function InventoryPage() {
 	const handleAddItem = async (
 		newItem: Omit<
 			InventoryItem,
-			"id" | "createdAt" | "updatedAt" | "stock" | "deletedAt"
+			"id" | "createdAt" | "updatedAt" | "deletedAt"
 		>,
 	) => {
 		try {
@@ -277,17 +282,45 @@ export default function InventoryPage() {
 					</Card>
 				)}
 
-				{/* Inventory Table */}
-				<InventoryTable
-					isFetching={isFetching}
-					items={inventory}
-					onEdit={handleEditItem}
-					onDelete={handleDeleteItem}
-					setSearchTerm={setSearchTerm}
-					searchTerm={searchTerm}
-					categoryFilter={categoryFilter}
-					setCategoryFilter={setCategoryFilter}
-				/>
+				<Card className='border-brand-main-200'>
+					<CardHeader>
+						<div className='flex gap-4 mt-4'>
+							<div className='relative flex-1'>
+								{isFetching ? (
+									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+								) : (
+									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+								)}
+
+								<Input
+									placeholder='Search items...'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</div>
+							<select
+								value={categoryFilter}
+								onChange={(e) => setCategoryFilter(e.target.value)}
+								className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
+								<option value='all'>All Categories</option>
+								{/* {categories.map((category) => (
+											<option
+												key={category}
+												value={category}>
+												{category}
+											</option>
+										))} */}
+							</select>
+						</div>
+					</CardHeader>
+					<CardContent>
+						<DataTable
+							columns={inventoryTableDef({ handleDeleteItem, handleEditItem })}
+							data={inventory}
+						/>
+					</CardContent>
+				</Card>
 
 				{/* Dialogs */}
 				<AddItemDialog

@@ -25,10 +25,9 @@ import {
 	Trash2,
 	AlertTriangle,
 } from "lucide-react";
-import type { InventoryItem } from "@/lib/types";
-import type { InventoryItemWithCategory } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
+import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
 
 interface InventoryTableProps {
 	items: InventoryItemWithCategory[];

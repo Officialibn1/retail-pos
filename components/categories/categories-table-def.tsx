@@ -1,4 +1,3 @@
-import { CategoryWithCount } from "@/lib/services/category.service";
 import { ColumnDef } from "@tanstack/react-table";
 import {
 	DropdownMenu,
@@ -8,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import { CategoryWithCount } from "@/lib/prisma-extended-types";
 
 interface TableProps {
 	canModify: boolean;
@@ -37,7 +37,7 @@ export const categoriesTableDef = ({
 				canModify ? (
 					<div className='w-full flex'>
 						<DropdownMenu>
-							<DropdownMenuTrigger className='ml-auto'>
+							<DropdownMenuTrigger>
 								<Button
 									variant='ghost'
 									size='sm'
