@@ -3,19 +3,12 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { Search, Activity, Clock, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewActivityLogs } from "@/lib/auth";
 import { useGetActivityLogsQuery } from "@/lib/store/api";
+import DataTable from "@/components/dashboard/data-table";
+import { activitiesTableDef } from "@/components/activities/activities-table-def";
 
 export default function ActivityLogsPage() {
 	const { user } = useAuth();
@@ -86,38 +79,6 @@ export default function ActivityLogsPage() {
 		return matchesSearch && matchesAction;
 	});
 
-	const getActionBadge = (action: string) => {
-		if (action.includes("Login") || action.includes("Logout")) {
-			return (
-				<Badge className='bg-blue-100 text-blue-800 hover:bg-blue-100'>
-					Auth
-				</Badge>
-			);
-		}
-		if (action.includes("Sale") || action.includes("Transaction")) {
-			return (
-				<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
-					Sales
-				</Badge>
-			);
-		}
-		if (action.includes("Inventory") || action.includes("Product")) {
-			return (
-				<Badge className='bg-purple-100 text-purple-800 hover:bg-purple-100'>
-					Inventory
-				</Badge>
-			);
-		}
-		if (action.includes("User") || action.includes("Account")) {
-			return (
-				<Badge className='bg-orange-100 text-orange-800 hover:bg-orange-100'>
-					User Mgmt
-				</Badge>
-			);
-		}
-		return <Badge variant='secondary'>System</Badge>;
-	};
-
 	const todayLogs = filteredLogs.filter((log) => {
 		const today = new Date();
 		const logDate = new Date(log.createdAt);
@@ -125,6 +86,9 @@ export default function ActivityLogsPage() {
 	}).length;
 
 	const uniqueUsers = new Set(filteredLogs.map((log) => log.userId)).size;
+
+	// Get column definitions
+	const columns = activitiesTableDef();
 
 	return (
 		<div className='space-y-6 p-6'>
@@ -210,49 +174,11 @@ export default function ActivityLogsPage() {
 					</div>
 				</CardHeader>
 				<CardContent className='overflow-x-auto'>
-					<Table>
-						<TableHeader>
-							<TableRow className='border-brand-main-200'>
-								<TableHead className='text-brand-main-700'>Timestamp</TableHead>
-								<TableHead className='text-brand-main-700'>User</TableHead>
-								<TableHead className='text-brand-main-700'>Action</TableHead>
-								<TableHead className='text-brand-main-700'>Details</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{filteredLogs.map((log) => {
-								const createdAt =
-									typeof log.createdAt === "string"
-										? new Date(log.createdAt)
-										: log.createdAt;
-
-								return (
-									<TableRow
-										key={log.id}
-										className='border-brand-main-100'>
-										<TableCell className='text-brand-main-700'>
-											{createdAt.toLocaleDateString()}{" "}
-											{createdAt.toLocaleTimeString()}
-										</TableCell>
-										<TableCell className='font-medium text-brand-main-800'>
-											{log.user.name}
-										</TableCell>
-										<TableCell className='text-brand-main-700'>
-											{log.action}
-										</TableCell>
-										<TableCell className='text-brand-main-700 truncate'>
-											{log.details}
-										</TableCell>
-									</TableRow>
-								);
-							})}
-						</TableBody>
-					</Table>
-					{filteredLogs.length === 0 && (
-						<div className='text-center py-8 text-brand-main-600'>
-							No activity logs found matching your criteria.
-						</div>
-					)}
+					<DataTable
+						columns={columns}
+						data={filteredLogs}
+						tableName='Activity Logs'
+					/>
 				</CardContent>
 			</Card>
 		</div>

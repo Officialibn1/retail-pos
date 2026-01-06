@@ -4,16 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { Search, Plus, Edit, Trash2, Users, Loader2 } from "lucide-react";
+import { Search, Plus, Users, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canManageUsers } from "@/lib/auth";
 import {
@@ -25,6 +16,9 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useGetUsersQuery, useDeleteUserMutation } from "@/lib/store/api";
+import DataTable from "@/components/dashboard/data-table";
+import { usersTableDef } from "@/components/users/users-table-def";
+import { UserWithoutPassword } from "@/lib/prisma-extended-types";
 
 export default function UsersPage() {
 	const { user } = useAuth();
@@ -90,58 +84,20 @@ export default function UsersPage() {
 		return matchesSearch && matchesRole;
 	});
 
-	const getRoleBadge = (roles: string[]) => {
-		const role = roles[0];
-		switch (role) {
-			case "SUPERADMIN":
-				return (
-					<Badge className='bg-red-100 text-red-800 hover:bg-red-100'>
-						Super Admin
-					</Badge>
-				);
-			case "MANAGER":
-				return (
-					<Badge className='bg-blue-100 text-blue-800 hover:bg-blue-100'>
-						Manager
-					</Badge>
-				);
-			case "CASHIER":
-				return (
-					<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
-						Cashier
-					</Badge>
-				);
-			default:
-				return <Badge variant='secondary'>{role}</Badge>;
-		}
-	};
-
-	const getShiftBadge = (shift: string) => {
-		return (
-			<Badge
-				variant='outline'
-				className={
-					shift === "MORNING"
-						? "border-orange-300 text-orange-700"
-						: shift === "EVENING"
-						? "border-purple-300 text-purple-700"
-						: "border-blue-300 text-blue-700"
-				}>
-				{shift === "MORNING"
-					? "Morning"
-					: shift === "EVENING"
-					? "Evening"
-					: "Full Time"}
-			</Badge>
-		);
-	};
-
 	const morningShiftUsers = filteredUsers?.filter(
 		(u) => u.shift === "MORNING",
 	).length;
 	const eveningShiftUsers = filteredUsers?.filter(
 		(u) => u.shift === "EVENING",
 	).length;
+
+	const handleEditUser = (user: UserWithoutPassword) => {
+		// TODO: Implement edit functionality
+		toast({
+			title: "Edit User",
+			description: `Edit functionality for ${user.name} will be implemented`,
+		});
+	};
 
 	const handleDeleteUser = async (userId: string) => {
 		if (!confirm("Are you sure you want to delete this user?")) {
@@ -167,6 +123,12 @@ export default function UsersPage() {
 			});
 		}
 	};
+
+	// Get column definitions with callbacks
+	const columns = usersTableDef({
+		onEdit: handleEditUser,
+		onDelete: handleDeleteUser,
+	});
 
 	return (
 		<div className='space-y-6 p-6'>
@@ -266,63 +228,11 @@ export default function UsersPage() {
 					</div>
 				</CardHeader>
 				<CardContent>
-					<Table>
-						<TableHeader>
-							<TableRow className='border-brand-main-200'>
-								<TableHead className='text-brand-main-700'>Name</TableHead>
-								<TableHead className='text-brand-main-700'>Email</TableHead>
-								<TableHead className='text-brand-main-700'>Username</TableHead>
-								<TableHead className='text-brand-main-700'>Role</TableHead>
-								<TableHead className='text-brand-main-700'>Shift</TableHead>
-								<TableHead className='text-brand-main-700'>Created</TableHead>
-								<TableHead className='text-brand-main-700'>Actions</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{filteredUsers?.map((u) => (
-								<TableRow
-									key={u.id}
-									className='border-brand-main-100'>
-									<TableCell className='font-medium text-brand-main-800'>
-										{u.name}
-									</TableCell>
-									<TableCell className='text-brand-main-700'>
-										{u.email}
-									</TableCell>
-									<TableCell className='text-brand-main-700'>
-										{u.username}
-									</TableCell>
-									<TableCell>{getRoleBadge(u.roles)}</TableCell>
-									<TableCell>{getShiftBadge(u.shift)}</TableCell>
-									<TableCell className='text-brand-main-700'>
-										{new Date(u.createdAt).toLocaleDateString()}
-									</TableCell>
-									<TableCell>
-										<div className='flex gap-1'>
-											<Button
-												size='sm'
-												variant='ghost'
-												className='text-brand-main-600 hover:bg-brand-main-100'>
-												<Edit className='h-4 w-4' />
-											</Button>
-											<Button
-												size='sm'
-												variant='ghost'
-												className='text-red-600 hover:bg-red-100'
-												onClick={() => handleDeleteUser(u.id)}>
-												<Trash2 className='h-4 w-4' />
-											</Button>
-										</div>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-					{filteredUsers?.length === 0 && (
-						<div className='text-center py-8 text-brand-main-600'>
-							No users found matching your criteria.
-						</div>
-					)}
+					<DataTable
+						columns={columns}
+						data={filteredUsers || []}
+						tableName='Users'
+					/>
 				</CardContent>
 			</Card>
 		</div>
