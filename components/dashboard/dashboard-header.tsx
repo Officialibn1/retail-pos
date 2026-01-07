@@ -13,7 +13,7 @@ import {
 import { usePathname } from "next/navigation";
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 export function DashboardHeader() {
 	const pathname = usePathname();
@@ -71,9 +71,9 @@ export function DashboardHeader() {
 									</BreadcrumbPage>
 								) : (
 									<BreadcrumbLink
-										href={crumb.href}
+										asChild
 										className='text-brand-main-600 hover:text-brand-main-800'>
-										{crumb.label}
+										<Link href={crumb.href}>{crumb.label}</Link>
 									</BreadcrumbLink>
 								)}
 							</BreadcrumbItem>
