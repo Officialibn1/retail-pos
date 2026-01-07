@@ -64,12 +64,6 @@ export default function NewSalePage() {
 	const taxAmount = useAppSelector(selectCartTaxAmount);
 	const total = useAppSelector(selectCartTotal);
 
-	useEffect(() => {
-		console.log("Tax Amount: ", taxAmount);
-		console.log("Discount Amount: ", discount);
-		console.log("Subtotal Amount: ", subtotal);
-	}, [cartItems]);
-
 	// Local UI state
 	const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
 	const [showPaymentDialog, setShowPaymentDialog] = useState(false);
