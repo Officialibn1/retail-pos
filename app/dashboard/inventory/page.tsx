@@ -10,6 +10,13 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Plus,
 	Package,
 	AlertTriangle,
@@ -36,6 +43,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
 	useGetInventoryQuery,
+	useGetCategoriesQuery,
 	useCreateInventoryItemMutation,
 	useUpdateInventoryItemMutation,
 	useDeleteInventoryItemMutation,
@@ -74,6 +82,12 @@ export default function InventoryPage() {
 		category: categoryFilter === "all" ? undefined : categoryFilter,
 	});
 
+	const {
+		data: categoriesData,
+		isLoading: categoriesLoading,
+		isError: categoriesError,
+	} = useGetCategoriesQuery();
+
 	const [createInventoryItem, { isLoading: isCreatingItem }] =
 		useCreateInventoryItemMutation();
 	const [updateInventoryItem] = useUpdateInventoryItemMutation();
@@ -86,6 +100,9 @@ export default function InventoryPage() {
 		(sum, item) => sum + item.price * item.stock,
 		0,
 	);
+
+	// Extract categories from the API response
+	const categories = categoriesData?.categories || [];
 
 	const handleAddItem = async (
 		newItem: Omit<
@@ -299,19 +316,23 @@ export default function InventoryPage() {
 									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 								/>
 							</div>
-							<select
+							<Select
 								value={categoryFilter}
-								onChange={(e) => setCategoryFilter(e.target.value)}
-								className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
-								<option value='all'>All Categories</option>
-								{/* {categories.map((category) => (
-											<option
-												key={category}
-												value={category}>
-												{category}
-											</option>
-										))} */}
-							</select>
+								onValueChange={setCategoryFilter}>
+								<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+									<SelectValue placeholder='All Categories' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Categories</SelectItem>
+									{categories.map((category) => (
+										<SelectItem
+											key={category.id}
+											value={category.name}>
+											{category.name} ({category._count.inventoryItems})
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</CardHeader>
 					<CardContent>
