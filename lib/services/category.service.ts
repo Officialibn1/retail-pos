@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { InventoryItemCategory } from "@/generated/prisma/client";
+import { InventoryItemCategory, Prisma } from "@/generated/prisma/client";
 import {
 	CreateCategoryInput,
 	UpdateCategoryInput,
@@ -131,10 +131,25 @@ export async function deleteCategory(id: string): Promise<void> {
 
 /**
  * List all categories with item counts
+ * @param params - URL search parameters for filtering
  * @returns Array of categories with item counts
  */
-export async function listCategories(): Promise<CategoryWithCount[]> {
+export async function listCategories(
+	params: URLSearchParams,
+): Promise<CategoryWithCount[]> {
+	const searchTerm = params.get("searchTerm");
+
+	const whereCondition: Prisma.InventoryItemCategoryWhereInput = {};
+
+	if (searchTerm) {
+		whereCondition.name = {
+			contains: searchTerm,
+			mode: "insensitive" as const,
+		};
+	}
+
 	const categories = await prisma.inventoryItemCategory.findMany({
+		where: whereCondition,
 		include: {
 			_count: {
 				select: {

@@ -9,20 +9,27 @@ import { canViewActivityLogs } from "@/lib/auth";
 import { useGetActivityLogsQuery } from "@/lib/store/api";
 import DataTable from "@/components/dashboard/data-table";
 import { activitiesTableDef } from "@/components/activities/activities-table-def";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function ActivityLogsPage() {
 	const { user } = useAuth();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [actionFilter, setActionFilter] = useState("all");
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-	// Use RTK Query hook to fetch activity logs
+	// Use RTK Query hook to fetch activity logs with server-side filtering
 	const {
 		data: logs = [],
 		isLoading: loading,
+		isFetching,
 		isError,
 		error,
 	} = useGetActivityLogsQuery(
-		{ limit: 200 },
+		{
+			searchTerm: debouncedSearchTerm || undefined,
+			action: actionFilter !== "all" ? actionFilter : undefined,
+			limit: 200,
+		},
 		{
 			skip: !user || !canViewActivityLogs(user.roles),
 		},
@@ -66,26 +73,14 @@ export default function ActivityLogsPage() {
 		);
 	}
 
-	const filteredLogs = logs.filter((log) => {
-		const matchesSearch =
-			log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			log.user.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-		const matchesAction =
-			actionFilter === "all" ||
-			log.action.toLowerCase().includes(actionFilter.toLowerCase());
-
-		return matchesSearch && matchesAction;
-	});
-
-	const todayLogs = filteredLogs.filter((log) => {
+	// Use server-filtered data directly
+	const todayLogs = logs.filter((log) => {
 		const today = new Date();
 		const logDate = new Date(log.createdAt);
 		return logDate.toDateString() === today.toDateString();
 	}).length;
 
-	const uniqueUsers = new Set(filteredLogs.map((log) => log.userId)).size;
+	const uniqueUsers = new Set(logs.map((log) => log.userId)).size;
 
 	// Get column definitions
 	const columns = activitiesTableDef();
@@ -111,7 +106,7 @@ export default function ActivityLogsPage() {
 					</CardHeader>
 					<CardContent>
 						<div className='text-2xl font-bold text-brand-main-800'>
-							{filteredLogs.length}
+							{logs.length}
 						</div>
 						<p className='text-xs text-brand-main-600'>all time activities</p>
 					</CardContent>
@@ -154,6 +149,9 @@ export default function ActivityLogsPage() {
 					<div className='flex gap-4 mt-4'>
 						<div className='relative flex-1'>
 							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+							{isFetching && (
+								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+							)}
 							<Input
 								placeholder='Search activities...'
 								value={searchTerm}
@@ -176,7 +174,7 @@ export default function ActivityLogsPage() {
 				<CardContent className='overflow-x-auto'>
 					<DataTable
 						columns={columns}
-						data={filteredLogs}
+						data={logs}
 						tableName='Activity Logs'
 					/>
 				</CardContent>

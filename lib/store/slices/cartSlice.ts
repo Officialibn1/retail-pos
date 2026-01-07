@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Prisma } from "@/generated/prisma/client";
 import { RootState } from "../index";
-import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
+import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
+const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT as string;
 
 /**
  * Cart Item Interface
@@ -260,7 +261,7 @@ export const selectCartDiscountAmount = (state: RootState): number => {
 export const selectCartTaxAmount = (state: RootState): number => {
 	const subtotal = selectCartSubtotal(state);
 	const discountAmount = selectCartDiscountAmount(state);
-	return (subtotal - discountAmount) * 0.1; // 10% tax
+	return (subtotal - discountAmount) * Number(taxRate ? taxRate : 0);
 };
 
 /**

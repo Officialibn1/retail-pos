@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Customer } from "@/generated/prisma/client";
+import { Customer, Prisma } from "@/generated/prisma/client";
 import {
 	CreateCustomerInput,
 	UpdateCustomerInput,
@@ -145,10 +145,44 @@ export async function deleteCustomer(id: string): Promise<void> {
 
 /**
  * List all customers with sales history
+ * @param params - URL search parameters for filtering
  * @returns Array of customers with sales
  */
-export async function listCustomers(): Promise<CustomerWithSales[]> {
+export async function listCustomers(
+	params: URLSearchParams,
+): Promise<CustomerWithSales[]> {
+	const searchTerm = params.get("searchTerm");
+
+	const searchConditions: Prisma.CustomerWhereInput[] = [];
+
+	if (searchTerm) {
+		searchConditions.push({
+			name: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			email: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			phone: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+	}
+
+	const whereCondition =
+		searchConditions.length > 0 ? { OR: searchConditions } : {};
+
 	const customers = await prisma.customer.findMany({
+		where: whereCondition,
 		include: {
 			sales: {
 				select: {

@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
  * GET /api/sales
  * List sales with role-based filtering
  * CASHIER sees only their sales, MANAGER+ sees all sales
- * Supports query parameters: status, startDate, endDate, page, limit
+ * Supports query parameters: searchTerm, status
  * Requires authentication
  */
 export async function GET(request: NextRequest) {
@@ -117,106 +117,11 @@ export async function GET(request: NextRequest) {
 	const user = authenticatedRequest.user;
 
 	try {
-		// Parse query parameters
-		const { searchParams } = new URL(request.url);
-		const status = searchParams.get("status");
-		const startDate = searchParams.get("startDate");
-		const endDate = searchParams.get("endDate");
-		const page = searchParams.get("page");
-		const limit = searchParams.get("limit");
+		// Extract searchParams from request URL
+		const params = request.nextUrl.searchParams;
 
-		// Build filters object
-		const filters: any = {};
-
-		// Validate and add status filter
-		if (status) {
-			const validStatuses = ["PENDING", "COMPLETED", "CANCELLED"];
-			if (!validStatuses.includes(status)) {
-				return NextResponse.json(
-					{
-						error: {
-							message: `Invalid status. Must be one of: ${validStatuses.join(
-								", ",
-							)}`,
-							code: "VALIDATION_ERROR",
-						},
-					},
-					{ status: 400 },
-				);
-			}
-			filters.status = status;
-		}
-
-		// Validate and add date filters
-		if (startDate) {
-			const parsedStartDate = new Date(startDate);
-			if (isNaN(parsedStartDate.getTime())) {
-				return NextResponse.json(
-					{
-						error: {
-							message:
-								"Invalid startDate format. Use ISO 8601 format (e.g., 2024-01-01)",
-							code: "VALIDATION_ERROR",
-						},
-					},
-					{ status: 400 },
-				);
-			}
-			filters.startDate = parsedStartDate;
-		}
-
-		if (endDate) {
-			const parsedEndDate = new Date(endDate);
-			if (isNaN(parsedEndDate.getTime())) {
-				return NextResponse.json(
-					{
-						error: {
-							message:
-								"Invalid endDate format. Use ISO 8601 format (e.g., 2024-01-31)",
-							code: "VALIDATION_ERROR",
-						},
-					},
-					{ status: 400 },
-				);
-			}
-			filters.endDate = parsedEndDate;
-		}
-
-		// Validate and add pagination
-		if (page) {
-			const parsedPage = parseInt(page, 10);
-			if (isNaN(parsedPage) || parsedPage < 1) {
-				return NextResponse.json(
-					{
-						error: {
-							message: "Invalid page number. Must be a positive integer",
-							code: "VALIDATION_ERROR",
-						},
-					},
-					{ status: 400 },
-				);
-			}
-			filters.page = parsedPage;
-		}
-
-		if (limit) {
-			const parsedLimit = parseInt(limit, 10);
-			if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-				return NextResponse.json(
-					{
-						error: {
-							message: "Invalid limit. Must be between 1 and 100",
-							code: "VALIDATION_ERROR",
-						},
-					},
-					{ status: 400 },
-				);
-			}
-			filters.limit = parsedLimit;
-		}
-
-		// List sales with role-based filtering and additional filters
-		const sales = await listSales(user.id, user.roles, filters);
+		// List sales with role-based filtering and pass searchParams to service
+		const sales = await listSales(user.id, user.roles, params);
 
 		return NextResponse.json(sales, { status: 200 });
 	} catch (error: any) {

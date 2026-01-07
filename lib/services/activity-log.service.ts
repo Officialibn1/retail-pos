@@ -36,8 +36,12 @@ export async function logActivity(
 export async function getActivityLogs(
 	userId?: string,
 	userRoles?: UserRole[],
-	limit: number = 100,
+	params?: URLSearchParams,
 ): Promise<ActivityLogWithUser[]> {
+	const searchTerm = params?.get("searchTerm");
+	const actionFilter = params?.get("action");
+	const limit = Number(params?.get("limit") || "100");
+
 	// Build where clause based on role
 	const whereClause: any = {};
 
@@ -51,6 +55,44 @@ export async function getActivityLogs(
 		!userRoles.includes(UserRole.SUPERADMIN)
 	) {
 		whereClause.userId = userId;
+	}
+
+	// Apply search term
+	if (searchTerm) {
+		const searchConditions: any[] = [];
+
+		searchConditions.push({
+			action: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			details: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			user: {
+				name: {
+					contains: searchTerm,
+					mode: "insensitive" as const,
+				},
+			},
+		});
+
+		whereClause.OR = searchConditions;
+	}
+
+	// Apply action filter
+	if (actionFilter && actionFilter !== "all") {
+		whereClause.action = {
+			contains: actionFilter,
+			mode: "insensitive" as const,
+		};
 	}
 
 	const logs = await prisma.activityLog.findMany({

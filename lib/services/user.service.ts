@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth/password";
-import { User, UserRole, Shift } from "@/generated/prisma/client";
+import { User, UserRole, Shift, Prisma } from "@/generated/prisma/client";
 import {
 	CreateUserInput,
 	UpdateUserInput,
@@ -123,10 +123,52 @@ export async function deleteUser(id: string): Promise<void> {
 
 /**
  * List all users (excluding passwords)
+ * @param params - URL search parameters for filtering
  * @returns Array of users without passwords
  */
-export async function listUsers(): Promise<SafeUser[]> {
+export async function listUsers(params: URLSearchParams): Promise<SafeUser[]> {
+	const searchTerm = params.get("searchTerm");
+	const roleFilter = params.get("role");
+
+	const searchConditions: Prisma.UserWhereInput[] = [];
+
+	if (searchTerm) {
+		searchConditions.push({
+			name: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			email: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			username: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+	}
+
+	const whereCondition: Prisma.UserWhereInput = {};
+
+	if (searchConditions.length > 0) {
+		whereCondition.OR = searchConditions;
+	}
+
+	if (roleFilter && roleFilter !== "all") {
+		whereCondition.roles = {
+			has: roleFilter as UserRole,
+		};
+	}
+
 	const users = await prisma.user.findMany({
+		where: whereCondition,
 		select: {
 			id: true,
 			email: true,

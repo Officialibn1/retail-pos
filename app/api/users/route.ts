@@ -102,6 +102,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
 	try {
+		// Extract search params from URL
+		const params = request.nextUrl.searchParams;
+
 		// Authenticate user
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
@@ -114,8 +117,8 @@ export async function GET(request: NextRequest) {
 			return roleCheck;
 		}
 
-		// Get all users
-		const users = await listUsers();
+		// Get all users with search/filter params
+		const users = await listUsers(params);
 
 		return NextResponse.json({
 			users,

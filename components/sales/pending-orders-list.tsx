@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Package } from "lucide-react";
 import { useGetSalesQuery, useCancelSaleMutation } from "@/lib/store/api";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface PendingOrdersListProps {
 	userId: string;
@@ -22,7 +23,6 @@ export function PendingOrdersList({
 	onComplete,
 	onCancel,
 }: PendingOrdersListProps) {
-	const { toast } = useToast();
 	const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 	const [showCancelDialog, setShowCancelDialog] = useState(false);
 	const [cancelOrderTotal, setCancelOrderTotal] = useState(0);
@@ -69,10 +69,7 @@ export function PendingOrdersList({
 
 		try {
 			await cancelSale(selectedSaleId).unwrap();
-			toast({
-				title: "Success",
-				description: "Order cancelled successfully",
-			});
+			toast.success("Order cancelled successfully");
 			setShowCancelDialog(false);
 			setSelectedSaleId(null);
 
@@ -82,11 +79,7 @@ export function PendingOrdersList({
 			}
 		} catch (err: any) {
 			console.error("Failed to cancel order:", err);
-			toast({
-				title: "Error",
-				description: err?.data?.error?.message || "Failed to cancel order",
-				variant: "destructive",
-			});
+			toast.error(err?.data?.error?.message || "Failed to cancel order");
 		}
 	};
 

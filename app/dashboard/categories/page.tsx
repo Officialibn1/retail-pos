@@ -34,9 +34,10 @@ import { EditCategoryDialog } from "@/components/categories/edit-category-dialog
 import { useAuth } from "@/components/auth/auth-provider";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { CategoryWithCount } from "@/lib/services/category.service";
+import { CategoryWithCount } from "@/lib/prisma-extended-types";
 import DataTable from "@/components/dashboard/data-table";
 import { categoriesTableDef } from "@/components/categories/categories-table-def";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function CategoriesPage() {
 	const { user } = useAuth();
@@ -46,6 +47,7 @@ export default function CategoriesPage() {
 	const [selectedCategory, setSelectedCategory] =
 		useState<CategoryWithCount | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
 	// Refs for focus restoration (Requirement 10.5)
 	const addButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -59,7 +61,9 @@ export default function CategoriesPage() {
 		isFetching,
 		isError,
 		error: queryError,
-	} = useGetCategoriesQuery();
+	} = useGetCategoriesQuery({
+		searchTerm: debouncedSearchTerm || undefined,
+	});
 
 	const [createCategory, { isLoading: isCreating }] =
 		useCreateCategoryMutation();
@@ -75,7 +79,7 @@ export default function CategoriesPage() {
 	);
 
 	const canModify =
-		user?.roles.some((role) =>
+		user?.roles.some((role: UserRole) =>
 			(
 				[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
 			).includes(role),

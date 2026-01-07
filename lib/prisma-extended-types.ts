@@ -37,6 +37,19 @@ const activityLogWithUser = Prisma.validator<Prisma.ActivityLogDefaultArgs>()({
 	},
 });
 
+const saleItemWithInventoryItem =
+	Prisma.validator<Prisma.SaleItemDefaultArgs>()({
+		include: {
+			inventoryItem: {
+				select: {
+					id: true,
+					name: true,
+					sku: true,
+				},
+			},
+		},
+	});
+
 export type CategoryWithItems = Prisma.InventoryItemCategoryGetPayload<
 	typeof categoryWithItems
 >;
@@ -50,6 +63,10 @@ export type InventoryItemWithCategory = Prisma.InventoryItemGetPayload<
 
 export type ActivityLogWithUser = Prisma.ActivityLogGetPayload<
 	typeof activityLogWithUser
+>;
+
+export type SaleItemWithInventoryItem = Prisma.SaleItemGetPayload<
+	typeof saleItemWithInventoryItem
 >;
 
 export type UserWithoutPassword = Omit<User, "password">;

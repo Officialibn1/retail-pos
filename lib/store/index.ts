@@ -154,5 +154,6 @@ export type AppDispatch = typeof store.dispatch;
  *
  * Requirement 10.3: Export typed hooks (useAppDispatch, useAppSelector)
  */
-export const useAppDispatch: () => AppDispatch = useDispatch;
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> =
+	useSelector as TypedUseSelectorHook<RootState>;

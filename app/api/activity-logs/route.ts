@@ -26,12 +26,11 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		// Get query parameters
-		const { searchParams } = new URL(request.url);
-		const limit = parseInt(searchParams.get("limit") || "100");
+		// Extract search params from request
+		const params = request.nextUrl.searchParams;
 
 		// Get activity logs with role-based filtering
-		const logs = await getActivityLogs(user.id, user.roles, limit);
+		const logs = await getActivityLogs(user.id, user.roles, params);
 
 		return NextResponse.json(logs, { status: 200 });
 	} catch (error: any) {

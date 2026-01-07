@@ -11,9 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { SaleItem } from "@/lib/types";
 import { formatNaira } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
+import { SaleItem } from "@/generated/prisma";
+import { useAppSelector } from "@/lib/store";
+import {
+	selectCartDiscount,
+	selectCartSubtotal,
+	selectCartTaxAmount,
+} from "@/lib/store/slices/cartSlice";
 
 interface CheckoutDialogProps {
 	open: boolean;
@@ -34,9 +40,6 @@ export function CheckoutDialogV2({
 	onOpenChange,
 	saleId,
 	items,
-	subtotal,
-	discount,
-	tax,
 	total,
 	onCompletePayment,
 	onClose,
@@ -44,13 +47,19 @@ export function CheckoutDialogV2({
 }: CheckoutDialogProps) {
 	const completePaymentButtonRef = useRef<HTMLButtonElement>(null);
 
+	const discount = useAppSelector(selectCartDiscount);
+	const subtotal = useAppSelector(selectCartSubtotal);
+	const taxAmount = useAppSelector(selectCartTaxAmount);
+
 	const handleCompletePayment = () => {
 		onCompletePayment(saleId);
+		// Cart will be cleared after this dialog closes
 	};
 
 	const handleClose = () => {
 		onClose();
 		onOpenChange(false);
+		// Cart will be cleared by onClose handler
 	};
 
 	// Auto-focus "Complete Payment" button when dialog opens
@@ -132,8 +141,8 @@ export function CheckoutDialogV2({
 								<span>Tax:</span>
 								<span
 									data-testid='checkout-tax'
-									aria-label={`Tax: ${formatNaira(tax)}`}>
-									{formatNaira(tax)}
+									aria-label={`Tax: ${formatNaira(taxAmount)}`}>
+									{formatNaira(taxAmount)}
 								</span>
 							</div>
 							<Separator className='bg-brand-main-200' />

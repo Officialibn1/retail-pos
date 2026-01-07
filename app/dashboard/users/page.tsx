@@ -19,22 +19,32 @@ import { useGetUsersQuery, useDeleteUserMutation } from "@/lib/store/api";
 import DataTable from "@/components/dashboard/data-table";
 import { usersTableDef } from "@/components/users/users-table-def";
 import { UserWithoutPassword } from "@/lib/prisma-extended-types";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function UsersPage() {
 	const { user } = useAuth();
 	const { toast } = useToast();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [roleFilter, setRoleFilter] = useState("all");
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
 	// RTK Query hooks
 	const {
 		data: usersData,
 		isLoading,
+		isFetching,
 		isError,
 		error,
-	} = useGetUsersQuery(undefined, {
-		skip: !user || !canManageUsers(user.roles),
-	});
+	} = useGetUsersQuery(
+		{
+			searchTerm: debouncedSearchTerm || undefined,
+			role: roleFilter !== "all" ? roleFilter : undefined,
+		},
+		{
+			skip: !user || !canManageUsers(user.roles),
+		},
+	);
 
 	const [deleteUser] = useDeleteUserMutation();
 
@@ -73,23 +83,11 @@ export default function UsersPage() {
 		);
 	}
 
-	const filteredUsers = usersData?.users.filter((u) => {
-		const matchesSearch =
-			u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			u.email.toLowerCase().includes(searchTerm.toLowerCase());
+	// Use server-filtered data directly
+	const users = usersData?.users || [];
 
-		const matchesRole =
-			roleFilter === "all" || u.roles.includes(roleFilter as any);
-
-		return matchesSearch && matchesRole;
-	});
-
-	const morningShiftUsers = filteredUsers?.filter(
-		(u) => u.shift === "MORNING",
-	).length;
-	const eveningShiftUsers = filteredUsers?.filter(
-		(u) => u.shift === "EVENING",
-	).length;
+	const morningShiftUsers = users.filter((u) => u.shift === "MORNING").length;
+	const eveningShiftUsers = users.filter((u) => u.shift === "EVENING").length;
 
 	const handleEditUser = (user: UserWithoutPassword) => {
 		// TODO: Implement edit functionality
@@ -210,6 +208,9 @@ export default function UsersPage() {
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
+							{isFetching && (
+								<Spinner className='absolute right-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+							)}
 						</div>
 
 						<Select
@@ -230,7 +231,7 @@ export default function UsersPage() {
 				<CardContent>
 					<DataTable
 						columns={columns}
-						data={filteredUsers || []}
+						data={users || []}
 						tableName='Users'
 					/>
 				</CardContent>

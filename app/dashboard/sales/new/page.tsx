@@ -17,7 +17,6 @@ import {
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useGetSalesQuery,
-	type SaleItemData,
 } from "@/lib/store/api";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import {
@@ -34,9 +33,12 @@ import {
 	selectCartTaxAmount,
 	selectCartTotal,
 } from "@/lib/store/slices/cartSlice";
-import { PaymentMethod } from "@/generated/prisma";
+import { PaymentMethod, SaleItem } from "@/generated/prisma";
 import { toast } from "sonner";
-import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
+import {
+	InventoryItemWithCategory,
+	SaleItemWithInventoryItem,
+} from "@/lib/prisma-extended-types";
 
 export default function NewSalePage() {
 	const { user } = useAuth();
@@ -62,6 +64,12 @@ export default function NewSalePage() {
 	const taxAmount = useAppSelector(selectCartTaxAmount);
 	const total = useAppSelector(selectCartTotal);
 
+	useEffect(() => {
+		console.log("Tax Amount: ", taxAmount);
+		console.log("Discount Amount: ", discount);
+		console.log("Subtotal Amount: ", subtotal);
+	}, [cartItems]);
+
 	// Local UI state
 	const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
 	const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -69,7 +77,7 @@ export default function NewSalePage() {
 	const [completedSale, setCompletedSale] = useState<any>(null);
 	const [pendingSaleId, setPendingSaleId] = useState<string | null>(null);
 	const [pendingSaleData, setPendingSaleData] = useState<{
-		items: SaleItemData[];
+		items: Omit<SaleItemWithInventoryItem, "inventoryItemId" | "saleId">[];
 		total: number;
 	} | null>(null);
 	const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -94,10 +102,9 @@ export default function NewSalePage() {
 		product: InventoryItemWithCategory,
 		quantity: number,
 	) => {
-		// Convert API inventory item to the format expected by cart slice
 		const convertedProduct = {
 			...product,
-			price: product.price as any, // Prisma.Decimal compatibility
+			price: product.price as any,
 			deletedAt: product.deletedAt ? new Date(product.deletedAt) : null,
 			createdAt: new Date(product.createdAt),
 			updatedAt: new Date(product.updatedAt),
@@ -161,7 +168,7 @@ export default function NewSalePage() {
 
 			// Open checkout dialog
 			setShowCheckoutDialog(true);
-			dispatch(clearCart());
+			// Don't clear cart yet - wait until checkout is closed or payment is completed
 
 			toast.success("Order created successfully");
 		} catch (err: any) {
@@ -185,6 +192,8 @@ export default function NewSalePage() {
 	const handleCompletePayment = () => {
 		// Close checkout dialog when opening payment dialog
 		setShowCheckoutDialog(false);
+		// Clear cart now that checkout dialog is closing
+		dispatch(clearCart());
 		setShowPaymentDialog(true);
 	};
 
@@ -222,7 +231,7 @@ export default function NewSalePage() {
 			setShowPaymentDialog(false);
 			setShowCheckoutDialog(false);
 
-			// Clear cart and reset state
+			// Reset pending sale state (cart already cleared when checkout dialog closed)
 			setPendingSaleId(null);
 			setPendingSaleData(null);
 
@@ -244,7 +253,7 @@ export default function NewSalePage() {
 	// Handler to close checkout dialog
 	const handleCloseCheckout = () => {
 		setShowCheckoutDialog(false);
-		// Clear cart when closing checkout
+		// Clear cart when closing checkout (user chose not to complete payment now)
 		dispatch(clearCart());
 		// Reset pending sale state
 		setPendingSaleId(null);

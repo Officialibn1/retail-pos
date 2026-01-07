@@ -7,7 +7,7 @@ import {
 } from "@/lib/services/category.service";
 import { ZodError } from "zod";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/categories
@@ -89,6 +89,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
 	try {
+		// Extract search params from request URL
+		const params = request.nextUrl.searchParams;
+
 		// Authenticate user
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
@@ -96,7 +99,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get all categories with item counts
-		const categories = await listCategories();
+		const categories = await listCategories(params);
 
 		return NextResponse.json({
 			categories,

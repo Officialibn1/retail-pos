@@ -14,9 +14,8 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Search, Plus, Camera } from "lucide-react";
-import type { InventoryItem } from "@/lib/types";
-import type { InventoryItemWithCategory } from "@/lib/services/inventory.service";
 import { QR_SCANNER_FORMAT_OPTIONS, formatNaira } from "@/lib/utils";
+import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
 
 interface ProductSearchProps {
 	inventory: InventoryItemWithCategory[];

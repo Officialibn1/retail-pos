@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Minus, Plus } from "lucide-react";
-import type { SaleItem, InventoryItem } from "@/lib/types";
 import { formatNaira } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
+import { InventoryItem, SaleItem } from "@/generated/prisma";
+import { useAppDispatch } from "@/lib/store";
+import { setDiscount } from "@/lib/store/slices/cartSlice";
 
 interface CartItem extends SaleItem {
 	product: InventoryItem;
@@ -34,13 +36,21 @@ export function ShoppingCart({
 	onCheckout,
 	isProcessing,
 }: ShoppingCartProps) {
+	const dispatch = useAppDispatch();
+
 	const subtotal = items.reduce(
 		(sum, item) => sum + Number(item.price) * item.quantity,
 		0,
 	);
+
 	const discountAmount = (subtotal * discount) / 100;
 	const taxAmount = (subtotal - discountAmount) * Number(taxRate);
 	const total = subtotal - discountAmount + taxAmount;
+
+	const handleCheckOut = () => {
+		// Discount is already stored as percentage in Redux, no need to dispatch again
+		onCheckout();
+	};
 
 	return (
 		<Card className='border-brand-main-200 h-fit'>
@@ -158,7 +168,7 @@ export function ShoppingCart({
 							</div>
 
 							<Button
-								onClick={onCheckout}
+								onClick={handleCheckOut}
 								variant={"depth-soft"}
 								disabled={items.length === 0 || isProcessing}
 								className='w-full bg-brand-main-600 hover:bg-brand-main-700 text-white'>

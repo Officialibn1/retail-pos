@@ -105,6 +105,28 @@ export interface CancelSaleRequest {
 	reason?: string;
 }
 
+// Customer search parameters
+export interface CustomerSearchParams {
+	searchTerm?: string;
+}
+
+// Category search parameters
+export interface CategorySearchParams {
+	searchTerm?: string;
+}
+
+// User search parameters
+export interface UserSearchParams {
+	searchTerm?: string;
+	role?: string;
+}
+
+// Sale search parameters
+export interface SaleSearchParams {
+	searchTerm?: string;
+	status?: string;
+}
+
 // Get customers response
 export interface GetCustomersResponse {
 	customers: CustomerWithSales[];
@@ -210,7 +232,10 @@ export interface PaymentMethodStats {
 	revenue: number;
 }
 
-export interface GetActivityLogsParams {
+// Activity log search parameters
+export interface ActivityLogSearchParams {
+	searchTerm?: string;
+	action?: string;
 	limit?: number;
 }
 
@@ -314,7 +339,7 @@ export const api = createApi({
 			invalidatesTags: ["Inventory"],
 		}),
 
-		getSales: builder.query<SaleWithDetails[], GetSalesParams | void>({
+		getSales: builder.query<SaleWithDetails[], SaleSearchParams | void>({
 			query: (params) => ({
 				url: "/api/sales",
 				method: "GET",
@@ -334,7 +359,7 @@ export const api = createApi({
 				method: "POST",
 				body: data,
 			}),
-			invalidatesTags: ["Sales"],
+			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
 		completeSale: builder.mutation<
@@ -357,8 +382,11 @@ export const api = createApi({
 			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
-		getUsers: builder.query<GetUsersResponse, void>({
-			query: () => "/api/users",
+		getUsers: builder.query<GetUsersResponse, UserSearchParams | void>({
+			query: (params) => ({
+				url: "/api/users",
+				params: params || undefined,
+			}),
 			providesTags: ["Users"],
 		}),
 
@@ -396,8 +424,14 @@ export const api = createApi({
 			invalidatesTags: ["Users"],
 		}),
 
-		getCustomers: builder.query<GetCustomersResponse, void>({
-			query: () => "/api/customers",
+		getCustomers: builder.query<
+			GetCustomersResponse,
+			CustomerSearchParams | void
+		>({
+			query: (params) => ({
+				url: "/api/customers",
+				params: params || undefined,
+			}),
 			providesTags: ["Customers"],
 		}),
 
@@ -438,8 +472,14 @@ export const api = createApi({
 			invalidatesTags: ["Customers"],
 		}),
 
-		getCategories: builder.query<GetCategoriesResponse, void>({
-			query: () => "/api/categories",
+		getCategories: builder.query<
+			GetCategoriesResponse,
+			CategorySearchParams | void
+		>({
+			query: (params) => ({
+				url: "/api/categories",
+				params: params || undefined,
+			}),
 			providesTags: ["Categories"],
 		}),
 
@@ -528,16 +568,12 @@ export const api = createApi({
 
 		getActivityLogs: builder.query<
 			ActivityLogWithUser[],
-			GetActivityLogsParams | void
+			ActivityLogSearchParams | void
 		>({
-			query: (params) => {
-				const searchParams = new URLSearchParams();
-				if (params && "limit" in params && params.limit) {
-					searchParams.append("limit", params.limit.toString());
-				}
-				const queryString = searchParams.toString();
-				return `/api/activity-logs${queryString ? `?${queryString}` : ""}`;
-			},
+			query: (params) => ({
+				url: "/api/activity-logs",
+				params: params || undefined,
+			}),
 			providesTags: ["ActivityLogs"],
 		}),
 	}),

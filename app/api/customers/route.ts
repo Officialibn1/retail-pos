@@ -80,6 +80,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
 	try {
+		// Extract search params from request URL
+		const params = request.nextUrl.searchParams;
+
 		// Authenticate user
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
@@ -87,7 +90,7 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get all customers with sales history
-		const customers = await listCustomers();
+		const customers = await listCustomers(params);
 
 		return NextResponse.json({
 			customers,

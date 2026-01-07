@@ -29,41 +29,47 @@ import { formatNaira } from "@/lib/utils";
 import { SaleWithDetails } from "@/lib/services/sale.service";
 import DataTable from "@/components/dashboard/data-table";
 import { salesHistoryTableDef } from "@/components/sales-history/sales-history-table-def";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function SalesHistoryPage() {
 	const { user } = useAuth();
 	const [searchTerm, setSearchTerm] = useState("");
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [showReceipt, setShowReceipt] = useState(false);
 	const [selectedSale, setSelectedSale] = useState<SaleWithDetails>();
 	const [showSaleDetails, setShowSaleDetails] = useState(false);
 	const [viewingSale, setViewingSale] = useState<SaleWithDetails>();
 
-	// Use RTK Query hook to fetch sales
+	// Use RTK Query hook to fetch sales with server-side filtering
 	const {
 		data: sales = [],
 		isLoading: loading,
+		isFetching,
 		isError,
 		error,
-	} = useGetSalesQuery(undefined, {
-		skip: !user,
-	});
+	} = useGetSalesQuery(
+		{
+			searchTerm: debouncedSearchTerm || undefined,
+			status: statusFilter !== "all" ? statusFilter : undefined,
+		},
+		{
+			skip: !user,
+		},
+	);
 
 	if (!user) return null;
 
 	const canSeeAll = canViewAllData(user.roles);
 
-	const filteredSales = sales.filter((sale) => {
-		const matchesSearch =
-			sale.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(sale.paymentMethod &&
-				sale.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase()));
-
-		const matchesStatus =
-			statusFilter === "all" || sale.status === statusFilter;
-
-		return matchesSearch && matchesStatus;
-	});
+	// Use server-filtered data directly - no client-side filtering
+	const completedSales = sales.filter(
+		(sale) => sale.status === "COMPLETED",
+	).length;
+	const totalSales = sales.length;
+	const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total), 0);
+	const averageOrderValue =
+		completedSales > 0 ? totalRevenue / completedSales : 0;
 
 	const handleViewSale = (sale: SaleWithDetails) => {
 		setViewingSale(sale);
@@ -103,17 +109,6 @@ export default function SalesHistoryPage() {
 				return <Badge variant='secondary'>{status}</Badge>;
 		}
 	};
-
-	const totalSales = filteredSales.length;
-	const totalRevenue = filteredSales.reduce(
-		(sum, sale) => sum + Number(sale.total),
-		0,
-	);
-	const completedSales = filteredSales.filter(
-		(sale) => sale.status === "COMPLETED",
-	).length;
-	const averageOrderValue =
-		completedSales > 0 ? totalRevenue / completedSales : 0;
 
 	if (loading) {
 		return (
@@ -226,6 +221,9 @@ export default function SalesHistoryPage() {
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
+							{isFetching && (
+								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+							)}
 						</div>
 						<select
 							value={statusFilter}

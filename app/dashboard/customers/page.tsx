@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { customersTableDef } from "@/components/customers/customers-table-def";
 import DataTable from "@/components/dashboard/data-table";
 import { CustomerWithSales } from "@/lib/services/customer.service";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function CustomersPage() {
 	const { user } = useAuth();
@@ -47,6 +48,7 @@ export default function CustomersPage() {
 		useState<CustomerWithSales | null>(null);
 
 	const [searchTerm, setSearchTerm] = useState("");
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
 	// Refs for focus restoration (Requirement 10.5)
 	const addButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -59,7 +61,9 @@ export default function CustomersPage() {
 		error: queryError,
 		isFetching,
 		refetch,
-	} = useGetCustomersQuery();
+	} = useGetCustomersQuery({
+		searchTerm: debouncedSearchTerm || undefined,
+	});
 
 	const [createCustomer, { isLoading: isCreating }] =
 		useCreateCustomerMutation();
@@ -70,7 +74,7 @@ export default function CustomersPage() {
 	const customers = customersResponse?.customers || [];
 
 	const canModify =
-		user?.roles.some((role) =>
+		user?.roles.some((role: UserRole) =>
 			(
 				[UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER] as UserRole[]
 			).includes(role),

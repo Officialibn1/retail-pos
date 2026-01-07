@@ -76,6 +76,29 @@ export async function createSale(data: CreateSaleInput): Promise<Sale> {
 		const taxAmount = (subtotal - discountAmount) * Number(taxRate);
 		const total = subtotal - discountAmount + taxAmount;
 
+		// Deduct inventory stock for all items and create stock movements
+		for (const item of data.items) {
+			// Update inventory stock
+			await tx.inventoryItem.update({
+				where: { id: item.inventoryItemId },
+				data: {
+					stock: {
+						decrement: item.quantity,
+					},
+				},
+			});
+
+			// Create stock movement record
+			await tx.stockMovement.create({
+				data: {
+					inventoryItemId: item.inventoryItemId,
+					quantity: -item.quantity,
+					reason: "SALE_PENDING",
+					notes: `Pending Sale - Reserved stock`,
+				},
+			});
+		}
+
 		// Create sale with PENDING status
 		const sale = await tx.sale.create({
 			data: {
@@ -192,39 +215,15 @@ export async function completeSale(
 			throw new Error(`Cannot complete sale with status ${sale.status}`);
 		}
 
-		// Reduce inventory stock for all items and create stock movements
+		// Update stock movement records to reflect completion (stock already deducted)
 		for (const item of sale.items) {
-			const inventoryItem = await tx.inventoryItem.findUnique({
-				where: { id: item.inventoryItemId },
-			});
-
-			if (!inventoryItem) {
-				throw new Error(`Inventory item ${item.inventoryItemId} not found`);
-			}
-
-			if (inventoryItem.stock < item.quantity) {
-				throw new Error(
-					`Insufficient stock for item ${inventoryItem.name}. Available: ${inventoryItem.stock}, Required: ${item.quantity}`,
-				);
-			}
-
-			// Update inventory stock
-			await tx.inventoryItem.update({
-				where: { id: item.inventoryItemId },
-				data: {
-					stock: {
-						decrement: item.quantity,
-					},
-				},
-			});
-
-			// Create stock movement record
+			// Create stock movement record for completion
 			await tx.stockMovement.create({
 				data: {
 					inventoryItemId: item.inventoryItemId,
-					quantity: -item.quantity,
+					quantity: 0, // No quantity change, just status update
 					reason: "SALE",
-					notes: `Sale ID: ${id}`,
+					notes: `Sale ID: ${id} - Completed`,
 				},
 			});
 		}
@@ -295,8 +294,11 @@ export async function cancelSale(id: string): Promise<Sale> {
 			throw new Error("Sale is already cancelled");
 		}
 
-		// Only restore stock if sale was completed
-		if (sale.status === SaleStatus.COMPLETED) {
+		// Restore stock for both PENDING and COMPLETED sales
+		if (
+			sale.status === SaleStatus.PENDING ||
+			sale.status === SaleStatus.COMPLETED
+		) {
 			// Restore inventory stock for all items and create stock movements
 			for (const item of sale.items) {
 				// Update inventory stock
@@ -315,7 +317,7 @@ export async function cancelSale(id: string): Promise<Sale> {
 						inventoryItemId: item.inventoryItemId,
 						quantity: item.quantity,
 						reason: "SALE_CANCELLED",
-						notes: `Sale ID: ${id}`,
+						notes: `Sale ID: ${id} - ${sale.status} sale cancelled`,
 					},
 				});
 			}
@@ -365,14 +367,18 @@ export interface SalesFilters {
  * List sales with role-based filtering
  * @param userId - User ID for CASHIER filtering
  * @param userRoles - User roles for access control
- * @param filters - Optional filters for status, date range, and pagination
+ * @param params - Optional URLSearchParams for search and filter
  * @returns Array of sales with details
  */
 export async function listSales(
 	userId?: string,
 	userRoles?: UserRole[],
-	filters?: SalesFilters,
+	params?: URLSearchParams,
 ): Promise<SaleWithDetails[]> {
+	// Extract search and filter parameters
+	const searchTerm = params?.get("searchTerm");
+	const statusFilter = params?.get("status");
+
 	// Build where clause based on role
 	const whereClause: any = {};
 
@@ -388,26 +394,37 @@ export async function listSales(
 		whereClause.userId = userId;
 	}
 
-	// Apply status filter
-	if (filters?.status) {
-		whereClause.status = filters.status;
+	// Apply search term with OR logic for id and paymentMethod
+	if (searchTerm) {
+		const searchConditions: any[] = [];
+
+		searchConditions.push({
+			id: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		searchConditions.push({
+			paymentMethod: {
+				contains: searchTerm,
+				mode: "insensitive" as const,
+			},
+		});
+
+		// Combine with existing conditions using AND logic
+		if (whereClause.OR || whereClause.userId) {
+			whereClause.AND = whereClause.AND || [];
+			whereClause.AND.push({ OR: searchConditions });
+		} else {
+			whereClause.OR = searchConditions;
+		}
 	}
 
-	// Apply date range filter
-	if (filters?.startDate || filters?.endDate) {
-		whereClause.createdAt = {};
-		if (filters.startDate) {
-			whereClause.createdAt.gte = filters.startDate;
-		}
-		if (filters.endDate) {
-			whereClause.createdAt.lte = filters.endDate;
-		}
+	// Apply status filter with AND logic
+	if (statusFilter && statusFilter !== "all") {
+		whereClause.status = statusFilter as SaleStatus;
 	}
-
-	// Calculate pagination
-	const page = filters?.page ?? 1;
-	const limit = filters?.limit ?? 50;
-	const skip = (page - 1) * limit;
 
 	const sales = await prisma.sale.findMany({
 		where: whereClause,
@@ -441,8 +458,6 @@ export async function listSales(
 		orderBy: {
 			createdAt: "desc",
 		},
-		skip,
-		take: limit,
 	});
 
 	return sales;
