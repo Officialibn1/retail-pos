@@ -13,7 +13,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import {
 	createCategorySchema,
@@ -33,12 +40,7 @@ export function AddCategoryDialog({
 	onSave,
 	isCreating,
 }: AddCategoryDialogProps) {
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-	} = useForm<CreateCategoryInput>({
+	const form = useForm<CreateCategoryInput>({
 		resolver: zodResolver(createCategorySchema),
 		defaultValues: {
 			name: "",
@@ -48,9 +50,9 @@ export function AddCategoryDialog({
 	// Reset form when dialog closes
 	useEffect(() => {
 		if (!open) {
-			reset();
+			form.reset();
 		}
-	}, [open, reset]);
+	}, [open, form]);
 
 	const onSubmit = (data: CreateCategoryInput) => {
 		onSave(data);
@@ -70,51 +72,49 @@ export function AddCategoryDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className='space-y-4'>
-					<div className='space-y-2'>
-						<Label
-							htmlFor='name'
-							className='text-brand-main-700'>
-							Category Name *
-						</Label>
-						<Input
-							id='name'
-							{...register("name")}
-							disabled={isCreating}
-							className='border-brand-main-200 focus:border-brand-main-400'
-							placeholder='e.g., Electronics, Clothing, Food'
-							aria-invalid={errors.name ? "true" : "false"}
-							aria-describedby={errors.name ? "name-error" : undefined}
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className='space-y-4'>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Category Name *
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											disabled={isCreating}
+											className='border-brand-main-200 focus:border-brand-main-400'
+											placeholder='e.g., Electronics, Clothing, Food'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{errors.name && (
-							<p
-								id='name-error'
-								className='text-sm text-red-600'
-								role='alert'>
-								{errors.name.message}
-							</p>
-						)}
-					</div>
 
-					<DialogFooter>
-						<Button
-							type='button'
-							disabled={isCreating}
-							variant='outline'
-							onClick={() => onOpenChange(false)}
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
-							Cancel
-						</Button>
-						<Button
-							type='submit'
-							disabled={isCreating}
-							className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
-							{isCreating ? <Spinner /> : "Add Category"}
-						</Button>
-					</DialogFooter>
-				</form>
+						<DialogFooter>
+							<Button
+								type='button'
+								disabled={isCreating}
+								variant='outline'
+								onClick={() => onOpenChange(false)}
+								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								Cancel
+							</Button>
+							<Button
+								type='submit'
+								disabled={isCreating}
+								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								{isCreating ? <Spinner /> : "Add Category"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);
