@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/middleware/auth";
-import { updateCustomerSchema } from "@/lib/validations/customer.schema";
+import { customerSchema } from "@/lib/validations/customer.schema";
 import {
 	getCustomerById,
 	updateCustomer,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/services/customer.service";
 import { ZodError } from "zod";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/customers/[id]
@@ -75,7 +75,7 @@ export async function PUT(
 
 		// Parse and validate request body
 		const body = await request.json();
-		const validatedData = updateCustomerSchema.parse(body);
+		const validatedData = customerSchema.parse(body);
 
 		// Update customer
 		const customer = await updateCustomer(params.id, validatedData);

@@ -29,6 +29,7 @@ import {
 	useDeleteCustomerMutation,
 } from "@/lib/store/api";
 import { toast } from "sonner";
+import { CustomerInput } from "@/lib/validations/customer.schema";
 import { AddCustomerDialog } from "@/components/customers/add-customer-dialog";
 import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -80,11 +81,7 @@ export default function CustomersPage() {
 			).includes(role),
 		) || false;
 
-	const handleAddCustomer = async (data: {
-		name?: string | null;
-		phone?: string | null;
-		email?: string | null;
-	}) => {
+	const handleAddCustomer = async (data: CustomerInput) => {
 		try {
 			await createCustomer(data).unwrap();
 			setShowAddDialog(false);
@@ -118,11 +115,7 @@ export default function CustomersPage() {
 		setShowEditDialog(true);
 	};
 
-	const handleSaveEdit = async (data: {
-		name?: string | null;
-		phone?: string | null;
-		email?: string | null;
-	}) => {
+	const handleSaveEdit = async (data: CustomerInput) => {
 		if (!selectedCustomer) return;
 
 		try {

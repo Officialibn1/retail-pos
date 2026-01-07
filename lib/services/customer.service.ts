@@ -1,9 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Customer, Prisma } from "@/generated/prisma/client";
-import {
-	CreateCustomerInput,
-	UpdateCustomerInput,
-} from "@/lib/validations/customer.schema";
+import { CustomerInput } from "@/lib/validations/customer.schema";
 
 /**
  * Customer with sales history
@@ -22,9 +19,7 @@ export type CustomerWithSales = Customer & {
  * @param data - Customer creation data
  * @returns Created customer
  */
-export async function createCustomer(
-	data: CreateCustomerInput,
-): Promise<Customer> {
+export async function createCustomer(data: CustomerInput): Promise<Customer> {
 	// If phone is provided, check uniqueness
 	if (data.phone) {
 		const existingCustomer = await prisma.customer.findUnique({
@@ -33,6 +28,16 @@ export async function createCustomer(
 
 		if (existingCustomer) {
 			throw new Error("A customer with this phone number already exists");
+		}
+	}
+
+	if (data.email) {
+		const existingCustomer = await prisma.customer.findFirst({
+			where: { email: data.email },
+		});
+
+		if (existingCustomer) {
+			throw new Error("A customer with this email already exists");
 		}
 	}
 
@@ -83,7 +88,7 @@ export async function getCustomerById(
  */
 export async function updateCustomer(
 	id: string,
-	data: UpdateCustomerInput,
+	data: CustomerInput,
 ): Promise<Customer> {
 	// If phone is being updated, check uniqueness
 	if (data.phone) {
@@ -96,6 +101,20 @@ export async function updateCustomer(
 
 		if (existingCustomer) {
 			throw new Error("A customer with this phone number already exists");
+		}
+	}
+
+	// If email is being updated, check uniqueness
+	if (data.email) {
+		const existingCustomer = await prisma.customer.findFirst({
+			where: {
+				email: data.email,
+				NOT: { id },
+			},
+		});
+
+		if (existingCustomer) {
+			throw new Error("A customer with this email already exists");
 		}
 	}
 

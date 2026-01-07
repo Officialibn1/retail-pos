@@ -13,17 +13,24 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import {
-	createCustomerSchema,
-	type CreateCustomerInput,
+	customerSchema,
+	type CustomerInput,
 } from "@/lib/validations/customer.schema";
 
 interface AddCustomerDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (data: CreateCustomerInput) => void;
+	onSave: (data: CustomerInput) => void;
 	isCreating: boolean;
 }
 
@@ -33,13 +40,8 @@ export function AddCustomerDialog({
 	onSave,
 	isCreating,
 }: AddCustomerDialogProps) {
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-	} = useForm<CreateCustomerInput>({
-		resolver: zodResolver(createCustomerSchema),
+	const form = useForm<CustomerInput>({
+		resolver: zodResolver(customerSchema),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -50,23 +52,18 @@ export function AddCustomerDialog({
 	// Reset form when dialog closes
 	useEffect(() => {
 		if (!open) {
-			reset();
+			form.reset();
 		}
-	}, [open, reset]);
+	}, [open, form]);
 
-	const onSubmit = (data: CreateCustomerInput) => {
-		// Convert empty strings to null for optional fields
-		const cleanedData = {
-			name: data.name?.trim() || null,
-			email: data.email?.trim() || null,
-			phone: data.phone?.trim() || null,
-		};
-		onSave(cleanedData);
+	const onSubmit = (data: CustomerInput) => {
+		// Data is already cleaned by the schema transform
+		onSave(data);
 	};
 
 	// Handle cancel - ensures data is preserved (Requirement 6.3)
 	const handleCancel = () => {
-		reset(); // Reset form to initial state
+		form.reset(); // Reset form to initial state
 		onOpenChange(false); // Close dialog without saving
 	};
 
@@ -80,115 +77,100 @@ export function AddCustomerDialog({
 						Add New Customer
 					</DialogTitle>
 					<DialogDescription className='text-brand-main-600'>
-						Create a new customer record. At least one field must be provided.
+						Create a new customer record. Phone number is required.
 					</DialogDescription>
 				</DialogHeader>
 
-				<form
-					onSubmit={handleSubmit(onSubmit)}
-					className='space-y-4'>
-					<div className='space-y-2'>
-						<Label
-							htmlFor='name'
-							className='text-brand-main-700'>
-							Customer Name
-						</Label>
-						<Input
-							id='name'
-							{...register("name")}
-							disabled={isCreating}
-							className='border-brand-main-200 focus:border-brand-main-400'
-							placeholder='e.g., John Doe'
-							aria-invalid={errors.name ? "true" : "false"}
-							aria-describedby={errors.name ? "name-error" : undefined}
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className='space-y-4'>
+						<FormField
+							control={form.control}
+							name='name'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Customer Name
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											value={field.value || ""}
+											disabled={isCreating}
+											className='border-brand-main-200 focus:border-brand-main-400'
+											placeholder='e.g., John Doe'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{errors.name && (
-							<p
-								id='name-error'
-								className='text-sm text-red-600'
-								role='alert'>
-								{errors.name.message}
-							</p>
-						)}
-					</div>
 
-					<div className='space-y-2'>
-						<Label
-							htmlFor='email'
-							className='text-brand-main-700'>
-							Email Address
-						</Label>
-						<Input
-							id='email'
-							type='email'
-							{...register("email")}
-							disabled={isCreating}
-							className='border-brand-main-200 focus:border-brand-main-400'
-							placeholder='e.g., john@example.com'
-							aria-invalid={errors.email ? "true" : "false"}
-							aria-describedby={errors.email ? "email-error" : undefined}
+						<FormField
+							control={form.control}
+							name='email'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Email Address
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											value={field.value || ""}
+											type='email'
+											disabled={isCreating}
+											className='border-brand-main-200 focus:border-brand-main-400'
+											placeholder='e.g., john@example.com'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{errors.email && (
-							<p
-								id='email-error'
-								className='text-sm text-red-600'
-								role='alert'>
-								{errors.email.message}
-							</p>
-						)}
-					</div>
 
-					<div className='space-y-2'>
-						<Label
-							htmlFor='phone'
-							className='text-brand-main-700'>
-							Phone Number
-						</Label>
-						<Input
-							id='phone'
-							type='tel'
-							{...register("phone")}
-							disabled={isCreating}
-							className='border-brand-main-200 focus:border-brand-main-400'
-							placeholder='e.g., +2348012345678'
-							aria-invalid={errors.phone ? "true" : "false"}
-							aria-describedby={errors.phone ? "phone-error" : undefined}
+						<FormField
+							control={form.control}
+							name='phone'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Phone Number *
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											value={field.value || ""}
+											type='tel'
+											disabled={isCreating}
+											className='border-brand-main-200 focus:border-brand-main-400'
+											placeholder='e.g., +2348012345678'
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-						{errors.phone && (
-							<p
-								id='phone-error'
-								className='text-sm text-red-600'
-								role='alert'>
-								{errors.phone.message}
-							</p>
-						)}
-					</div>
 
-					{errors.root && (
-						<p
-							className='text-sm text-red-600'
-							role='alert'>
-							{errors.root.message}
-						</p>
-					)}
-
-					<DialogFooter>
-						<Button
-							type='button'
-							disabled={isCreating}
-							variant='outline'
-							onClick={handleCancel}
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
-							Cancel
-						</Button>
-						<Button
-							type='submit'
-							disabled={isCreating}
-							className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
-							{isCreating ? <Spinner /> : "Add Customer"}
-						</Button>
-					</DialogFooter>
-				</form>
+						<DialogFooter>
+							<Button
+								type='button'
+								disabled={isCreating}
+								variant='outline'
+								onClick={handleCancel}
+								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								Cancel
+							</Button>
+							<Button
+								type='submit'
+								disabled={isCreating}
+								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								{isCreating ? <Spinner /> : "Add Customer"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/middleware/auth";
-import { createCustomerSchema } from "@/lib/validations/customer.schema";
+import { customerSchema } from "@/lib/validations/customer.schema";
 import { createCustomer, listCustomers } from "@/lib/services/customer.service";
 import { ZodError } from "zod";
 
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
 		// Parse and validate request body
 		const body = await request.json();
-		const validatedData = createCustomerSchema.parse(body);
+		const validatedData = customerSchema.parse(body);
 
 		// Create customer
 		const customer = await createCustomer(validatedData);
@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
 			{ status: 201 },
 		);
 	} catch (error) {
+		console.log(JSON.stringify(error, null, 2));
+
 		// Handle validation errors
 		if (error instanceof ZodError) {
 			return NextResponse.json(
