@@ -129,6 +129,20 @@ export function CustomerSelector() {
 					) : (
 						// Customer selection interface
 						<div className='space-y-3'>
+							<div className='relative'>
+								{isFetching ? (
+									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+								) : (
+									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+								)}
+								<Input
+									placeholder='Filter customers by name or phone...'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</div>
+
 							{/* Customer search results */}
 							<div className='space-y-2'>
 								{isLoading ? (
@@ -136,43 +150,42 @@ export function CustomerSelector() {
 										<Spinner className='h-4 w-4' />
 									</div>
 								) : customers.length > 0 ? (
-									<Select onValueChange={handleSelectCustomer}>
-										<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
-											<SelectValue placeholder='Select a customer' />
-										</SelectTrigger>
-										<SelectContent>
-											<div className='relative mb-3'>
-												<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
-												<Input
-													placeholder='Search customers by name or phone...'
-													value={searchTerm}
-													onChange={(e) => setSearchTerm(e.target.value)}
-													className='pl-8 border-brand-main-200 focus:border-brand-main-400'
-												/>
-												{isFetching && (
-													<Spinner className='absolute right-2.5 top-2.5 h-4 w-4' />
-												)}
+									<div className='space-y-2 max-h-48 overflow-y-auto'>
+										{customers.map((customer) => (
+											<div
+												key={customer.id}
+												onClick={() => handleSelectCustomer(customer.id)}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ") {
+														e.preventDefault();
+														handleSelectCustomer(customer.id);
+													}
+												}}
+												tabIndex={0}
+												role='button'
+												aria-label={`Select customer ${
+													customer.name || "Anonymous"
+												}`}
+												className='py-1 px-3 border border-brand-main-200 rounded-lg cursor-pointer hover:bg-brand-main-50 hover:border-brand-main-300 focus:bg-brand-main-50 focus:border-brand-main-400 focus:outline-none transition-colors'>
+												<div className='flex flex-col'>
+													<span className='font-medium text-brand-main-800'>
+														{customer.name || "Anonymous Customer"}
+													</span>
+													<span className='text-xs text-muted-foreground'>
+														{customer.phone}
+														{customer.email && ` • ${customer.email}`}
+													</span>
+												</div>
 											</div>
-											{customers.map((customer) => (
-												<SelectItem
-													key={customer.id}
-													value={customer.id}>
-													<div className='flex flex-col'>
-														<span className='font-medium'>
-															{customer.name || "Anonymous"}
-														</span>
-														<span className='text-xs text-muted-foreground'>
-															{customer.phone}
-															{customer.email && ` • ${customer.email}`}
-														</span>
-													</div>
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								) : (
+										))}
+									</div>
+								) : searchTerm ? (
 									<p className='text-sm text-brand-main-600 text-center py-2'>
-										No customers found
+										No customers found for "{searchTerm}"
+									</p>
+								) : (
+									<p className='text-sm text-brand-main-500 text-center py-2'>
+										No customers available
 									</p>
 								)}
 							</div>

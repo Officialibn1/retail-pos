@@ -394,8 +394,6 @@ export default function NewSalePage() {
 				</div>
 
 				<div className='xl:col-span-1 grid lg:grid-cols-2 gap-6 xl:block xl:space-y-6'>
-					<CustomerSelector />
-
 					<ShoppingCart
 						items={cartItems.map((item) => ({
 							...item,
@@ -408,6 +406,8 @@ export default function NewSalePage() {
 						onCheckout={handleCreatePendingOrder}
 						isProcessing={creatingSale || completingSale}
 					/>
+
+					<CustomerSelector />
 				</div>
 			</div>
 
