@@ -12,13 +12,14 @@ import {
 export type SafeUser = Omit<User, "password">;
 
 /**
- * Create a new user with hashed password
+ * Create a new user with default password
  * @param data - User creation data
  * @returns Created user without password
  */
 export async function createUser(data: CreateUserInput): Promise<SafeUser> {
-	// Hash the password before storing
-	const hashedPassword = await hashPassword(data.password);
+	// Use default password for all new users
+	const defaultPassword = "password123";
+	const hashedPassword = await hashPassword(defaultPassword);
 
 	// Create user with hashed password
 	const user = await prisma.user.create({

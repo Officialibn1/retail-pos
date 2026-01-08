@@ -14,13 +14,34 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useGetUsersQuery, useDeleteUserMutation } from "@/lib/store/api";
+import {
+	useGetUsersQuery,
+	useCreateUserMutation,
+	useUpdateUserMutation,
+	useDeleteUserMutation,
+} from "@/lib/store/api";
 import DataTable from "@/components/dashboard/data-table";
 import { usersTableDef } from "@/components/users/users-table-def";
 import { UserWithoutPassword } from "@/lib/prisma-extended-types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Spinner } from "@/components/ui/spinner";
+import { AddUserDialog } from "@/components/users/add-user-dialog";
+import { EditUserDialog } from "@/components/users/edit-user-dialog";
+import {
+	CreateUserInput,
+	UpdateUserInput,
+} from "@/lib/validations/user.schema";
 
 export default function UsersPage() {
 	const { user } = useAuth();
@@ -28,6 +49,14 @@ export default function UsersPage() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [roleFilter, setRoleFilter] = useState("all");
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+	// Modal state
+	const [showAddDialog, setShowAddDialog] = useState(false);
+	const [showEditDialog, setShowEditDialog] = useState(false);
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [selectedUser, setSelectedUser] = useState<UserWithoutPassword | null>(
+		null,
+	);
 
 	// RTK Query hooks
 	const {
@@ -46,7 +75,9 @@ export default function UsersPage() {
 		},
 	);
 
-	const [deleteUser] = useDeleteUserMutation();
+	const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
+	const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+	const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
 	if (!user || !canManageUsers(user.roles)) {
 		return (
@@ -89,21 +120,76 @@ export default function UsersPage() {
 	const morningShiftUsers = users.filter((u) => u.shift === "MORNING").length;
 	const eveningShiftUsers = users.filter((u) => u.shift === "EVENING").length;
 
-	const handleEditUser = (user: UserWithoutPassword) => {
-		// TODO: Implement edit functionality
-		toast({
-			title: "Edit User",
-			description: `Edit functionality for ${user.name} will be implemented`,
-		});
+	const handleAddUser = async (data: CreateUserInput) => {
+		try {
+			await createUser(data).unwrap();
+			setShowAddDialog(false);
+			toast({
+				title: "Success",
+				description: "User created successfully",
+			});
+		} catch (err: any) {
+			console.error("Failed to create user:", err);
+			const errorMessage =
+				err?.data?.error?.message ||
+				err?.data?.message ||
+				"Failed to create user";
+			toast({
+				title: "Error",
+				description: errorMessage,
+				variant: "destructive",
+			});
+		}
 	};
 
-	const handleDeleteUser = async (userId: string) => {
-		if (!confirm("Are you sure you want to delete this user?")) {
-			return;
-		}
+	const handleEditUser = (userToEdit: UserWithoutPassword) => {
+		setSelectedUser(userToEdit);
+		setShowEditDialog(true);
+	};
+
+	const handleSaveEdit = async (data: UpdateUserInput) => {
+		if (!selectedUser) return;
 
 		try {
-			await deleteUser(userId).unwrap();
+			await updateUser({
+				id: selectedUser.id,
+				data,
+			}).unwrap();
+			setShowEditDialog(false);
+			setSelectedUser(null);
+			toast({
+				title: "Success",
+				description: "User updated successfully",
+			});
+		} catch (err: any) {
+			console.error("Failed to update user:", err);
+			const errorMessage =
+				err?.data?.error?.message ||
+				err?.data?.message ||
+				"Failed to update user";
+			toast({
+				title: "Error",
+				description: errorMessage,
+				variant: "destructive",
+			});
+		}
+	};
+
+	const handleDeleteUser = (userId: string) => {
+		const userToDelete = users.find((u) => u.id === userId);
+		if (userToDelete) {
+			setSelectedUser(userToDelete);
+			setShowDeleteDialog(true);
+		}
+	};
+
+	const confirmDelete = async () => {
+		if (!selectedUser) return;
+
+		try {
+			await deleteUser(selectedUser.id).unwrap();
+			setShowDeleteDialog(false);
+			setSelectedUser(null);
 			toast({
 				title: "Success",
 				description: "User deleted successfully",
@@ -139,7 +225,9 @@ export default function UsersPage() {
 						Manage store users and their permissions
 					</p>
 				</div>
-				<Button className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+				<Button
+					onClick={() => setShowAddDialog(true)}
+					className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
 					<Plus className='h-4 w-4 mr-2' />
 					Add User
 				</Button>
@@ -199,18 +287,35 @@ export default function UsersPage() {
 			<Card className='border-brand-main-200'>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800'>Users</CardTitle>
-					<div className='flex gap-4 mt-4'>
-						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
-							<Input
-								placeholder='Search users...'
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
-							/>
-							{isFetching && (
-								<Spinner className='absolute right-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
-							)}
+					<div className='flex gap-4 mt-4 w-full'>
+						<div className='flex gap-4 flex-1'>
+							<div className='relative flex-1'>
+								<label
+									htmlFor='customer-search'
+									className='sr-only'>
+									Search customers
+								</label>
+								{isFetching ? (
+									<Spinner
+										className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+										aria-label='Loading customers'
+									/>
+								) : (
+									<Search
+										className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+										aria-hidden='true'
+									/>
+								)}
+
+								<Input
+									id='customer-search'
+									placeholder='Search customers...'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+									aria-label='Search customers'
+								/>
+							</div>
 						</div>
 
 						<Select
@@ -236,6 +341,51 @@ export default function UsersPage() {
 					/>
 				</CardContent>
 			</Card>
+
+			{/* Add User Dialog */}
+			<AddUserDialog
+				open={showAddDialog}
+				onOpenChange={setShowAddDialog}
+				onSave={handleAddUser}
+				isCreating={isCreating}
+			/>
+
+			{/* Edit User Dialog */}
+			<EditUserDialog
+				open={showEditDialog}
+				onOpenChange={setShowEditDialog}
+				user={selectedUser}
+				onSave={handleSaveEdit}
+				isUpdating={isUpdating}
+			/>
+
+			{/* Delete Confirmation Dialog */}
+			<AlertDialog
+				open={showDeleteDialog}
+				onOpenChange={setShowDeleteDialog}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle className='text-brand-main-800'>
+							Delete User
+						</AlertDialogTitle>
+						<AlertDialogDescription className='text-brand-main-600'>
+							Are you sure you want to delete "{selectedUser?.name}"? This
+							action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={confirmDelete}
+							disabled={isDeleting}
+							className='bg-red-600 hover:bg-red-700 text-white'>
+							{isDeleting ? <Spinner className='h-4 w-4' /> : "Delete"}
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

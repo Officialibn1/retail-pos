@@ -16,10 +16,6 @@ export const createUserSchema = z.object({
 		.string()
 		.min(1, "Name is required")
 		.max(100, "Name must not exceed 100 characters"),
-	password: z
-		.string()
-		.min(8, "Password must be at least 8 characters")
-		.max(100, "Password must not exceed 100 characters"),
 	roles: z.array(z.nativeEnum(UserRole)).optional().default([UserRole.CASHIER]),
 	shift: z.nativeEnum(Shift).optional().default(Shift.MORNING),
 });
