@@ -7,7 +7,7 @@ export const customerSchema = z.object({
 			z.string().max(200, "Name must not exceed 200 characters").min(1),
 			z.literal(""),
 		])
-		.transform((val) => (val === "" ? null : val?.trim() || null)),
+		.transform((val) => val.trim()),
 	phone: z
 		.string()
 		.min(1, "Phone number is required")
@@ -22,7 +22,7 @@ export const customerSchema = z.object({
 				.max(100, "Email must not exceed 100 characters"),
 			z.literal(""),
 		])
-		.transform((val) => (val === "" ? null : val?.trim() || null)),
+		.transform((val) => val.trim()),
 });
 
 export type CustomerInput = z.infer<typeof customerSchema>;

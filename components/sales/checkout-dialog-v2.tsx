@@ -11,14 +11,17 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { formatNaira } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { SaleItem } from "@/generated/prisma";
 import { useAppSelector } from "@/lib/store";
+import { User, Phone, Mail } from "lucide-react";
 import {
 	selectCartDiscount,
 	selectCartSubtotal,
 	selectCartTaxAmount,
+	selectCartCustomer,
 } from "@/lib/store/slices/cartSlice";
 
 interface CheckoutDialogProps {
@@ -50,6 +53,7 @@ export function CheckoutDialogV2({
 	const discount = useAppSelector(selectCartDiscount);
 	const subtotal = useAppSelector(selectCartSubtotal);
 	const taxAmount = useAppSelector(selectCartTaxAmount);
+	const selectedCustomer = useAppSelector(selectCartCustomer);
 
 	const handleCompletePayment = () => {
 		onCompletePayment(saleId);
@@ -113,6 +117,35 @@ export function CheckoutDialogV2({
 				</DialogHeader>
 
 				<div className='space-y-4'>
+					{/* Customer Information */}
+					{selectedCustomer && (
+						<div className='bg-blue-50 p-4 rounded-lg border border-blue-200'>
+							<div className='flex items-center gap-2 mb-2'>
+								<User className='h-4 w-4 text-blue-600' />
+								<span className='font-medium text-blue-800'>Customer</span>
+							</div>
+							<div className='space-y-1'>
+								<div className='font-medium text-blue-900'>
+									{selectedCustomer.name || "Anonymous Customer"}
+								</div>
+								<div className='space-y-1 text-sm text-blue-700'>
+									{selectedCustomer.phone && (
+										<div className='flex items-center gap-1'>
+											<Phone className='h-3 w-3' />
+											{selectedCustomer.phone}
+										</div>
+									)}
+									{selectedCustomer.email && (
+										<div className='flex items-center gap-1'>
+											<Mail className='h-3 w-3' />
+											{selectedCustomer.email}
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					)}
+
 					{/* Order Summary */}
 					<div
 						className='space-y-3'

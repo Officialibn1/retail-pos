@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, Customer } from "@/generated/prisma/client";
 import { RootState } from "../index";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
 const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT as string;
@@ -25,6 +25,7 @@ export interface CartItem {
 export interface CartState {
 	items: CartItem[];
 	discount: number;
+	customer: Customer | null;
 }
 
 /**
@@ -33,6 +34,7 @@ export interface CartState {
 const initialState: CartState = {
 	items: [],
 	discount: 0,
+	customer: null,
 };
 
 /**
@@ -136,7 +138,26 @@ export const cartSlice = createSlice({
 		},
 
 		/**
-		 * Clear all items and discount from cart
+		 * Set selected customer for the sale
+		 *
+		 * @param state - Current cart state
+		 * @param action - Action containing customer data or null
+		 */
+		setCustomer: (state, action: PayloadAction<Customer | null>) => {
+			state.customer = action.payload;
+		},
+
+		/**
+		 * Clear selected customer
+		 *
+		 * @param state - Current cart state
+		 */
+		clearCustomer: (state) => {
+			state.customer = null;
+		},
+
+		/**
+		 * Clear all items, discount, and customer from cart
 		 *
 		 * @param state - Current cart state
 		 *
@@ -145,6 +166,7 @@ export const cartSlice = createSlice({
 		clearCart: (state) => {
 			state.items = [];
 			state.discount = 0;
+			state.customer = null;
 		},
 
 		/**
@@ -204,6 +226,8 @@ export const {
 	updateQuantity,
 	removeItem,
 	setDiscount,
+	setCustomer,
+	clearCustomer,
 	clearCart,
 	validateCart,
 } = cartSlice.actions;
@@ -286,6 +310,15 @@ export const selectCartTotal = (state: RootState): number => {
 export const selectCartItemCount = (state: RootState): number => {
 	return state.cart.items.reduce((sum, item) => sum + item.quantity, 0);
 };
+
+/**
+ * Select current customer
+ *
+ * @param state - Root Redux state
+ * @returns Selected customer or null
+ */
+export const selectCartCustomer = (state: RootState): Customer | null =>
+	state.cart.customer;
 
 // Export reducer
 export default cartSlice.reducer;

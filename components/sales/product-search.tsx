@@ -65,7 +65,7 @@ export function ProductSearch({
 	};
 
 	return (
-		<div className='space-y-4'>
+		<div className='space-y-4 h-fit'>
 			<div className='flex gap-4'>
 				<div className='relative flex-1'>
 					<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
@@ -122,7 +122,7 @@ export function ProductSearch({
 				</div>
 			)}
 
-			<div className='border border-brand-main-200 rounded-lg h-full max-h-96 overflow-y-auto'>
+			<div className='border border-brand-main-200 rounded-lg h-full max-h-[415px] overflow-y-auto'>
 				<Table>
 					<TableHeader>
 						<TableRow className='border-brand-main-200'>

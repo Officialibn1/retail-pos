@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductSearch } from "@/components/sales/product-search";
 import { ShoppingCart } from "@/components/sales/shopping-cart";
+import { CustomerSelector } from "@/components/sales/customer-selector";
 import { CheckoutDialogV2 } from "@/components/sales/checkout-dialog-v2";
 import { PaymentDialog } from "@/components/sales/payment-dialog";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
@@ -32,6 +33,7 @@ import {
 	selectCartDiscountAmount,
 	selectCartTaxAmount,
 	selectCartTotal,
+	selectCartCustomer,
 } from "@/lib/store/slices/cartSlice";
 import { PaymentMethod, SaleItem } from "@/generated/prisma";
 import { toast } from "sonner";
@@ -63,6 +65,7 @@ export default function NewSalePage() {
 	const discountAmount = useAppSelector(selectCartDiscountAmount);
 	const taxAmount = useAppSelector(selectCartTaxAmount);
 	const total = useAppSelector(selectCartTotal);
+	const selectedCustomer = useAppSelector(selectCartCustomer);
 
 	// Local UI state
 	const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
@@ -138,7 +141,7 @@ export default function NewSalePage() {
 					quantity: item.quantity,
 					price: Number(item.price),
 				})),
-				customerId: null,
+				customerId: selectedCustomer?.id || null,
 				discountRate: discount,
 			};
 
@@ -362,10 +365,10 @@ export default function NewSalePage() {
 				</Alert>
 			)}
 
-			<div className='grid gap-6 lg:grid-cols-3'>
-				{/* Product Search */}
-				<div className='lg:col-span-2'>
-					<Card className='border-brand-main-200 h-full'>
+			<div className='grid gap-6 xl:grid-cols-3 '>
+				<div className='xl:col-span-2 space-y-6'>
+					{/* Product Search */}
+					<Card className='border-brand-main-200 h-fit'>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800'>
 								Select Products
@@ -390,8 +393,9 @@ export default function NewSalePage() {
 					</Card>
 				</div>
 
-				{/* Shopping Cart */}
-				<div className='lg:col-span-1'>
+				<div className='xl:col-span-1 grid lg:grid-cols-2 gap-6 xl:block xl:space-y-6'>
+					<CustomerSelector />
+
 					<ShoppingCart
 						items={cartItems.map((item) => ({
 							...item,
@@ -407,14 +411,12 @@ export default function NewSalePage() {
 				</div>
 			</div>
 
-			{/* Pending Orders List */}
 			<PendingOrdersList
 				userId={user.id}
 				userRoles={user.roles}
 				onComplete={handleCompletePendingOrder}
 			/>
 
-			{/* Checkout Dialog */}
 			{pendingSaleId && pendingSaleData && (
 				<CheckoutDialogV2
 					open={showCheckoutDialog}

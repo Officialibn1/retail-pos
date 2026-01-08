@@ -1,0 +1,202 @@
+"use client";
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Search, User, Plus, X, Phone, Mail } from "lucide-react";
+import { formatNaira } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import {
+	setCustomer,
+	clearCustomer,
+	selectCartCustomer,
+} from "@/lib/store/slices/cartSlice";
+import {
+	useGetCustomersQuery,
+	useCreateCustomerMutation,
+} from "@/lib/store/api";
+import { AddCustomerDialog } from "@/components/customers/add-customer-dialog";
+import { CustomerInput } from "@/lib/validations/customer.schema";
+import { useDebounce } from "@/hooks/use-debounce";
+import { Customer } from "@/generated/prisma/client";
+
+export function CustomerSelector() {
+	const dispatch = useAppDispatch();
+	const selectedCustomer = useAppSelector(selectCartCustomer);
+
+	const [searchTerm, setSearchTerm] = useState("");
+	const [showAddDialog, setShowAddDialog] = useState(false);
+	const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+	// RTK Query hooks
+	const {
+		data: customersData,
+		isLoading,
+		isFetching,
+	} = useGetCustomersQuery({
+		searchTerm: debouncedSearchTerm || undefined,
+	});
+
+	const [createCustomer, { isLoading: isCreating }] =
+		useCreateCustomerMutation();
+
+	const customers = customersData?.customers || [];
+
+	const handleSelectCustomer = (customerId: string) => {
+		const customer = customers.find((c) => c.id === customerId);
+		if (customer) {
+			dispatch(setCustomer(customer));
+			setSearchTerm(""); // Clear search after selection
+		}
+	};
+
+	const handleClearCustomer = () => {
+		dispatch(clearCustomer());
+		setSearchTerm("");
+	};
+
+	const handleAddCustomer = async (data: CustomerInput) => {
+		try {
+			const result = await createCustomer(data).unwrap();
+			dispatch(setCustomer(result.customer));
+			setShowAddDialog(false);
+			setSearchTerm("");
+		} catch (error) {
+			console.error("Failed to create customer:", error);
+			// Error handling is done in the dialog component
+		}
+	};
+
+	return (
+		<>
+			<Card className='border-brand-main-200 h-fit'>
+				<CardHeader className=''>
+					<CardTitle className='text-lg text-brand-main-800 flex items-center gap-2'>
+						<User className='h-5 w-5' />
+						Customer (Optional)
+					</CardTitle>
+				</CardHeader>
+				<CardContent className='space-y-2'>
+					{selectedCustomer ? (
+						// Selected customer display
+						<div className='space-y-3'>
+							<div className='flex items-start justify-between'>
+								<div className='space-y-1'>
+									<div className='flex items-center gap-2'>
+										<h3 className='font-medium text-brand-main-800'>
+											{selectedCustomer.name || "Anonymous Customer"}
+										</h3>
+										<Badge
+											variant='secondary'
+											className='text-xs'>
+											Selected
+										</Badge>
+									</div>
+									<div className='space-y-1 text-sm text-brand-main-600'>
+										{selectedCustomer.phone && (
+											<div className='flex items-center gap-1'>
+												<Phone className='h-3 w-3' />
+												{selectedCustomer.phone}
+											</div>
+										)}
+										{selectedCustomer.email && (
+											<div className='flex items-center gap-1'>
+												<Mail className='h-3 w-3' />
+												{selectedCustomer.email}
+											</div>
+										)}
+									</div>
+								</div>
+								<Button
+									variant='ghost'
+									size='sm'
+									onClick={handleClearCustomer}
+									className='text-brand-main-600 hover:text-brand-main-800'>
+									<X className='h-4 w-4' />
+								</Button>
+							</div>
+						</div>
+					) : (
+						// Customer selection interface
+						<div className='space-y-3'>
+							{/* Customer search results */}
+							<div className='space-y-2'>
+								{isLoading ? (
+									<div className='flex items-center justify-center py-4'>
+										<Spinner className='h-4 w-4' />
+									</div>
+								) : customers.length > 0 ? (
+									<Select onValueChange={handleSelectCustomer}>
+										<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+											<SelectValue placeholder='Select a customer' />
+										</SelectTrigger>
+										<SelectContent>
+											<div className='relative mb-3'>
+												<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+												<Input
+													placeholder='Search customers by name or phone...'
+													value={searchTerm}
+													onChange={(e) => setSearchTerm(e.target.value)}
+													className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+												/>
+												{isFetching && (
+													<Spinner className='absolute right-2.5 top-2.5 h-4 w-4' />
+												)}
+											</div>
+											{customers.map((customer) => (
+												<SelectItem
+													key={customer.id}
+													value={customer.id}>
+													<div className='flex flex-col'>
+														<span className='font-medium'>
+															{customer.name || "Anonymous"}
+														</span>
+														<span className='text-xs text-muted-foreground'>
+															{customer.phone}
+															{customer.email && ` • ${customer.email}`}
+														</span>
+													</div>
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								) : (
+									<p className='text-sm text-brand-main-600 text-center py-2'>
+										No customers found
+									</p>
+								)}
+							</div>
+
+							{/* Add new customer button */}
+							<Button
+								variant='outline'
+								onClick={() => setShowAddDialog(true)}
+								className='w-full border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+								<Plus className='h-4 w-4 mr-2' />
+								Add New Customer
+							</Button>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Add Customer Dialog */}
+			<AddCustomerDialog
+				open={showAddDialog}
+				onOpenChange={setShowAddDialog}
+				onSave={handleAddCustomer}
+				isCreating={isCreating}
+			/>
+		</>
+	);
+}
