@@ -119,16 +119,21 @@ export function CheckoutDialogV2({
 				<div className='space-y-4'>
 					{/* Customer Information */}
 					{selectedCustomer && (
-						<div className='bg-blue-50 p-4 rounded-lg border border-blue-200'>
+						<div className=' p-4 rounded-lg border'>
 							<div className='flex items-center gap-2 mb-2'>
-								<User className='h-4 w-4 text-blue-600' />
-								<span className='font-medium text-blue-800'>Customer</span>
+								<User className='h-4 w-4 text-brand-main-600' />
+								<span className='font-medium text-brand-main-800'>
+									Customer Details
+								</span>
 							</div>
+
+							<Separator className='mb-2' />
+
 							<div className='space-y-1'>
-								<div className='font-medium text-blue-900'>
+								<div className='font-medium text-brand-main-900'>
 									{selectedCustomer.name || "Anonymous Customer"}
 								</div>
-								<div className='space-y-1 text-sm text-blue-700'>
+								<div className='space-y-1 text-sm text-brand-main-700'>
 									{selectedCustomer.phone && (
 										<div className='flex items-center gap-1'>
 											<Phone className='h-3 w-3' />

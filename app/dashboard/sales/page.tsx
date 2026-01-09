@@ -19,7 +19,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Eye, Receipt, Plus, Printer, Loader2 } from "lucide-react";
+import { Search, Receipt, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewAllData } from "@/lib/auth";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
@@ -79,35 +79,6 @@ export default function SalesHistoryPage() {
 	const handlePrintReceipt = (sale: SaleWithDetails) => {
 		setSelectedSale(sale);
 		setShowReceipt(true);
-	};
-
-	const getStatusBadge = (status: string) => {
-		switch (status) {
-			case "COMPLETED":
-				return (
-					<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
-						Completed
-					</Badge>
-				);
-			case "PENDING":
-				return (
-					<Badge
-						variant='secondary'
-						className='bg-amber-100 text-amber-800 hover:bg-amber-100'>
-						Pending
-					</Badge>
-				);
-			case "CANCELLED":
-				return (
-					<Badge
-						variant='destructive'
-						className='bg-red-100 text-red-800 hover:bg-red-100'>
-						Cancelled
-					</Badge>
-				);
-			default:
-				return <Badge variant='secondary'>{status}</Badge>;
-		}
 	};
 
 	if (loading) {
@@ -214,16 +185,17 @@ export default function SalesHistoryPage() {
 				<CardHeader>
 					<div className='flex gap-4'>
 						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+							{isFetching ? (
+								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+							) : (
+								<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+							)}
 							<Input
 								placeholder='Search sales...'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
-							{isFetching && (
-								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
-							)}
 						</div>
 						<select
 							value={statusFilter}
@@ -299,6 +271,43 @@ export default function SalesHistoryPage() {
 										{viewingSale.paymentMethod}
 									</p>
 								</div>
+								{viewingSale.customer &&
+									(viewingSale.customer.name ||
+										viewingSale.customer.email ||
+										viewingSale.customer.phone) && (
+										<>
+											{viewingSale.customer.name && (
+												<div>
+													<p className='text-sm font-medium text-brand-main-700'>
+														Customer Name
+													</p>
+													<p className='text-brand-main-800'>
+														{viewingSale.customer.name}
+													</p>
+												</div>
+											)}
+											{viewingSale.customer?.email && (
+												<div>
+													<p className='text-sm font-medium text-brand-main-700'>
+														Customer Email
+													</p>
+													<p className='text-brand-main-800'>
+														{viewingSale.customer?.email}
+													</p>
+												</div>
+											)}
+											{viewingSale.customer.phone && (
+												<div>
+													<p className='text-sm font-medium text-brand-main-700'>
+														Customer Phone
+													</p>
+													<p className='text-brand-main-800'>
+														{viewingSale.customer.phone}
+													</p>
+												</div>
+											)}
+										</>
+									)}
 							</div>
 
 							<div>

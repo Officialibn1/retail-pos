@@ -22,7 +22,8 @@ export type SaleWithDetails = Sale & {
 	customer: {
 		id: string;
 		name: string | null;
-		phone: string | null;
+		phone: string;
+		email: string | null;
 	} | null;
 	user: {
 		id: string;
@@ -171,6 +172,7 @@ export async function getSaleById(
 					id: true,
 					name: true,
 					phone: true,
+					email: true,
 				},
 			},
 			user: {
@@ -196,7 +198,7 @@ export async function getSaleById(
 export async function completeSale(
 	id: string,
 	paymentData: CompleteSaleInput,
-): Promise<Sale> {
+): Promise<SaleWithDetails> {
 	// Use transaction to ensure atomicity
 	const result = await prisma.$transaction(async (tx) => {
 		// Get sale with items
@@ -259,7 +261,21 @@ export async function completeSale(
 						},
 					},
 				},
-				user: true,
+				user: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+					},
+				},
+				customer: {
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+					},
+				},
 			},
 		});
 
@@ -445,6 +461,7 @@ export async function listSales(
 					id: true,
 					name: true,
 					phone: true,
+					email: true,
 				},
 			},
 			user: {

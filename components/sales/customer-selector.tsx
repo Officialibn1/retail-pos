@@ -5,15 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { Search, User, Plus, X, Phone, Mail } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import {
@@ -28,9 +20,12 @@ import {
 import { AddCustomerDialog } from "@/components/customers/add-customer-dialog";
 import { CustomerInput } from "@/lib/validations/customer.schema";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Customer } from "@/generated/prisma/client";
 
-export function CustomerSelector() {
+interface CustomerSelectorProps {
+	disabled?: boolean;
+}
+
+export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 	const dispatch = useAppDispatch();
 	const selectedCustomer = useAppSelector(selectCartCustomer);
 
@@ -53,6 +48,8 @@ export function CustomerSelector() {
 	const customers = customersData?.customers || [];
 
 	const handleSelectCustomer = (customerId: string) => {
+		if (disabled) return;
+
 		const customer = customers.find((c) => c.id === customerId);
 		if (customer) {
 			dispatch(setCustomer(customer));
@@ -61,11 +58,15 @@ export function CustomerSelector() {
 	};
 
 	const handleClearCustomer = () => {
+		if (disabled) return;
+
 		dispatch(clearCustomer());
 		setSearchTerm("");
 	};
 
 	const handleAddCustomer = async (data: CustomerInput) => {
+		if (disabled) return;
+
 		try {
 			const result = await createCustomer(data).unwrap();
 			dispatch(setCustomer(result.customer));
@@ -81,9 +82,9 @@ export function CustomerSelector() {
 		<>
 			<Card className='border-brand-main-200 h-fit'>
 				<CardHeader className=''>
-					<CardTitle className='text-lg text-brand-main-800 flex items-center gap-2'>
+					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<User className='h-5 w-5' />
-						Customer (Optional)
+						Customer
 					</CardTitle>
 				</CardHeader>
 				<CardContent className='space-y-2'>
@@ -121,7 +122,8 @@ export function CustomerSelector() {
 									variant='ghost'
 									size='sm'
 									onClick={handleClearCustomer}
-									className='text-brand-main-600 hover:text-brand-main-800'>
+									disabled={disabled}
+									className='text-brand-main-600 hover:text-brand-main-800 disabled:opacity-50 disabled:cursor-not-allowed'>
 									<X className='h-4 w-4' />
 								</Button>
 							</div>
@@ -139,7 +141,8 @@ export function CustomerSelector() {
 									placeholder='Filter customers by name or phone...'
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+									disabled={disabled}
+									className='pl-8 border-brand-main-200 focus:border-brand-main-400 disabled:opacity-50 disabled:cursor-not-allowed'
 								/>
 							</div>
 
@@ -154,19 +157,29 @@ export function CustomerSelector() {
 										{customers.map((customer) => (
 											<div
 												key={customer.id}
-												onClick={() => handleSelectCustomer(customer.id)}
+												onClick={() =>
+													!disabled && handleSelectCustomer(customer.id)
+												}
 												onKeyDown={(e) => {
-													if (e.key === "Enter" || e.key === " ") {
+													if (
+														!disabled &&
+														(e.key === "Enter" || e.key === " ")
+													) {
 														e.preventDefault();
 														handleSelectCustomer(customer.id);
 													}
 												}}
-												tabIndex={0}
+												tabIndex={disabled ? -1 : 0}
 												role='button'
 												aria-label={`Select customer ${
 													customer.name || "Anonymous"
 												}`}
-												className='py-1 px-3 border border-brand-main-200 rounded-lg cursor-pointer hover:bg-brand-main-50 hover:border-brand-main-300 focus:bg-brand-main-50 focus:border-brand-main-400 focus:outline-none transition-colors'>
+												aria-disabled={disabled}
+												className={`py-1 px-3 border border-brand-main-200 rounded-lg transition-colors ${
+													disabled
+														? "opacity-50 cursor-not-allowed"
+														: "cursor-pointer hover:bg-brand-main-50 hover:border-brand-main-300 focus:bg-brand-main-50 focus:border-brand-main-400 focus:outline-none"
+												}`}>
 												<div className='flex flex-col'>
 													<span className='font-medium text-brand-main-800'>
 														{customer.name || "Anonymous Customer"}
@@ -193,8 +206,9 @@ export function CustomerSelector() {
 							{/* Add new customer button */}
 							<Button
 								variant='outline'
-								onClick={() => setShowAddDialog(true)}
-								className='w-full border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+								onClick={() => !disabled && setShowAddDialog(true)}
+								disabled={disabled}
+								className='w-full border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 disabled:opacity-50 disabled:cursor-not-allowed'>
 								<Plus className='h-4 w-4 mr-2' />
 								Add New Customer
 							</Button>
@@ -205,8 +219,8 @@ export function CustomerSelector() {
 
 			{/* Add Customer Dialog */}
 			<AddCustomerDialog
-				open={showAddDialog}
-				onOpenChange={setShowAddDialog}
+				open={showAddDialog && !disabled}
+				onOpenChange={(open) => !disabled && setShowAddDialog(open)}
 				onSave={handleAddCustomer}
 				isCreating={isCreating}
 			/>

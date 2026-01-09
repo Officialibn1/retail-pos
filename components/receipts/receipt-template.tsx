@@ -16,10 +16,6 @@ const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
 const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
 
 export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
-	// const tax = sale.tax || 0;
-	// const discount = sale.discount || 0;
-	// const total = subtotal + tax - discount;
-
 	return (
 		<div className='receipt-template bg-white text-black p-6 max-w-sm mx-auto font-mono text-sm'>
 			{/* Store Header */}
@@ -47,10 +43,34 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 					<span>Cashier:</span>
 					<span>{sale.user.name}</span>
 				</div>
+
 				{sale.customer && (
-					<div className='flex justify-between'>
-						<span>Customer:</span>
-						<span>{sale.customer.name}</span>
+					<div className='border-t my-4 pt-4'>
+						{(sale.customer.name ||
+							sale.customer.email ||
+							sale.customer.phone) && (
+							<>
+								<h1 className='font-medium'>Customer Details: </h1>
+								{sale.customer.name && (
+									<div className='flex justify-between'>
+										<span>Customer:</span>
+										<span>{sale.customer.name}</span>
+									</div>
+								)}
+								{sale.customer.email && (
+									<div className='flex justify-between'>
+										<span>Email:</span>
+										<span className='text-xs'>{sale.customer.email}</span>
+									</div>
+								)}
+								{sale.customer.phone && (
+									<div className='flex justify-between'>
+										<span>Phone:</span>
+										<span>{sale.customer.phone}</span>
+									</div>
+								)}
+							</>
+						)}
 					</div>
 				)}
 			</div>

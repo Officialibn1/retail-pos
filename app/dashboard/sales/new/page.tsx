@@ -407,7 +407,7 @@ export default function NewSalePage() {
 						isProcessing={creatingSale || completingSale}
 					/>
 
-					<CustomerSelector />
+					<CustomerSelector disabled={creatingSale || completingSale} />
 				</div>
 			</div>
 
