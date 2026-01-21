@@ -190,8 +190,9 @@ export function DashboardSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   tooltip={"Settings"}
+                  isActive={pathname === "/dashboard/settings"}
                   asChild
-                  className="text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800"
+                  className="text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-600 data-[active=true]:text-white"
                 >
                   <Link href="/dashboard/settings">
                     <Settings className="h-4 w-4" />
@@ -211,7 +212,7 @@ export function DashboardSidebar() {
               <AvatarFallback className="bg-brand-main-600 text-white text-xs">
                 {user.name
                   .split(" ")
-                  .map((n: string[]) => n[0])
+                  .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
@@ -222,7 +223,7 @@ export function DashboardSidebar() {
               <AvatarFallback className="bg-brand-main-600 text-white text-xs">
                 {user.name
                   .split(" ")
-                  .map((n: string[]) => n[0])
+                  .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>

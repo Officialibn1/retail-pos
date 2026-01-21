@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/components/auth/auth-provider";
+import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
 import { Store, Shield, DatabaseBackup, User2 } from "lucide-react";
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
@@ -15,9 +17,17 @@ const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT;
 const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
 
 export default function SettingsPage() {
-	const { user } = useAuth();
+	const { user, logout } = useAuth();
+	const router = useRouter();
 
 	const [autoBackup, setAutoBackup] = useState(true);
+	const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+
+	const handlePasswordChangeSuccess = async () => {
+		// Log out the user after successful password change
+		await logout();
+		router.push("/login");
+	};
 
 	if (!user) return null;
 
@@ -170,6 +180,7 @@ export default function SettingsPage() {
 					<CardContent className='space-y-4'>
 						<Button
 							variant='outline'
+							onClick={() => setChangePasswordOpen(true)}
 							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
 							Change Password
 						</Button>
@@ -238,6 +249,12 @@ export default function SettingsPage() {
 					</CardContent>
 				</Card> */}
 			</div>
+
+			<ChangePasswordDialog
+				open={changePasswordOpen}
+				onOpenChange={setChangePasswordOpen}
+				onSuccess={handlePasswordChangeSuccess}
+			/>
 		</div>
 	);
 }
