@@ -1325,7 +1325,7 @@ export class BaseAnalyticsService implements AnalyticsService {
 				c.id as customer_id,
 				c.name as customer_name,
 				c.phone as customer_phone,
-				c.email as customer_email
+				c.email as customer_email,
 				COALESCE(SUM(s.total), 0)::numeric as total_spent,
 				COUNT(s.id)::int as total_visits,
 				COALESCE(AVG(s.total), 0)::numeric as average_transaction_value,
@@ -1336,7 +1336,7 @@ export class BaseAnalyticsService implements AnalyticsService {
 			AND s."createdAt" >= $1
 			AND s."createdAt" <= $2
 			${roleWhereClause}
-			GROUP BY c.id, c.name, c.phone
+			GROUP BY c.id, c.name, c.phone, c.email
 			${orderByClause}
 			LIMIT ${limit}
 		`;
@@ -1432,7 +1432,7 @@ export class BaseAnalyticsService implements AnalyticsService {
 				? "DATE_TRUNC('week', s.\"createdAt\")"
 				: "DATE_TRUNC('month', s.\"createdAt\")";
 
-		const dateFormat = params.interval === "week" ? "YYYY-MM-DD" : "YYYY-MM-DD";
+		const dateFormat = "YYYY-MM-DD";
 
 		// Get customer trends data
 		const trendsQuery = `
