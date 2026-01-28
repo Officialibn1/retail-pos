@@ -28,6 +28,23 @@ import {
 	UpdateInventoryItemInput,
 	UpdateUserInput,
 } from "@/lib/validations";
+import {
+	TopProductsParams,
+	TopProductsResult,
+	CategoryRevenueParams,
+	CategoryRevenueResult,
+	SalesTrendParams,
+	SalesTrendResult,
+	PaymentBreakdownParams,
+	PaymentBreakdownResult,
+	CashierPerformanceParams,
+	CashierPerformanceResult,
+	InventoryValueResult,
+	TopCustomersParams,
+	TopCustomersResult,
+	CustomerTrendsParams,
+	CustomerTrendsResult,
+} from "@/lib/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const TAG_TYPES = [
@@ -526,33 +543,18 @@ export const api = createApi({
 		}),
 
 		getSalesByDate: builder.query<DailySales[], GetSalesByDateParams | void>({
-			query: (params) => {
-				const searchParams = new URLSearchParams();
-				if (params && "startDate" in params && params.startDate) {
-					searchParams.append("startDate", params.startDate);
-				}
-				if (params && "endDate" in params && params.endDate) {
-					searchParams.append("endDate", params.endDate);
-				}
-				const queryString = searchParams.toString();
-				return `/api/analytics/sales-by-date${
-					queryString ? `?${queryString}` : ""
-				}`;
-			},
+			query: (params) => ({
+				url: "/api/analytics/sales-by-date",
+				params: params || undefined,
+			}),
 			providesTags: ["Analytics"],
 		}),
 
 		getTopProducts: builder.query<TopProduct[], GetTopProductsParams | void>({
-			query: (params) => {
-				const searchParams = new URLSearchParams();
-				if (params && "limit" in params && params.limit) {
-					searchParams.append("limit", params.limit.toString());
-				}
-				const queryString = searchParams.toString();
-				return `/api/analytics/top-products${
-					queryString ? `?${queryString}` : ""
-				}`;
-			},
+			query: (params) => ({
+				url: "/api/analytics/top-products",
+				params: params || undefined,
+			}),
 			providesTags: ["Analytics"],
 		}),
 
@@ -575,6 +577,83 @@ export const api = createApi({
 				params: params || undefined,
 			}),
 			providesTags: ["ActivityLogs"],
+		}),
+
+		// Enhanced Analytics Endpoints
+		getTopPerformingProducts: builder.query<
+			TopProductsResult,
+			TopProductsParams
+		>({
+			query: (params) => ({
+				url: "/api/analytics/products/top-performing",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getCategoryRevenue: builder.query<
+			CategoryRevenueResult,
+			CategoryRevenueParams
+		>({
+			query: (params) => ({
+				url: "/api/analytics/revenue/by-category",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getSalesTrends: builder.query<SalesTrendResult, SalesTrendParams>({
+			query: (params) => ({
+				url: "/api/analytics/sales/trends",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getPaymentBreakdown: builder.query<
+			PaymentBreakdownResult,
+			PaymentBreakdownParams
+		>({
+			query: (params) => ({
+				url: "/api/analytics/payments/breakdown",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getCashierPerformance: builder.query<
+			CashierPerformanceResult,
+			CashierPerformanceParams
+		>({
+			query: (params) => ({
+				url: "/api/analytics/cashiers/performance",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getInventoryValue: builder.query<InventoryValueResult, void>({
+			query: () => "/api/analytics/inventory/value",
+			providesTags: ["Analytics"],
+		}),
+
+		getTopCustomers: builder.query<TopCustomersResult, TopCustomersParams>({
+			query: (params) => ({
+				url: "/api/analytics/customers/top",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
+		}),
+
+		getCustomerTrends: builder.query<
+			CustomerTrendsResult,
+			CustomerTrendsParams
+		>({
+			query: (params) => ({
+				url: "/api/analytics/customers/trends",
+				params: params,
+			}),
+			providesTags: ["Analytics"],
 		}),
 	}),
 });
@@ -615,4 +694,13 @@ export const {
 	useGetPaymentMethodsQuery,
 	useGetInventoryAnalyticsQuery,
 	useGetActivityLogsQuery,
+	// Enhanced Analytics Hooks
+	useGetTopPerformingProductsQuery,
+	useGetCategoryRevenueQuery,
+	useGetSalesTrendsQuery,
+	useGetPaymentBreakdownQuery,
+	useGetCashierPerformanceQuery,
+	useGetInventoryValueQuery,
+	useGetTopCustomersQuery,
+	useGetCustomerTrendsQuery,
 } = api;

@@ -1,146 +1,270 @@
 "use client";
 
-import { useMemo } from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { useMemo, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/components/auth/auth-provider";
-import { SalesChart } from "@/components/analytics/sales-chart";
-import { RevenueChart } from "@/components/analytics/revenue-chart";
-import { PaymentMethodsChart } from "@/components/analytics/payment-methods-chart";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
 import {
-	TrendingUp,
-	TrendingDown,
-	DollarSign,
-	ShoppingCart,
-	AlertTriangle,
-	Loader2,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/components/auth/auth-provider";
+import {
+	CalendarIcon,
+	Download,
+	BarChart3,
+	TrendingUpIcon,
+	CreditCard,
+	Users,
+	Package,
+	RefreshCw,
+	Settings,
 } from "lucide-react";
 import { canViewAllData } from "@/lib/auth";
-import { formatNaira } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
-	useGetDashboardStatsQuery,
-	useGetSalesByDateQuery,
-	useGetTopProductsQuery,
-	useGetPaymentMethodsQuery,
-	useGetInventoryAnalyticsQuery,
-} from "@/lib/store/api";
+	useAnalyticsDashboardWithRefresh,
+	useRefreshPreferences,
+	REFRESH_INTERVALS,
+} from "@/hooks/use-analytics";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
+
+// Import report components
+import {
+	OverviewMetrics,
+	RevenueTrendReport,
+	SalesTrendReport,
+	PaymentMethodsReport,
+	TopProductsReport,
+	RecentSalesReport,
+	EnhancedTopProductsReport,
+	EnhancedSalesTrendsReport,
+	EnhancedPaymentMethodsReport,
+	CustomerAnalyticsReport,
+	CategoryRevenueReport,
+} from "@/components/analytics/reports";
+
+// Date range presets
+const DATE_PRESETS = [
+	{ label: "Today", days: 0 },
+	{ label: "Last 7 days", days: 7 },
+	{ label: "Last 30 days", days: 30 },
+	{ label: "Last 90 days", days: 90 },
+	{ label: "Last year", days: 365 },
+];
+
+// Analytics module tabs
+const ANALYTICS_MODULES = [
+	{ id: "overview", label: "Overview", icon: BarChart3 },
+	{ id: "products", label: "Products", icon: Package },
+	{ id: "sales", label: "Sales Trends", icon: TrendingUpIcon },
+	{ id: "payments", label: "Payments", icon: CreditCard },
+	{ id: "customers", label: "Customers", icon: Users },
+];
+
+// Export functionality
+const exportToCSV = (data: any[], filename: string) => {
+	if (!data || data.length === 0) return;
+
+	const headers = Object.keys(data[0]);
+	const csvContent = [
+		headers.join(","),
+		...data.map((row) =>
+			headers.map((header) => `"${row[header] || ""}"`).join(","),
+		),
+	].join("\n");
+
+	const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+	const link = document.createElement("a");
+	const url = URL.createObjectURL(blob);
+	link.setAttribute("href", url);
+	link.setAttribute(
+		"download",
+		`${filename}-${new Date().toISOString().split("T")[0]}.csv`,
+	);
+	link.style.visibility = "hidden";
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+};
 
 export default function AnalyticsPage() {
 	const { user } = useAuth();
+	const [activeTab, setActiveTab] = useState("overview");
+	const [dateRange, setDateRange] = useState<{
+		from: Date;
+		to: Date;
+	}>({
+		from: subDays(new Date(), 30),
+		to: new Date(),
+	});
+	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
-	// Calculate date range for last 30 days
-	const dateRange = useMemo(() => {
-		const endDate = new Date();
-		const startDate = new Date();
-		startDate.setDate(startDate.getDate() - 30);
-		return {
-			startDate: startDate.toISOString(),
-			endDate: endDate.toISOString(),
-		};
+	const [selectedCategoryId, setSelectedCategoryId] = useState<
+		string | undefined
+	>();
+
+	const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+
+	const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
+
+	// Refresh preferences
+	const refreshPrefs = useRefreshPreferences();
+
+	// Calculate date range for API queries
+	const apiDateRange = useMemo(
+		() => ({
+			startDate: startOfDay(dateRange.from).toISOString(),
+			endDate: endOfDay(dateRange.to).toISOString(),
+		}),
+		[dateRange],
+	);
+
+	// Use the enhanced analytics dashboard hook with refresh capabilities
+	const dashboard = useAnalyticsDashboardWithRefresh(apiDateRange, {
+		enabled: refreshPrefs.preferences.enabled,
+		interval: refreshPrefs.preferences.interval,
+		onRefresh: () => {
+			console.log("Analytics data refreshed successfully");
+		},
+		onError: (error) => {
+			console.error("Analytics refresh failed:", error);
+		},
+	});
+
+	// Handle date preset selection
+	const handlePresetSelect = (days: number) => {
+		const to = new Date();
+		const from = days === 0 ? new Date() : subDays(new Date(), days);
+		setDateRange({ from, to });
+		setIsDatePickerOpen(false);
+	};
+
+	// Handle CSV export with enhanced functionality
+	const handleExport = useCallback(
+		async (module: string) => {
+			try {
+				switch (module) {
+					case "products":
+						if (dashboard.data.topProducts?.products) {
+							exportToCSV(dashboard.data.topProducts.products, "top-products");
+						}
+						break;
+					case "sales":
+						if (dashboard.data.salesTrends?.trends) {
+							exportToCSV(dashboard.data.salesTrends.trends, "sales-trends");
+						}
+						break;
+					case "payments":
+						if (dashboard.data.paymentBreakdown?.paymentMethods) {
+							exportToCSV(
+								dashboard.data.paymentBreakdown.paymentMethods,
+								"payment-breakdown",
+							);
+						}
+						break;
+					case "customers":
+						if (dashboard.data.topCustomers?.customers) {
+							exportToCSV(
+								dashboard.data.topCustomers.customers,
+								"top-customers",
+							);
+						}
+						break;
+					case "overview":
+						// Export combined overview data
+						const overviewData = [
+							{
+								metric: "Total Revenue",
+								value: dashboard.data.salesTrends?.kpis.totalGrossRevenue || 0,
+								period: `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}`,
+							},
+							{
+								metric: "Average Order Value",
+								value: dashboard.data.salesTrends?.kpis.averageOrderValue || 0,
+								period: `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}`,
+							},
+							{
+								metric: "Total Discounts",
+								value: dashboard.data.salesTrends?.kpis.totalDiscounts || 0,
+								period: `${format(dateRange.from, "MMM dd")} - ${format(dateRange.to, "MMM dd")}`,
+							},
+							{
+								metric: "Inventory Value",
+								value: dashboard.data.inventoryValue?.totalEstimatedValue || 0,
+								period: "Current",
+							},
+						];
+						exportToCSV(overviewData, "analytics-overview");
+						break;
+					default:
+						console.log(`Export not implemented for ${module}`);
+				}
+			} catch (error) {
+				console.error("Export failed:", error);
+			}
+		},
+		[dashboard.data, dateRange],
+	);
+
+	// Drill-down handlers
+	const handleProductClick = useCallback((productId: string) => {
+		console.log("Product clicked:", productId);
+		// TODO: Navigate to product details or show modal
 	}, []);
 
-	// Fetch all analytics data using RTK Query hooks
-	const {
-		data: dashboardStats,
-		isLoading: isDashboardLoading,
-		isError: isDashboardError,
-		error: dashboardError,
-	} = useGetDashboardStatsQuery();
+	const handleCategoryClick = useCallback((categoryId: string) => {
+		console.log("Category clicked:", categoryId);
+		setSelectedCategoryId(categoryId);
+		setActiveTab("products"); // Switch to products tab with category filter
+	}, []);
 
-	const {
-		data: salesByDay = [],
-		isLoading: isSalesLoading,
-		isError: isSalesError,
-		error: salesError,
-	} = useGetSalesByDateQuery(dateRange);
+	const handleCashierClick = useCallback((userId: string) => {
+		console.log("Cashier clicked:", userId);
+		setSelectedUserId(userId);
+		// Could show detailed cashier performance modal
+	}, []);
 
-	const {
-		data: topProducts = [],
-		isLoading: isProductsLoading,
-		isError: isProductsError,
-		error: productsError,
-	} = useGetTopProductsQuery({ limit: 5 });
+	const handleCustomerClick = useCallback((customerId: string) => {
+		console.log("Customer clicked:", customerId);
+		setSelectedCustomerIds([customerId]);
+		setActiveTab("customers"); // Switch to customers tab with specific customer
+	}, []);
 
-	const {
-		data: paymentMethods = [],
-		isLoading: isPaymentsLoading,
-		isError: isPaymentsError,
-		error: paymentsError,
-	} = useGetPaymentMethodsQuery();
+	const handlePaymentMethodClick = useCallback((method: any) => {
+		console.log("Payment method clicked:", method);
+		// Could filter other views by payment method
+	}, []);
 
-	const {
-		data: inventoryAnalytics,
-		isLoading: isInventoryLoading,
-		isError: isInventoryError,
-		error: inventoryError,
-	} = useGetInventoryAnalyticsQuery();
+	const handleSaleClick = useCallback((saleId: string) => {
+		console.log("Sale clicked:", saleId);
+		// TODO: Navigate to sale details or show modal
+	}, []);
 
-	// Combine loading states
-	const loading =
-		isDashboardLoading ||
-		isSalesLoading ||
-		isProductsLoading ||
-		isPaymentsLoading ||
-		isInventoryLoading;
-
-	// Combine error states
-	const isError =
-		isDashboardError ||
-		isSalesError ||
-		isProductsError ||
-		isPaymentsError ||
-		isInventoryError;
-
-	// Get first error message
-	const error = isError
-		? (dashboardError as any)?.data?.error?.message ||
-		  (salesError as any)?.data?.error?.message ||
-		  (productsError as any)?.data?.error?.message ||
-		  (paymentsError as any)?.data?.error?.message ||
-		  (inventoryError as any)?.data?.error?.message ||
-		  "Failed to load analytics data"
-		: null;
+	// Global refresh handler
+	const handleGlobalRefresh = useCallback(() => {
+		dashboard.refresh.manualRefresh();
+	}, [dashboard.refresh]);
 
 	if (!user) return null;
 
 	const canSeeAll = canViewAllData(user.roles);
 
-	if (loading) {
-		return (
-			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className='space-y-6 p-6'>
-				<Card className='border-red-200 bg-red-50'>
-					<CardHeader>
-						<CardTitle className='text-red-800'>
-							Error Loading Analytics
-						</CardTitle>
-						<CardDescription className='text-red-700'>{error}</CardDescription>
-					</CardHeader>
-				</Card>
-			</div>
-		);
-	}
-
-	if (!dashboardStats || !inventoryAnalytics) {
-		return null;
-	}
-
 	return (
 		<div className='space-y-6 p-6'>
-			<div className='flex items-center justify-between'>
+			{/* Header with Date Range Selector and Real-time Controls */}
+			<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
 				<div>
 					<h1 className='text-3xl font-bold text-brand-main-800'>
 						Analytics Dashboard
@@ -151,205 +275,290 @@ export default function AnalyticsPage() {
 							: "Your personal sales analytics"}
 					</p>
 				</div>
-				<Badge
-					variant='secondary'
-					className='bg-brand-main-100 text-brand-main-800'>
-					{canSeeAll ? "All Data" : "Personal Data"}
-				</Badge>
-			</div>
 
-			{/* Key Metrics */}
-			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-				<Card className='border-brand-main-200'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
-							Total Revenue
-						</CardTitle>
-						<DollarSign className='h-4 w-4 text-brand-main-600' />
-					</CardHeader>
-					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
-							{formatNaira(dashboardStats.totalRevenue)}
-						</div>
-						<p className='text-xs text-brand-main-600 flex items-center mt-1'>
-							<TrendingUp className='h-3 w-3 mr-1' />
-							Total sales revenue
-						</p>
-					</CardContent>
-				</Card>
+				<div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
+					<Badge
+						variant='secondary'
+						className='bg-brand-main-100 text-brand-main-800 w-fit'>
+						{canSeeAll ? "All Data" : "Personal Data"}
+					</Badge>
 
-				<Card className='border-brand-main-200'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
-							Total Sales
-						</CardTitle>
-						<ShoppingCart className='h-4 w-4 text-brand-main-600' />
-					</CardHeader>
-					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
-							{dashboardStats.totalSales}
-						</div>
-						<p className='text-xs text-brand-main-600 flex items-center mt-1'>
-							<TrendingUp className='h-3 w-3 mr-1' />
-							Completed transactions
-						</p>
-					</CardContent>
-				</Card>
+					{/* Real-time Refresh Controls */}
+					<div className='flex items-center gap-2'>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={dashboard.refresh.manualRefresh}
+							disabled={dashboard.refresh.isRefreshing}
+							className='flex items-center gap-2'>
+							{dashboard.refresh.isRefreshing ? (
+								<RefreshCw className='h-4 w-4 animate-spin' />
+							) : (
+								<RefreshCw className='h-4 w-4' />
+							)}
+							Refresh
+						</Button>
 
-				<Card className='border-brand-main-200'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
-							Avg Order Value
-						</CardTitle>
-						<DollarSign className='h-4 w-4 text-brand-main-600' />
-					</CardHeader>
-					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
-							{formatNaira(dashboardStats.averageOrderValue)}
-						</div>
-						<p className='text-xs text-brand-main-600 flex items-center mt-1'>
-							<TrendingDown className='h-3 w-3 mr-1' />
-							Per transaction
-						</p>
-					</CardContent>
-				</Card>
-
-				<Card className='border-brand-main-200'>
-					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
-							Low Stock Items
-						</CardTitle>
-						<AlertTriangle className='h-4 w-4 text-brand-main-600' />
-					</CardHeader>
-					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
-							{inventoryAnalytics.lowStockCount}
-						</div>
-						<p className='text-xs text-brand-main-600'>Items below 10 units</p>
-					</CardContent>
-				</Card>
-			</div>
-
-			{/* Charts Section */}
-			<div className='grid w-full h-[450px] lg:h-[550px]'>
-				<Card className='border-brand-main-200 w-full flex flex-col h-full'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800'>Revenue Trend</CardTitle>
-						<CardDescription className='text-brand-main-600'>
-							Daily revenue over the last 30 days
-						</CardDescription>
-					</CardHeader>
-					<CardContent className='flex-1'>
-						<RevenueChart data={salesByDay} />
-					</CardContent>
-				</Card>
-			</div>
-
-			<div className='grid gap-4 md:grid-cols-2 h-[450px] lg:h-[550px]'>
-				<Card className='border-brand-main-200'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800'>
-							Payment Methods
-						</CardTitle>
-						<CardDescription className='text-brand-main-600'>
-							Sales distribution by payment type
-						</CardDescription>
-					</CardHeader>
-					<CardContent className='p-3 flex-1'>
-						<PaymentMethodsChart data={paymentMethods} />
-					</CardContent>
-				</Card>
-
-				<Card className='border-brand-main-200'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800'>Sales Trend</CardTitle>
-						<CardDescription className='text-brand-main-600'>
-							Daily sales over the last 30 days
-						</CardDescription>
-					</CardHeader>
-					<CardContent className='flex-1 '>
-						<SalesChart data={salesByDay} />
-					</CardContent>
-				</Card>
-			</div>
-
-			<div className='grid gap-4 md:grid-cols-2'>
-				<Card className='border-brand-main-200'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800'>Top Products</CardTitle>
-						<CardDescription className='text-brand-main-600'>
-							Best selling items
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className='space-y-4'>
-							{topProducts.length > 0 ? (
-								topProducts.map((product, index) => (
-									<div
-										key={product.productId}
-										className='flex items-center justify-between'>
-										<div className='flex items-center gap-3'>
-											<div className='flex h-8 w-8 items-center justify-center rounded-full bg-brand-main-100 text-xs font-medium text-brand-main-800'>
-												{index + 1}
-											</div>
-											<div>
-												<p className='text-sm font-medium text-brand-main-800'>
-													{product.productName}
-												</p>
-												<p className='text-xs text-brand-main-600'>
-													{product.quantitySold} units sold
-												</p>
-											</div>
-										</div>
-										<div className='text-sm font-medium text-brand-main-800'>
-											{formatNaira(product.revenue)}
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant='outline'
+									size='sm'
+									className='flex items-center gap-2'>
+									<Settings className='h-4 w-4' />
+									Auto-refresh
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className='w-80'>
+								<div className='space-y-4'>
+									<div className='space-y-2'>
+										<Label htmlFor='auto-refresh'>Enable Auto-refresh</Label>
+										<div className='flex items-center space-x-2'>
+											<Switch
+												id='auto-refresh'
+												checked={refreshPrefs.preferences.enabled}
+												onCheckedChange={(checked) => {
+													if (checked) {
+														refreshPrefs.enableAutoRefresh();
+													} else {
+														refreshPrefs.disableAutoRefresh();
+													}
+												}}
+											/>
+											<span className='text-sm text-muted-foreground'>
+												{refreshPrefs.preferences.enabled
+													? "Enabled"
+													: "Disabled"}
+											</span>
 										</div>
 									</div>
-								))
-							) : (
-								<p className='text-sm text-brand-main-600'>
-									No product data available
-								</p>
-							)}
-						</div>
-					</CardContent>
-				</Card>
 
-				<Card className='border-brand-main-200'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800'>Recent Sales</CardTitle>
-						<CardDescription className='text-brand-main-600'>
-							Latest transactions
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className='space-y-4'>
-							{dashboardStats.recentSales.length > 0 ? (
-								dashboardStats.recentSales.map((sale) => (
-									<div
-										key={sale.id}
-										className='flex items-center justify-between'>
-										<div>
-											<p className='text-sm font-medium text-brand-main-800'>
-												Sale #{sale.id.slice(0, 8)}
-											</p>
-											<p className='text-xs text-brand-main-600'>
-												{new Date(sale.createdAt).toLocaleDateString()} •{" "}
-												{sale.itemCount} items
-											</p>
+									{refreshPrefs.preferences.enabled && (
+										<div className='space-y-2'>
+											<Label>Refresh Interval</Label>
+											<Select
+												value={refreshPrefs.preferences.interval.toString()}
+												onValueChange={(value) =>
+													refreshPrefs.setRefreshInterval(parseInt(value))
+												}>
+												<SelectTrigger>
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem
+														value={REFRESH_INTERVALS.EVERY_30_SECONDS.toString()}>
+														Every 30 seconds
+													</SelectItem>
+													<SelectItem
+														value={REFRESH_INTERVALS.EVERY_MINUTE.toString()}>
+														Every minute
+													</SelectItem>
+													<SelectItem
+														value={REFRESH_INTERVALS.EVERY_5_MINUTES.toString()}>
+														Every 5 minutes
+													</SelectItem>
+													<SelectItem
+														value={REFRESH_INTERVALS.EVERY_15_MINUTES.toString()}>
+														Every 15 minutes
+													</SelectItem>
+												</SelectContent>
+											</Select>
 										</div>
-										<div className='text-sm font-medium text-brand-main-800'>
-											{formatNaira(sale.total)}
+									)}
+
+									{dashboard.refresh.lastRefresh && (
+										<div className='text-sm text-muted-foreground'>
+											Last refresh: {dashboard.refresh.formatLastRefresh()}
 										</div>
-									</div>
-								))
-							) : (
-								<p className='text-sm text-brand-main-600'>No recent sales</p>
-							)}
-						</div>
-					</CardContent>
-				</Card>
+									)}
+								</div>
+							</PopoverContent>
+						</Popover>
+					</div>
+
+					{/* Date Range Selector */}
+					<Popover
+						open={isDatePickerOpen}
+						onOpenChange={setIsDatePickerOpen}>
+						<PopoverTrigger asChild>
+							<Button
+								variant='outline'
+								className={cn(
+									"w-[280px] justify-start text-left font-normal",
+									!dateRange && "text-muted-foreground",
+								)}>
+								<CalendarIcon className='mr-2 h-4 w-4' />
+								{dateRange?.from ? (
+									dateRange.to ? (
+										<>
+											{format(dateRange.from, "LLL dd, y")} -{" "}
+											{format(dateRange.to, "LLL dd, y")}
+										</>
+									) : (
+										format(dateRange.from, "LLL dd, y")
+									)
+								) : (
+									<span>Pick a date range</span>
+								)}
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent
+							className='w-auto p-0'
+							align='end'>
+							<div className='flex'>
+								<div className='flex flex-col gap-2 p-3 border-r'>
+									<div className='text-sm font-medium'>Quick Select</div>
+									{DATE_PRESETS.map((preset) => (
+										<Button
+											key={preset.label}
+											variant='ghost'
+											size='sm'
+											className='justify-start'
+											onClick={() => handlePresetSelect(preset.days)}>
+											{preset.label}
+										</Button>
+									))}
+								</div>
+								<Calendar
+									mode='range'
+									defaultMonth={dateRange?.from}
+									selected={dateRange}
+									onSelect={(range) => {
+										if (range?.from && range?.to) {
+											setDateRange({ from: range.from, to: range.to });
+											setIsDatePickerOpen(false);
+										}
+									}}
+									numberOfMonths={2}
+								/>
+							</div>
+						</PopoverContent>
+					</Popover>
+				</div>
 			</div>
+
+			{/* Analytics Tabs */}
+			<Tabs
+				value={activeTab}
+				onValueChange={setActiveTab}
+				className='space-y-6'>
+				<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+					<TabsList className='grid w-full grid-cols-5 lg:w-fit'>
+						{ANALYTICS_MODULES.map((module) => (
+							<TabsTrigger
+								key={module.id}
+								value={module.id}
+								className='flex items-center gap-2'>
+								<module.icon className='h-4 w-4' />
+								<span className='hidden sm:inline'>{module.label}</span>
+							</TabsTrigger>
+						))}
+					</TabsList>
+
+					<Button
+						variant='outline'
+						size='sm'
+						onClick={() => handleExport(activeTab)}
+						className='flex items-center gap-2'>
+						<Download className='h-4 w-4' />
+						Export CSV
+					</Button>
+				</div>
+
+				{/* Overview Tab */}
+				<TabsContent
+					value='overview'
+					className='space-y-6'>
+					{/* Key Metrics */}
+					<OverviewMetrics onRefresh={handleGlobalRefresh} />
+
+					{/* Revenue Trend Chart */}
+					<RevenueTrendReport
+						dateRange={apiDateRange}
+						onRefresh={handleGlobalRefresh}
+					/>
+
+					{/* Charts Section */}
+					<div className='grid gap-4 md:grid-cols-2 h-[450px] lg:h-fit'>
+						<PaymentMethodsReport
+							dateRange={apiDateRange}
+							onPaymentMethodClick={handlePaymentMethodClick}
+							onRefresh={handleGlobalRefresh}
+						/>
+
+						<SalesTrendReport
+							dateRange={apiDateRange}
+							onRefresh={handleGlobalRefresh}
+						/>
+					</div>
+
+					{/* Bottom Section */}
+					<div className='grid gap-4 md:grid-cols-2'>
+						<TopProductsReport
+							limit={5}
+							onProductClick={handleProductClick}
+							onRefresh={handleGlobalRefresh}
+						/>
+
+						<RecentSalesReport
+							onSaleClick={handleSaleClick}
+							onRefresh={handleGlobalRefresh}
+						/>
+					</div>
+				</TabsContent>
+
+				{/* Products Tab */}
+				<TabsContent
+					value='products'
+					className='space-y-6'>
+					<EnhancedTopProductsReport
+						dateRange={apiDateRange}
+						selectedCategoryId={selectedCategoryId}
+						onProductClick={handleProductClick}
+						onRefresh={handleGlobalRefresh}
+					/>
+
+					<CategoryRevenueReport
+						dateRange={apiDateRange}
+						onCategoryClick={handleCategoryClick}
+						onRefresh={handleGlobalRefresh}
+					/>
+				</TabsContent>
+
+				{/* Sales Trends Tab */}
+				<TabsContent
+					value='sales'
+					className='space-y-6'>
+					<EnhancedSalesTrendsReport
+						dateRange={apiDateRange}
+						onCashierClick={handleCashierClick}
+						onRefresh={handleGlobalRefresh}
+					/>
+				</TabsContent>
+
+				{/* Payments Tab */}
+				<TabsContent
+					value='payments'
+					className='space-y-6'>
+					<EnhancedPaymentMethodsReport
+						dateRange={apiDateRange}
+						onPaymentMethodClick={handlePaymentMethodClick}
+						onRefresh={handleGlobalRefresh}
+					/>
+				</TabsContent>
+
+				{/* Customers Tab */}
+				<TabsContent
+					value='customers'
+					className='space-y-6'>
+					<CustomerAnalyticsReport
+						dateRange={apiDateRange}
+						selectedCustomerIds={selectedCustomerIds}
+						onCustomerClick={handleCustomerClick}
+						onRefresh={handleGlobalRefresh}
+					/>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }

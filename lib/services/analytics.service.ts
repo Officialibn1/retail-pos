@@ -1,6 +1,25 @@
 import { prisma } from "@/lib/prisma";
-import { UserRole } from "@/generated/prisma/client";
-import { DashboardStats, InventoryAnalytics } from "../types";
+import { PaymentMethod, UserRole } from "@/generated/prisma/client";
+import {
+	DashboardStats,
+	InventoryAnalytics,
+	TopProductsParams,
+	TopProductsResult,
+	CategoryRevenueParams,
+	CategoryRevenueResult,
+	SalesTrendParams,
+	SalesTrendResult,
+	PaymentBreakdownParams,
+	PaymentBreakdownResult,
+	CashierPerformanceParams,
+	CashierPerformanceResult,
+	InventoryValueResult,
+	TopCustomersParams,
+	TopCustomersResult,
+	CustomerTrendsParams,
+	CustomerTrendsResult,
+} from "../types";
+import { canViewAllData } from "../auth";
 
 /**
  * Sales analytics data
@@ -391,7 +410,7 @@ export async function getDashboardStats(
 					customer_name: string | null;
 					item_count: number;
 				}>
-		  >`
+			>`
         SELECT 
           s.id,
           s.total::numeric,
@@ -415,7 +434,7 @@ export async function getDashboardStats(
 					customer_name: string | null;
 					item_count: number;
 				}>
-		  >`
+			>`
         SELECT 
           s.id,
           s.total::numeric,
@@ -448,3 +467,1089 @@ export async function getDashboardStats(
 		})),
 	};
 }
+
+// ============================================================================
+// Enhanced Analytics Service
+// ============================================================================
+
+/**
+ * Enhanced Analytics Service Interface
+ * Defines all analytics methods for the advanced dashboard
+ */
+export interface AnalyticsService {
+	// Product Analytics
+	getTopPerformingProducts(
+		params: TopProductsParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<TopProductsResult>;
+
+	// Revenue Analytics
+	getRevenueSummaryByCategory(
+		params: CategoryRevenueParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CategoryRevenueResult>;
+
+	// Sales Trends
+	getSalesTrends(
+		params: SalesTrendParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<SalesTrendResult>;
+
+	// Payment Analytics
+	getPaymentMethodBreakdown(
+		params: PaymentBreakdownParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<PaymentBreakdownResult>;
+
+	// Staff Performance
+	getCashierPerformance(
+		params: CashierPerformanceParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CashierPerformanceResult>;
+
+	// Inventory Analytics
+	getInventoryValue(): Promise<InventoryValueResult>;
+
+	// Customer Analytics
+	getTopCustomers(
+		params: TopCustomersParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<TopCustomersResult>;
+
+	getCustomerTrends(
+		params: CustomerTrendsParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CustomerTrendsResult>;
+}
+
+/**
+ * Base Analytics Service Class
+ * Provides common functionality and role-based access control
+ */
+export class BaseAnalyticsService implements AnalyticsService {
+	/**
+	 * Check if user can access all data based on role
+	 */
+	protected canAccessAllData(userId?: string, userRoles?: UserRole[]): boolean {
+		return canViewAllData(userRoles || []);
+	}
+
+	/**
+	 * Build role-based WHERE clause for SQL queries
+	 */
+	protected buildRoleBasedWhereClause(
+		userId?: string,
+		userRoles?: UserRole[],
+	): string {
+		if (this.canAccessAllData(userId, userRoles)) {
+			return "";
+		}
+		return userId ? `AND s."userId" = '${userId}'` : "";
+	}
+
+	/**
+	 * Validate date range parameters
+	 */
+	protected validateDateRange(
+		startDate: string,
+		endDate: string,
+	): { start: Date; end: Date } {
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+
+		if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+			throw new Error("Invalid date format. Use ISO 8601 format (YYYY-MM-DD)");
+		}
+
+		if (start > end) {
+			throw new Error("Start date must be before or equal to end date");
+		}
+
+		return { start, end };
+	}
+
+	/**
+	 * Validate limit parameter
+	 */
+	protected validateLimit(limit?: number): number {
+		if (limit !== undefined) {
+			if (limit < 1 || limit > 1000) {
+				throw new Error("Limit must be between 1 and 1000");
+			}
+		}
+		return limit || 10;
+	}
+
+	/**
+	 * Get top performing products with filtering and trend analysis
+	 * Implements requirements 1.1-1.10
+	 */
+	async getTopPerformingProducts(
+		params: TopProductsParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<TopProductsResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+		const limit = this.validateLimit(params.limit);
+
+		// Validate sortBy parameter
+		if (!["revenue", "quantity"].includes(params.sortBy)) {
+			throw new Error("sortBy must be 'revenue' or 'quantity'");
+		}
+
+		// Validate groupBy parameter if provided
+		if (
+			params.groupBy &&
+			!["day", "week", "month", "year"].includes(params.groupBy)
+		) {
+			throw new Error("groupBy must be 'day', 'week', 'month', or 'year'");
+		}
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Build category filter
+		const categoryFilter = params.categoryId
+			? `AND ii."categoryId" = '${params.categoryId}'`
+			: "";
+
+		// Build ORDER BY clause based on sortBy parameter
+		const orderByClause =
+			params.sortBy === "revenue"
+				? "ORDER BY total_revenue DESC"
+				: "ORDER BY units_sold DESC";
+
+		// Main query for top performing products
+		const productsQuery = `
+			SELECT 
+				ii.id as product_id,
+				ii.name as product_name,
+				ii.sku,
+				c.name as category_name,
+				SUM(si.quantity)::int as units_sold,
+				SUM(si.quantity * si.price)::numeric as total_revenue,
+				(SUM(si.quantity * si.price) / SUM(si.quantity))::numeric as average_selling_price
+			FROM sale_items si
+			INNER JOIN inventory_items ii ON si."inventoryItemId" = ii.id
+			INNER JOIN inventory_item_categories c ON ii."categoryId" = c.id
+			INNER JOIN sales s ON si."saleId" = s.id
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${categoryFilter}
+			${roleWhereClause}
+			GROUP BY ii.id, ii.name, ii.sku, c.name
+			${orderByClause}
+			LIMIT ${limit}
+		`;
+
+		const products = await prisma.$queryRawUnsafe<
+			Array<{
+				product_id: string;
+				product_name: string;
+				sku: string;
+				category_name: string;
+				units_sold: number;
+				total_revenue: number;
+				average_selling_price: number;
+			}>
+		>(productsQuery, start, end);
+
+		const result: TopProductsResult = {
+			products: products.map((p) => ({
+				productId: p.product_id,
+				productName: p.product_name,
+				sku: p.sku,
+				categoryName: p.category_name,
+				unitsSold: p.units_sold,
+				totalRevenue: Number(p.total_revenue),
+				averageSellingPrice: Number(p.average_selling_price),
+			})),
+		};
+
+		// Generate trend data if groupBy is specified
+		if (params.groupBy && products.length > 0) {
+			const productIds = products.map((p) => p.product_id);
+			const trendData = await this.generateTrendData(
+				productIds,
+				start,
+				end,
+				params.groupBy,
+				userId,
+				userRoles,
+			);
+			result.trendData = trendData;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Generate trend data for products over time intervals
+	 * Helper method for getTopPerformingProducts
+	 */
+	private async generateTrendData(
+		productIds: string[],
+		startDate: Date,
+		endDate: Date,
+		groupBy: "day" | "week" | "month" | "year",
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<Array<{ date: string; revenue: number; quantity: number }>> {
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Build product filter
+		const productFilter =
+			productIds.length > 0
+				? `AND si."inventoryItemId" = ANY(ARRAY[${productIds.map((id) => `'${id}'`).join(",")}])`
+				: "";
+
+		// Build date truncation based on groupBy parameter
+		let dateTrunc: string;
+		let dateFormat: string;
+
+		switch (groupBy) {
+			case "day":
+				dateTrunc = "DATE_TRUNC('day', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			case "week":
+				dateTrunc = "DATE_TRUNC('week', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			case "month":
+				dateTrunc = "DATE_TRUNC('month', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			case "year":
+				dateTrunc = "DATE_TRUNC('year', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			default:
+				throw new Error(`Invalid groupBy parameter: ${groupBy}`);
+		}
+
+		const trendQuery = `
+			SELECT 
+				TO_CHAR(${dateTrunc}, '${dateFormat}') as date,
+				SUM(si.quantity * si.price)::numeric as revenue,
+				SUM(si.quantity)::int as quantity
+			FROM sale_items si
+			INNER JOIN sales s ON si."saleId" = s.id
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${productFilter}
+			${roleWhereClause}
+			GROUP BY ${dateTrunc}
+			ORDER BY ${dateTrunc} ASC
+		`;
+
+		const trendResults = await prisma.$queryRawUnsafe<
+			Array<{
+				date: string;
+				revenue: number;
+				quantity: number;
+			}>
+		>(trendQuery, startDate, endDate);
+
+		return trendResults.map((row) => ({
+			date: row.date,
+			revenue: Number(row.revenue),
+			quantity: row.quantity,
+		}));
+	}
+
+	/**
+	 * Get revenue summary by category with percentage contributions
+	 * Implements requirements 2.1-2.6
+	 */
+	async getRevenueSummaryByCategory(
+		params: CategoryRevenueParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CategoryRevenueResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// First, get total revenue across all categories for percentage calculation
+		const totalRevenueQuery = `
+			SELECT 
+				COALESCE(SUM(si.quantity * si.price), 0)::numeric as total_revenue
+			FROM sale_items si
+			INNER JOIN inventory_items ii ON si."inventoryItemId" = ii.id
+			INNER JOIN sales s ON si."saleId" = s.id
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+		`;
+
+		const totalRevenueResult = await prisma.$queryRawUnsafe<
+			Array<{ total_revenue: number }>
+		>(totalRevenueQuery, start, end);
+
+		const totalRevenue = Number(totalRevenueResult[0]?.total_revenue || 0);
+
+		// Get revenue summary by category
+		const categoryRevenueQuery = `
+			SELECT 
+				c.id as category_id,
+				c.name as category_name,
+				COUNT(DISTINCT s.id)::int as total_sales_count,
+				COALESCE(SUM(si.quantity * si.price), 0)::numeric as total_revenue
+			FROM inventory_item_categories c
+			LEFT JOIN inventory_items ii ON c.id = ii."categoryId"
+			LEFT JOIN sale_items si ON ii.id = si."inventoryItemId"
+			LEFT JOIN sales s ON si."saleId" = s.id AND s.status = 'COMPLETED'
+				AND s."createdAt" >= $1 
+				AND s."createdAt" <= $2
+				${roleWhereClause}
+			GROUP BY c.id, c.name
+			HAVING COUNT(DISTINCT s.id) > 0 OR COALESCE(SUM(si.quantity * si.price), 0) > 0
+			ORDER BY total_revenue DESC
+		`;
+
+		const categoryResults = await prisma.$queryRawUnsafe<
+			Array<{
+				category_id: string;
+				category_name: string;
+				total_sales_count: number;
+				total_revenue: number;
+			}>
+		>(categoryRevenueQuery, start, end);
+
+		// Calculate percentage contributions
+		const categories = categoryResults.map((category) => {
+			const categoryRevenue = Number(category.total_revenue);
+			const percentageOfTotal =
+				totalRevenue > 0 ? (categoryRevenue / totalRevenue) * 100 : 0;
+
+			return {
+				categoryId: category.category_id,
+				categoryName: category.category_name,
+				totalSalesCount: category.total_sales_count,
+				totalRevenue: categoryRevenue,
+				percentageOfTotal: Math.round(percentageOfTotal * 100) / 100, // Round to 2 decimal places
+			};
+		});
+
+		return {
+			categories,
+			totalRevenue,
+		};
+	}
+
+	/**
+	 * Get sales trends with KPI calculations and time-based aggregation
+	 * Implements requirements 3.1-3.10
+	 */
+	async getSalesTrends(
+		params: SalesTrendParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<SalesTrendResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+
+		// Validate interval parameter
+		const interval = params.interval || "daily";
+		if (!["hourly", "daily", "weekly"].includes(interval)) {
+			throw new Error("interval must be 'hourly', 'daily', or 'weekly'");
+		}
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Build date truncation and format based on interval parameter
+		let dateTrunc: string;
+		let dateFormat: string;
+
+		switch (interval) {
+			case "hourly":
+				dateTrunc = "DATE_TRUNC('hour', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD HH24:00:00";
+				break;
+			case "daily":
+				dateTrunc = "DATE_TRUNC('day', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			case "weekly":
+				dateTrunc = "DATE_TRUNC('week', s.\"createdAt\")";
+				dateFormat = "YYYY-MM-DD";
+				break;
+			default:
+				throw new Error(`Invalid interval parameter: ${interval}`);
+		}
+
+		// Query for sales trends with time-based aggregation
+		const trendsQuery = `
+			SELECT 
+				TO_CHAR(${dateTrunc}, '${dateFormat}') as date,
+				COALESCE(SUM(s.total), 0)::numeric as total_revenue,
+				COUNT(s.id)::int as transaction_count,
+				COALESCE(AVG(s.total), 0)::numeric as average_transaction_value,
+				COALESCE(SUM(s."discountAmount"), 0)::numeric as total_discounts,
+				COALESCE(SUM(s."taxAmount"), 0)::numeric as total_tax
+			FROM sales s
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+			GROUP BY ${dateTrunc}
+			ORDER BY ${dateTrunc} ASC
+		`;
+
+		const trendsResults = await prisma.$queryRawUnsafe<
+			Array<{
+				date: string;
+				total_revenue: number;
+				transaction_count: number;
+				average_transaction_value: number;
+				total_discounts: number;
+				total_tax: number;
+			}>
+		>(trendsQuery, start, end);
+
+		// Query for overall KPIs across the entire date range
+		const kpisQuery = `
+			SELECT 
+				COALESCE(SUM(s.total), 0)::numeric as total_gross_revenue,
+				COALESCE(SUM(s."discountAmount"), 0)::numeric as total_discounts,
+				COALESCE(SUM(s."taxAmount"), 0)::numeric as total_tax,
+				COALESCE(AVG(s.total), 0)::numeric as average_order_value
+			FROM sales s
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+		`;
+
+		const kpisResults = await prisma.$queryRawUnsafe<
+			Array<{
+				total_gross_revenue: number;
+				total_discounts: number;
+				total_tax: number;
+				average_order_value: number;
+			}>
+		>(kpisQuery, start, end);
+
+		const kpisData = kpisResults[0] || {
+			total_gross_revenue: 0,
+			total_discounts: 0,
+			total_tax: 0,
+			average_order_value: 0,
+		};
+
+		// Transform results
+		const trends = trendsResults.map((row) => ({
+			date: row.date,
+			totalRevenue: Number(row.total_revenue),
+			transactionCount: row.transaction_count,
+			averageTransactionValue: Number(row.average_transaction_value),
+			totalDiscounts: Number(row.total_discounts),
+			totalTax: Number(row.total_tax),
+		}));
+
+		const kpis = {
+			totalGrossRevenue: Number(kpisData.total_gross_revenue),
+			totalDiscounts: Number(kpisData.total_discounts),
+			totalTax: Number(kpisData.total_tax),
+			averageOrderValue: Number(kpisData.average_order_value),
+		};
+
+		return {
+			trends,
+			kpis,
+		};
+	}
+
+	/**
+	 * Get payment method breakdown with transaction counts and amounts
+	 * Implements requirements 4.1-4.5
+	 */
+	async getPaymentMethodBreakdown(
+		params: PaymentBreakdownParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<PaymentBreakdownResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// First, get total amount across all payment methods for percentage calculation
+		const totalAmountQuery = `
+			SELECT 
+				COALESCE(SUM(s."amountPaid"), 0)::numeric as total_amount
+			FROM sales s
+			WHERE s.status = 'COMPLETED'
+			AND s."paymentMethod" IS NOT NULL
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+		`;
+
+		const totalAmountResult = await prisma.$queryRawUnsafe<
+			Array<{ total_amount: number }>
+		>(totalAmountQuery, start, end);
+
+		const totalAmount = Number(totalAmountResult[0]?.total_amount || 0);
+
+		// Get payment method breakdown
+		const paymentBreakdownQuery = `
+			SELECT 
+				s."paymentMethod" as method,
+				COUNT(*)::int as transaction_count,
+				COALESCE(SUM(s."amountPaid"), 0)::numeric as total_amount
+			FROM sales s
+			WHERE s.status = 'COMPLETED'
+			AND s."paymentMethod" IS NOT NULL
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+			GROUP BY s."paymentMethod"
+			ORDER BY total_amount DESC
+		`;
+
+		const paymentResults = await prisma.$queryRawUnsafe<
+			Array<{
+				method: string;
+				transaction_count: number;
+				total_amount: number;
+			}>
+		>(paymentBreakdownQuery, start, end);
+
+		// Calculate percentage contributions
+		const paymentMethods = paymentResults.map((payment) => {
+			const paymentAmount = Number(payment.total_amount);
+			const percentageOfTotal =
+				totalAmount > 0 ? (paymentAmount / totalAmount) * 100 : 0;
+
+			return {
+				method: payment.method as PaymentMethod,
+				transactionCount: payment.transaction_count,
+				totalAmount: paymentAmount,
+				percentageOfTotal: Math.round(percentageOfTotal * 100) / 100, // Round to 2 decimal places
+			};
+		});
+
+		return {
+			paymentMethods,
+			totalAmount,
+		};
+	}
+
+	/**
+	 * Get cashier performance metrics with user filtering and shift information
+	 * Implements requirements 5.1-5.8
+	 */
+	async getCashierPerformance(
+		params: CashierPerformanceParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CashierPerformanceResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Build user filter if specific userId is requested
+		const userFilter = params.userId
+			? `AND s."userId" = '${params.userId}'`
+			: "";
+
+		// Get cashier performance data using ANY operator for array comparison
+		const cashierPerformanceQuery = `
+			SELECT 
+				u.id as user_id,
+				u.name as user_name,
+				u.email as user_email,
+				array_to_json(u.roles) as user_roles,
+				COALESCE(SUM(s.total), 0)::numeric as total_revenue,
+				COUNT(s.id)::int as transaction_count,
+				COALESCE(AVG(s.total), 0)::numeric as average_transaction_value
+			FROM users u
+			LEFT JOIN sales s ON u.id = s."userId" 
+				AND s.status = 'COMPLETED'
+				AND s."createdAt" >= $1
+				AND s."createdAt" <= $2
+				${userFilter}
+				${roleWhereClause.replace("AND s.", "AND s.")}
+			WHERE (
+				'CASHIER' = ANY(u.roles) OR 
+				'MANAGER' = ANY(u.roles) OR 
+				'ADMIN' = ANY(u.roles) OR 
+				'SUPERADMIN' = ANY(u.roles)
+			)
+			GROUP BY u.id, u.name, u.email, u.roles
+			ORDER BY total_revenue DESC
+		`;
+
+		const cashierResults = await prisma.$queryRawUnsafe<
+			Array<{
+				user_id: string;
+				user_name: string;
+				user_email: string;
+				user_roles: UserRole[] | string; // Can be string from PostgreSQL JSON
+				total_revenue: number;
+				transaction_count: number;
+				average_transaction_value: number;
+			}>
+		>(cashierPerformanceQuery, start, end);
+
+		// Filter results to only include users with transactions if no specific user is requested
+		const filteredResults = params.userId
+			? cashierResults
+			: cashierResults.filter((cashier) => cashier.transaction_count > 0);
+
+		// Calculate shift information (simplified - assumes 8-hour shifts)
+		// In a real implementation, this would query actual shift data
+		const cashiers = filteredResults.map((cashier) => {
+			const totalRevenue = Number(cashier.total_revenue);
+			const averageTransactionValue = Number(cashier.average_transaction_value);
+
+			// Parse roles from JSON string if needed
+			let roles: UserRole[];
+			if (typeof cashier.user_roles === "string") {
+				try {
+					roles = JSON.parse(cashier.user_roles);
+				} catch (error) {
+					console.error("Failed to parse user roles:", cashier.user_roles);
+					roles = [];
+				}
+			} else {
+				roles = cashier.user_roles;
+			}
+
+			// Calculate estimated shift hours based on transaction count
+			// This is a simplified calculation - in practice, you'd have actual shift data
+			const estimatedShifts = Math.ceil(cashier.transaction_count / 20); // Assume 20 transactions per shift
+			const totalHours = estimatedShifts * 8; // 8 hours per shift
+			const revenuePerHour = totalHours > 0 ? totalRevenue / totalHours : 0;
+
+			return {
+				userId: cashier.user_id,
+				userName: cashier.user_name,
+				roles,
+				totalRevenue,
+				transactionCount: cashier.transaction_count,
+				averageTransactionValue,
+				shiftInfo: {
+					totalHours,
+					revenuePerHour: Math.round(revenuePerHour * 100) / 100, // Round to 2 decimal places
+				},
+			};
+		});
+
+		return {
+			cashiers,
+		};
+	}
+
+	/**
+	 * Get inventory value analysis for current state
+	 * Implements requirements 6.1-6.5
+	 */
+	async getInventoryValue(): Promise<InventoryValueResult> {
+		// Get total estimated inventory value and product counts
+		const summaryQuery = `
+			SELECT 
+				COALESCE(SUM(ii.price * ii.stock), 0)::numeric as total_estimated_value,
+				COUNT(*)::int as total_products
+			FROM inventory_items ii
+			WHERE ii."deletedAt" IS NULL
+		`;
+
+		const summaryResult = await prisma.$queryRawUnsafe<
+			Array<{
+				total_estimated_value: number;
+				total_products: number;
+			}>
+		>(summaryQuery);
+
+		const summary = summaryResult[0] || {
+			total_estimated_value: 0,
+			total_products: 0,
+		};
+
+		// Get low stock items with threshold detection (assuming threshold of 10)
+		const lowStockQuery = `
+			SELECT 
+				ii.id,
+				ii.name,
+				ii.sku,
+				ii.stock as current_stock,
+				ii.price::numeric as unit_price,
+				(ii.price * ii.stock)::numeric as total_value,
+				c.name as category_name
+			FROM inventory_items ii
+			INNER JOIN inventory_item_categories c ON ii."categoryId" = c.id
+			WHERE ii."deletedAt" IS NULL
+			AND ii.stock < 10
+			ORDER BY ii.stock ASC, ii.name ASC
+		`;
+
+		const lowStockItems = await prisma.$queryRawUnsafe<
+			Array<{
+				id: string;
+				name: string;
+				sku: string;
+				current_stock: number;
+				unit_price: number;
+				total_value: number;
+				category_name: string;
+			}>
+		>(lowStockQuery);
+
+		// Get category breakdown with value and percentage calculations
+		const categoryBreakdownQuery = `
+			SELECT 
+				c.id as category_id,
+				c.name as category_name,
+				COUNT(ii.id)::int as product_count,
+				COALESCE(SUM(ii.price * ii.stock), 0)::numeric as total_value
+			FROM inventory_item_categories c
+			LEFT JOIN inventory_items ii ON c.id = ii."categoryId" AND ii."deletedAt" IS NULL
+			GROUP BY c.id, c.name
+			HAVING COUNT(ii.id) > 0
+			ORDER BY total_value DESC
+		`;
+
+		const categoryResults = await prisma.$queryRawUnsafe<
+			Array<{
+				category_id: string;
+				category_name: string;
+				product_count: number;
+				total_value: number;
+			}>
+		>(categoryBreakdownQuery);
+
+		const totalEstimatedValue = Number(summary.total_estimated_value);
+
+		// Calculate percentage contributions for categories
+		const categoryBreakdown = categoryResults.map((category) => {
+			const categoryValue = Number(category.total_value);
+			const percentageOfTotal =
+				totalEstimatedValue > 0
+					? (categoryValue / totalEstimatedValue) * 100
+					: 0;
+
+			return {
+				categoryId: category.category_id,
+				categoryName: category.category_name,
+				productCount: category.product_count,
+				totalValue: categoryValue,
+				percentageOfTotal: Math.round(percentageOfTotal * 100) / 100, // Round to 2 decimal places
+			};
+		});
+
+		return {
+			totalEstimatedValue,
+			totalProducts: summary.total_products,
+			lowStockItems: lowStockItems.map((item) => ({
+				id: item.id,
+				name: item.name,
+				sku: item.sku,
+				currentStock: item.current_stock,
+				unitPrice: Number(item.unit_price),
+				totalValue: Number(item.total_value),
+				categoryName: item.category_name,
+			})),
+			categoryBreakdown,
+		};
+	}
+
+	/**
+	 * Get top customers with sorting options and customer metrics
+	 * Implements requirements 7.1-7.10
+	 */
+	async getTopCustomers(
+		params: TopCustomersParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<TopCustomersResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+		const limit = this.validateLimit(params.limit);
+
+		// Validate sortBy parameter
+		if (!["revenue", "frequency"].includes(params.sortBy)) {
+			throw new Error("sortBy must be 'revenue' or 'frequency'");
+		}
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Build ORDER BY clause based on sortBy parameter
+		const orderByClause =
+			params.sortBy === "revenue"
+				? "ORDER BY total_spent DESC"
+				: "ORDER BY total_visits DESC";
+
+		// Get top customers with spending and visit metrics
+		const topCustomersQuery = `
+			SELECT 
+				c.id as customer_id,
+				c.name as customer_name,
+				c.phone as customer_phone,
+				c.email as customer_email
+				COALESCE(SUM(s.total), 0)::numeric as total_spent,
+				COUNT(s.id)::int as total_visits,
+				COALESCE(AVG(s.total), 0)::numeric as average_transaction_value,
+				MAX(s."createdAt") as last_visit
+			FROM customers c
+			INNER JOIN sales s ON c.id = s."customerId"
+			WHERE s.status = 'COMPLETED'
+			AND s."createdAt" >= $1
+			AND s."createdAt" <= $2
+			${roleWhereClause}
+			GROUP BY c.id, c.name, c.phone
+			${orderByClause}
+			LIMIT ${limit}
+		`;
+
+		const customerResults = await prisma.$queryRawUnsafe<
+			Array<{
+				customer_id: string;
+				customer_name: string | undefined | null;
+				customer_phone: string;
+				customer_email: string | undefined | null;
+				total_spent: number;
+				total_visits: number;
+				average_transaction_value: number;
+				last_visit: Date;
+			}>
+		>(topCustomersQuery, start, end);
+
+		// Transform results
+		const customers = customerResults.map((customer) => ({
+			customerId: customer.customer_id,
+			customerName: customer.customer_name,
+			customerPhone: customer.customer_phone,
+			customerEmail: customer.customer_email,
+			totalSpent: Number(customer.total_spent),
+			totalVisits: customer.total_visits,
+			averageTransactionValue: Number(customer.average_transaction_value),
+			lastVisit: customer.last_visit.toISOString(),
+		}));
+
+		return {
+			customers,
+		};
+	}
+
+	/**
+	 * Get customer purchase trend analysis with growth classification
+	 * Implements requirements 8.1-8.11
+	 */
+	async getCustomerTrends(
+		params: CustomerTrendsParams,
+		userId?: string,
+		userRoles?: UserRole[],
+	): Promise<CustomerTrendsResult> {
+		// Validate parameters
+		const { start, end } = this.validateDateRange(
+			params.startDate,
+			params.endDate,
+		);
+
+		// Validate interval parameter
+		if (!["week", "month"].includes(params.interval)) {
+			throw new Error("interval must be 'week' or 'month'");
+		}
+
+		// Build role-based access control
+		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
+
+		// Determine customer IDs to analyze
+		let customerIds = params.customerIds;
+		if (!customerIds || customerIds.length === 0) {
+			// Default to analyzing top 20 customers by revenue from current year
+			const currentYear = new Date().getFullYear();
+			const yearStart = new Date(currentYear, 0, 1);
+			const yearEnd = new Date(currentYear, 11, 31, 23, 59, 59);
+
+			const topCustomersQuery = `
+				SELECT c.id
+				FROM customers c
+				INNER JOIN sales s ON c.id = s."customerId"
+				WHERE s.status = 'COMPLETED'
+				AND s."createdAt" >= $1
+				AND s."createdAt" <= $2
+				${roleWhereClause}
+				GROUP BY c.id
+				ORDER BY SUM(s.total) DESC
+				LIMIT 20
+			`;
+
+			const topCustomersResult = await prisma.$queryRawUnsafe<
+				Array<{ id: string }>
+			>(topCustomersQuery, yearStart, yearEnd);
+
+			customerIds = topCustomersResult.map((customer) => customer.id);
+		}
+
+		if (customerIds.length === 0) {
+			return { customers: [] };
+		}
+
+		// Build date truncation based on interval parameter
+		const dateTrunc =
+			params.interval === "week"
+				? "DATE_TRUNC('week', s.\"createdAt\")"
+				: "DATE_TRUNC('month', s.\"createdAt\")";
+
+		const dateFormat = params.interval === "week" ? "YYYY-MM-DD" : "YYYY-MM-DD";
+
+		// Get customer trends data
+		const trendsQuery = `
+			SELECT 
+				c.id as customer_id,
+				c.name as customer_name,
+				TO_CHAR(${dateTrunc}, '${dateFormat}') as period,
+				COALESCE(SUM(s.total), 0)::numeric as revenue,
+				MAX(s."createdAt") as last_visit
+			FROM customers c
+			LEFT JOIN sales s ON c.id = s."customerId" 
+				AND s.status = 'COMPLETED'
+				AND s."createdAt" >= $1
+				AND s."createdAt" <= $2
+				${roleWhereClause}
+			WHERE c.id = ANY(ARRAY[${customerIds.map((id) => `'${id}'`).join(",")}])
+			GROUP BY c.id, c.name, ${dateTrunc}
+			ORDER BY c.id, ${dateTrunc}
+		`;
+
+		const trendsResults = await prisma.$queryRawUnsafe<
+			Array<{
+				customer_id: string;
+				customer_name: string;
+				period: string;
+				revenue: number;
+				last_visit: Date | null;
+			}>
+		>(trendsQuery, start, end);
+
+		// Group results by customer and calculate growth percentages
+		const customerMap = new Map<
+			string,
+			{
+				customerId: string;
+				customerName: string;
+				trends: Array<{
+					period: string;
+					revenue: number;
+					growthPercentage: number;
+				}>;
+				lastVisit: string;
+			}
+		>();
+
+		trendsResults.forEach((row) => {
+			if (!customerMap.has(row.customer_id)) {
+				customerMap.set(row.customer_id, {
+					customerId: row.customer_id,
+					customerName: row.customer_name,
+					trends: [],
+					lastVisit: row.last_visit?.toISOString() || "",
+				});
+			}
+
+			const customer = customerMap.get(row.customer_id)!;
+			customer.trends.push({
+				period: row.period,
+				revenue: Number(row.revenue),
+				growthPercentage: 0, // Will be calculated below
+			});
+
+			// Update last visit if this is more recent
+			if (row.last_visit && row.last_visit.toISOString() > customer.lastVisit) {
+				customer.lastVisit = row.last_visit.toISOString();
+			}
+		});
+
+		// Calculate growth percentages and customer status
+		const customers = Array.from(customerMap.values()).map((customer) => {
+			// Sort trends by period
+			customer.trends.sort((a, b) => a.period.localeCompare(b.period));
+
+			// Calculate growth percentages
+			for (let i = 1; i < customer.trends.length; i++) {
+				const current = customer.trends[i].revenue;
+				const previous = customer.trends[i - 1].revenue;
+
+				if (previous > 0) {
+					customer.trends[i].growthPercentage =
+						Math.round(((current - previous) / previous) * 100 * 100) / 100; // Round to 2 decimal places
+				}
+			}
+
+			// Determine customer status based on latest growth and activity
+			let status: "Trending Up" | "Slipping" | "At Risk" = "Slipping";
+
+			if (customer.trends.length >= 2) {
+				const latestGrowth =
+					customer.trends[customer.trends.length - 1].growthPercentage;
+				const lastVisitDate = new Date(customer.lastVisit);
+				const thirtyDaysAgo = new Date();
+				thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+				if (latestGrowth > 0) {
+					status = "Trending Up";
+				} else if (latestGrowth <= -50 || lastVisitDate < thirtyDaysAgo) {
+					status = "At Risk";
+				} else if (latestGrowth < -20) {
+					status = "Slipping";
+				}
+			}
+
+			return {
+				...customer,
+				status,
+			};
+		});
+
+		return {
+			customers,
+		};
+	}
+}
+
+/**
+ * Enhanced Analytics Service Instance
+ * Singleton instance for use throughout the application
+ */
+export const enhancedAnalyticsService = new BaseAnalyticsService();

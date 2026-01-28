@@ -81,6 +81,8 @@ model Customer {
 
   sales Sale[]
 
+  @@index([phone, name])
+  @@index([createdAt])
   @@map("customers")
 }
 
@@ -113,6 +115,9 @@ model InventoryItem {
   @@index([categoryId])
   @@index([barcode])
   @@index([deletedAt])
+  @@index([categoryId, deletedAt])
+  @@index([stock, deletedAt])
+  @@index([price, stock])
   @@map("inventory_items")
 }
 
@@ -128,6 +133,7 @@ model StockMovement {
 
   @@index([inventoryItemId])
   @@index([createdAt])
+  @@index([createdAt, reason])
   @@map("stock_movements")
 }
 
@@ -157,6 +163,11 @@ model Sale {
   @@index([customerId])
   @@index([status])
   @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([userId, status, createdAt])
+  @@index([customerId, status, createdAt])
+  @@index([paymentMethod, status])
+  @@index([completedAt])
   @@map("sales")
 }
 
@@ -171,6 +182,8 @@ model SaleItem {
   inventoryItemId String
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
 
+  @@index([inventoryItemId, saleId])
+  @@index([quantity, price])
   @@map("sale_items")
 }
 

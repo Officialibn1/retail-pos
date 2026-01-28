@@ -1,44 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireManager } from "@/lib/middleware/auth";
-import { getInventoryAnalytics } from "@/lib/services/analytics.service";
-
-export const dynamic = 'force-dynamic';
+import { enhancedAnalyticsService } from "@/lib/services/analytics.service";
+import { requireAuth } from "@/lib/middleware/auth";
+import { canViewAllData } from "@/lib/auth";
 
 /**
  * GET /api/analytics/inventory
- * Get inventory analytics including total value, low stock items, and category distribution
- * Requires MANAGER+ role
+ * Get current inventory value analysis
+ * Implements requirements 9.6, 9.9
  */
 export async function GET(request: NextRequest) {
-	// Authenticate user
-	const authResult = await requireAuth(request);
-	if (authResult instanceof NextResponse) {
-		return authResult;
-	}
-
-	const { request: authenticatedRequest } = authResult;
-
-	// Check role permissions
-	const roleCheck = requireManager()(authenticatedRequest);
-	if (roleCheck) {
-		return roleCheck;
-	}
-
 	try {
-		// Get inventory analytics
-		const analytics = await getInventoryAnalytics();
+		// Authenticate user and get roles
+		const authResult = await requireAuth(request);
+		if (authResult instanceof NextResponse) {
+			return authResult;
+		}
 
-		return NextResponse.json(analytics, { status: 200 });
-	} catch (error: any) {
-		console.error("Error getting inventory analytics:", error);
+		const { user } = authResult.request;
+
+		// Check if user has permission to view analytics data
+		if (!canViewAllData(user.roles)) {
+			return NextResponse.json(
+				{ error: "Insufficient permissions to access inventory analytics" },
+				{ status: 403 },
+			);
+		}
+
+		// Get inventory value analysis
+		const inventoryAnalytics =
+			await enhancedAnalyticsService.getInventoryValue();
+
+		return NextResponse.json(inventoryAnalytics);
+	} catch (error) {
+		console.error("Error fetching inventory analytics:", error);
+
+		// Handle validation errors
+		if (error instanceof Error && error.message.includes("Invalid")) {
+			return NextResponse.json({ error: error.message }, { status: 400 });
+		}
 
 		return NextResponse.json(
-			{
-				error: {
-					message: "Failed to retrieve inventory analytics",
-					code: "INTERNAL_ERROR",
-				},
-			},
+			{ error: "Internal server error while fetching inventory analytics" },
 			{ status: 500 },
 		);
 	}
