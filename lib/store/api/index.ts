@@ -8,14 +8,7 @@ import {
 } from "@/lib/prisma-extended-types";
 import { CustomerWithSales } from "@/lib/services/customer.service";
 import { SaleWithDetails } from "@/lib/services/sale.service";
-import {
-	DashboardStats,
-	GetSalesParams,
-	InventoryAnalytics,
-	LoginResponse,
-	LogoutResponse,
-	SearchParams,
-} from "@/lib/types";
+
 import {
 	AdjustStockInput,
 	CompleteSaleInput,
@@ -29,6 +22,10 @@ import {
 	UpdateUserInput,
 } from "@/lib/validations";
 import {
+	DashboardStats,
+	LoginResponse,
+	LogoutResponse,
+	SearchParams,
 	TopProductsParams,
 	TopProductsResult,
 	CategoryRevenueParams,
@@ -563,7 +560,7 @@ export const api = createApi({
 			providesTags: ["Analytics"],
 		}),
 
-		getInventoryAnalytics: builder.query<InventoryAnalytics, void>({
+		getInventoryAnalytics: builder.query<InventoryValueResult, void>({
 			query: () => "/api/analytics/inventory",
 			providesTags: ["Analytics"],
 		}),

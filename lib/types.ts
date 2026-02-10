@@ -43,24 +43,6 @@ export interface ApiError {
 	};
 }
 
-// Inventory analytics data
-export interface InventoryAnalytics {
-	totalProducts: number;
-	totalValue: number;
-	lowStockCount: number;
-	lowStockItems: Array<{
-		id: string;
-		name: string;
-		stock: number;
-		price: number;
-	}>;
-	categoryDistribution: Array<{
-		category: string;
-		count: number;
-		totalValue: number;
-	}>;
-}
-
 export interface DashboardStats {
 	totalSales: number;
 	totalRevenue: number;

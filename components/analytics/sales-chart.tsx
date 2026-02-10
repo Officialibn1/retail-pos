@@ -37,6 +37,7 @@ export function SalesChart({ data }: SalesChartProps) {
 					tickLine={false}
 					axisLine={false}
 					className='text-brand-main-600'
+					tickFormatter={(value: string) => value.split("-")[2]}
 				/>
 				<YAxis
 					tickLine={false}

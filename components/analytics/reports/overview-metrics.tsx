@@ -170,7 +170,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardHeader>
 				<CardContent>
 					<div className='text-2xl font-bold text-brand-main-800'>
-						{inventoryAnalytics.lowStockCount}
+						{inventoryAnalytics.lowStockItems.length}
 					</div>
 					<p className='text-xs text-brand-main-600'>Items below 10 units</p>
 				</CardContent>
