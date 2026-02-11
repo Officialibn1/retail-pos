@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { PaymentMethod, UserRole } from "@/generated/prisma/client";
 import {
 	DashboardStats,
-	InventoryAnalytics,
 	TopProductsParams,
 	TopProductsResult,
 	CategoryRevenueParams,
@@ -273,7 +272,7 @@ export async function getPaymentMethodBreakdown(
  * Get inventory analytics using raw SQL
  * @returns Inventory analytics data
  */
-export async function getInventoryAnalytics(): Promise<InventoryAnalytics> {
+export async function getInventoryAnalytics(): Promise<InventoryValueResult> {
 	// Get total products and value
 	const summaryQuery = `
 		SELECT 
@@ -1177,115 +1176,92 @@ export class BaseAnalyticsService implements AnalyticsService {
 	}
 
 	/**
-	 * Get inventory value analysis for current state
+	 * Get inventory value and analytics
 	 * Implements requirements 6.1-6.5
 	 */
 	async getInventoryValue(): Promise<InventoryValueResult> {
-		// Get total estimated inventory value and product counts
+		// Get total products and value
 		const summaryQuery = `
 			SELECT 
-				COALESCE(SUM(ii.price * ii.stock), 0)::numeric as total_estimated_value,
-				COUNT(*)::int as total_products
+				COUNT(*)::int as total_products,
+				COALESCE(SUM(ii.price * ii.stock), 0)::numeric as total_value,
+				COUNT(CASE WHEN ii.stock < 10 THEN 1 END)::int as low_stock_count
 			FROM inventory_items ii
 			WHERE ii."deletedAt" IS NULL
 		`;
 
 		const summaryResult = await prisma.$queryRawUnsafe<
 			Array<{
-				total_estimated_value: number;
 				total_products: number;
+				total_value: number;
+				low_stock_count: number;
 			}>
 		>(summaryQuery);
 
 		const summary = summaryResult[0] || {
-			total_estimated_value: 0,
 			total_products: 0,
+			total_value: 0,
+			low_stock_count: 0,
 		};
 
-		// Get low stock items with threshold detection (assuming threshold of 10)
+		// Get low stock items (stock < 10)
 		const lowStockQuery = `
 			SELECT 
 				ii.id,
 				ii.name,
-				ii.sku,
-				ii.stock as current_stock,
-				ii.price::numeric as unit_price,
-				(ii.price * ii.stock)::numeric as total_value,
-				c.name as category_name
+				ii.stock,
+				ii.price::numeric
 			FROM inventory_items ii
-			INNER JOIN inventory_item_categories c ON ii."categoryId" = c.id
 			WHERE ii."deletedAt" IS NULL
 			AND ii.stock < 10
-			ORDER BY ii.stock ASC, ii.name ASC
+			ORDER BY ii.stock ASC
+			LIMIT 20
 		`;
 
 		const lowStockItems = await prisma.$queryRawUnsafe<
 			Array<{
 				id: string;
 				name: string;
-				sku: string;
-				current_stock: number;
-				unit_price: number;
-				total_value: number;
-				category_name: string;
+				stock: number;
+				price: number;
 			}>
 		>(lowStockQuery);
 
-		// Get category breakdown with value and percentage calculations
-		const categoryBreakdownQuery = `
+		// Get category distribution
+		const categoryQuery = `
 			SELECT 
-				c.id as category_id,
-				c.name as category_name,
-				COUNT(ii.id)::int as product_count,
+				c.name as category,
+				COUNT(ii.id)::int as count,
 				COALESCE(SUM(ii.price * ii.stock), 0)::numeric as total_value
 			FROM inventory_item_categories c
 			LEFT JOIN inventory_items ii ON c.id = ii."categoryId" AND ii."deletedAt" IS NULL
 			GROUP BY c.id, c.name
-			HAVING COUNT(ii.id) > 0
-			ORDER BY total_value DESC
+			ORDER BY count DESC
 		`;
 
-		const categoryResults = await prisma.$queryRawUnsafe<
+		const categoryDistribution = await prisma.$queryRawUnsafe<
 			Array<{
-				category_id: string;
-				category_name: string;
-				product_count: number;
+				category: string;
+				count: number;
 				total_value: number;
 			}>
-		>(categoryBreakdownQuery);
-
-		const totalEstimatedValue = Number(summary.total_estimated_value);
-
-		// Calculate percentage contributions for categories
-		const categoryBreakdown = categoryResults.map((category) => {
-			const categoryValue = Number(category.total_value);
-			const percentageOfTotal =
-				totalEstimatedValue > 0
-					? (categoryValue / totalEstimatedValue) * 100
-					: 0;
-
-			return {
-				categoryId: category.category_id,
-				categoryName: category.category_name,
-				productCount: category.product_count,
-				totalValue: categoryValue,
-				percentageOfTotal: Math.round(percentageOfTotal * 100) / 100, // Round to 2 decimal places
-			};
-		});
+		>(categoryQuery);
 
 		return {
-			totalEstimatedValue,
+			totalValue: Number(summary.total_value),
 			totalProducts: summary.total_products,
+			lowStockCount: summary.low_stock_count,
 			lowStockItems: lowStockItems.map((item) => ({
 				id: item.id,
 				name: item.name,
-				sku: item.sku,
-				currentStock: item.current_stock,
-				unitPrice: Number(item.unit_price),
-				totalValue: Number(item.total_value),
-				categoryName: item.category_name,
+				stock: item.stock,
+				price: Number(item.price),
 			})),
-			categoryBreakdown,
+			categoryDistribution: categoryDistribution.map((cat) => ({
+				category: cat.category,
+				count: cat.count,
+				total_value: Number(cat.total_value),
+			})),
 		};
 	}
 

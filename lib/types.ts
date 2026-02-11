@@ -170,23 +170,19 @@ export interface CashierPerformanceResult {
 
 // Inventory Value Analytics
 export interface InventoryValueResult {
-	totalEstimatedValue: number;
+	totalValue: number;
 	totalProducts: number;
+	lowStockCount: number;
 	lowStockItems: Array<{
 		id: string;
 		name: string;
-		sku: string;
-		currentStock: number;
-		unitPrice: number;
-		totalValue: number;
-		categoryName: string;
+		stock: number;
+		price: number;
 	}>;
-	categoryBreakdown: Array<{
-		categoryId: string;
-		categoryName: string;
-		productCount: number;
-		totalValue: number;
-		percentageOfTotal: number;
+	categoryDistribution: Array<{
+		category: string;
+		count: number;
+		total_value: number;
 	}>;
 }
 

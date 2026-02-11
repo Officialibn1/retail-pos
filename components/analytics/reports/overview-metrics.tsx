@@ -13,10 +13,7 @@ import {
 	RefreshCw,
 } from "lucide-react";
 import { formatNaira } from "@/lib/utils";
-import {
-	useGetDashboardStatsQuery,
-	useGetInventoryAnalyticsQuery,
-} from "@/lib/store/api";
+import { useGetDashboardStatsQuery } from "@/lib/store/api";
 
 interface OverviewMetricsProps {
 	onRefresh?: () => void;
@@ -29,27 +26,19 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 		isError: isDashboardError,
 		error: dashboardError,
 		refetch: refetchDashboard,
+		isFetching: isFetchingDashboard,
 	} = useGetDashboardStatsQuery();
 
-	const {
-		data: inventoryAnalytics,
-		isLoading: isInventoryLoading,
-		isError: isInventoryError,
-		error: inventoryError,
-		refetch: refetchInventory,
-	} = useGetInventoryAnalyticsQuery();
-
-	const isLoading = isDashboardLoading || isInventoryLoading;
-	const isError = isDashboardError || isInventoryError;
-	const error = dashboardError || inventoryError;
+	const isLoading = isDashboardLoading;
+	const isError = isDashboardError;
+	const error = dashboardError;
 
 	const handleRefresh = () => {
 		refetchDashboard();
-		refetchInventory();
 		onRefresh?.();
 	};
 
-	if (isLoading) {
+	if (isLoading || isFetchingDashboard) {
 		return (
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 				{Array.from({ length: 4 }).map((_, i) => (
@@ -94,7 +83,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 		);
 	}
 
-	if (!dashboardStats || !inventoryAnalytics) {
+	if (!dashboardStats) {
 		return (
 			<Alert>
 				<AlertTriangle className='h-4 w-4' />
@@ -170,7 +159,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardHeader>
 				<CardContent>
 					<div className='text-2xl font-bold text-brand-main-800'>
-						{inventoryAnalytics.lowStockItems.length}
+						{dashboardStats.lowStockCount}
 					</div>
 					<p className='text-xs text-brand-main-600'>Items below 10 units</p>
 				</CardContent>
