@@ -788,26 +788,7 @@ export class BaseAnalyticsService implements AnalyticsService {
 		// Build role-based access control
 		const roleWhereClause = this.buildRoleBasedWhereClause(userId, userRoles);
 
-		// First, get total revenue across all categories for percentage calculation
-		const totalRevenueQuery = `
-			SELECT 
-				COALESCE(SUM(si.quantity * si.price), 0)::numeric as total_revenue
-			FROM sale_items si
-			INNER JOIN inventory_items ii ON si."inventoryItemId" = ii.id
-			INNER JOIN sales s ON si."saleId" = s.id
-			WHERE s.status = 'COMPLETED'
-			AND s."createdAt" >= $1
-			AND s."createdAt" <= $2
-			${roleWhereClause}
-		`;
-
-		const totalRevenueResult = await prisma.$queryRawUnsafe<
-			Array<{ total_revenue: number }>
-		>(totalRevenueQuery, start, end);
-
-		const totalRevenue = Number(totalRevenueResult[0]?.total_revenue || 0);
-
-		// Get revenue summary by category
+		// Get revenue summary by category with consistent filtering
 		const categoryRevenueQuery = `
 			SELECT 
 				c.id as category_id,
@@ -815,14 +796,15 @@ export class BaseAnalyticsService implements AnalyticsService {
 				COUNT(DISTINCT s.id)::int as total_sales_count,
 				COALESCE(SUM(si.quantity * si.price), 0)::numeric as total_revenue
 			FROM inventory_item_categories c
-			LEFT JOIN inventory_items ii ON c.id = ii."categoryId"
-			LEFT JOIN sale_items si ON ii.id = si."inventoryItemId"
-			LEFT JOIN sales s ON si."saleId" = s.id AND s.status = 'COMPLETED'
+			INNER JOIN inventory_items ii ON c.id = ii."categoryId"
+			INNER JOIN sale_items si ON ii.id = si."inventoryItemId"
+			INNER JOIN sales s ON si."saleId" = s.id
+			WHERE s.status = 'COMPLETED'
 				AND s."createdAt" >= $1 
 				AND s."createdAt" <= $2
 				${roleWhereClause}
 			GROUP BY c.id, c.name
-			HAVING COUNT(DISTINCT s.id) > 0 OR COALESCE(SUM(si.quantity * si.price), 0) > 0
+			HAVING COALESCE(SUM(si.quantity * si.price), 0) > 0
 			ORDER BY total_revenue DESC
 		`;
 
@@ -834,6 +816,12 @@ export class BaseAnalyticsService implements AnalyticsService {
 				total_revenue: number;
 			}>
 		>(categoryRevenueQuery, start, end);
+
+		// Calculate total revenue from the sum of all categories
+		const totalRevenue = categoryResults.reduce(
+			(sum, category) => sum + Number(category.total_revenue),
+			0,
+		);
 
 		// Calculate percentage contributions
 		const categories = categoryResults.map((category) => {
