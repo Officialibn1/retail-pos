@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { RevenueChart } from "@/components/analytics/revenue-chart";
 import { useGetSalesByDateQuery } from "@/lib/store/api";
+import { cn } from "@/lib/utils";
 
 interface RevenueTrendReportProps {
 	dateRange: {
@@ -32,11 +33,11 @@ export function RevenueTrendReport({
 		isError,
 		error,
 		refetch,
+		isFetching,
 	} = useGetSalesByDateQuery(dateRange);
 
 	const handleRefresh = () => {
 		refetch();
-		onRefresh?.();
 	};
 
 	if (isLoading) {
@@ -108,7 +109,11 @@ export function RevenueTrendReport({
 						size='sm'
 						onClick={handleRefresh}
 						className='flex items-center gap-2'>
-						<RefreshCw className='h-3 w-3' />
+						<RefreshCw
+							className={cn("h-3 w-3", {
+								"animate-spin": isFetching,
+							})}
+						/>
 						Refresh
 					</Button>
 				</div>

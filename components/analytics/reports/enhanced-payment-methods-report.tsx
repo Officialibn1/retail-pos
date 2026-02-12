@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Loader2, CreditCard } from "lucide-react";
 import { PaymentMethodChart } from "@/components/analytics/payment-methods-chart";
 import { usePaymentBreakdown } from "@/hooks/use-analytics";
+import { cn } from "@/lib/utils";
 
 interface EnhancedPaymentMethodsReportProps {
 	dateRange: {
@@ -28,12 +29,11 @@ export function EnhancedPaymentMethodsReport({
 	onPaymentMethodClick,
 	onRefresh,
 }: EnhancedPaymentMethodsReportProps) {
-	const { data, isLoading, isError, error, refetch, retry } =
+	const { data, isLoading, isError, error, refetch, retry, isFetching } =
 		usePaymentBreakdown(dateRange);
 
 	const handleRefresh = () => {
 		refetch();
-		onRefresh?.();
 	};
 
 	const handleRetry = () => {
@@ -139,7 +139,11 @@ export function EnhancedPaymentMethodsReport({
 					size='sm'
 					onClick={handleRefresh}
 					className='flex items-center gap-2'>
-					<RefreshCw className='h-3 w-3' />
+					<RefreshCw
+						className={cn("h-3 w-3", {
+							"animate-spin": isFetching,
+						})}
+					/>
 					Refresh
 				</Button>
 			</div>

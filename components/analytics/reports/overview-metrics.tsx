@@ -12,7 +12,7 @@ import {
 	TrendingDown,
 	RefreshCw,
 } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, cn } from "@/lib/utils";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
 
 interface OverviewMetricsProps {
@@ -35,7 +35,6 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 
 	const handleRefresh = () => {
 		refetchDashboard();
-		onRefresh?.();
 	};
 
 	if (isLoading || isFetchingDashboard) {
@@ -75,7 +74,11 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 						size='sm'
 						onClick={handleRefresh}
 						className='ml-2'>
-						<RefreshCw className='h-3 w-3 mr-1' />
+						<RefreshCw
+							className={cn("h-3 w-3 mr-1", {
+								"animate-spin": isFetchingDashboard,
+							})}
+						/>
 						Retry
 					</Button>
 				</AlertDescription>

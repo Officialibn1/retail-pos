@@ -29,7 +29,16 @@ export async function GET(request: NextRequest) {
 		// Get dashboard statistics with role-based filtering
 		const stats = await getDashboardStats(user.id, user.roles);
 
-		return NextResponse.json(stats, { status: 200 });
+		// Disable caching for real-time analytics data
+		const response = NextResponse.json(stats, { status: 200 });
+		response.headers.set(
+			"Cache-Control",
+			"no-store, no-cache, must-revalidate, max-age=0",
+		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
+
+		return response;
 	} catch (error: any) {
 		console.error("Error getting dashboard stats:", error);
 

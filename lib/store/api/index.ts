@@ -536,7 +536,7 @@ export const api = createApi({
 
 		getDashboardStats: builder.query<DashboardStats, void>({
 			query: () => "/api/analytics/dashboard",
-			providesTags: ["Analytics"],
+			providesTags: [{ type: "Analytics", id: "dashboard-stats" }],
 		}),
 
 		getSalesByDate: builder.query<DailySales[], GetSalesByDateParams | void>({
@@ -544,7 +544,9 @@ export const api = createApi({
 				url: "/api/analytics/sales-by-date",
 				params: params || undefined,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `sales-by-date-${JSON.stringify(arg || {})}` },
+			],
 		}),
 
 		getTopProducts: builder.query<TopProduct[], GetTopProductsParams | void>({
@@ -552,17 +554,22 @@ export const api = createApi({
 				url: "/api/analytics/top-products",
 				params: params || undefined,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{
+					type: "Analytics",
+					id: `top-products-legacy-${JSON.stringify(arg || {})}`,
+				},
+			],
 		}),
 
 		getPaymentMethods: builder.query<PaymentMethodStats[], void>({
 			query: () => "/api/analytics/payment-methods",
-			providesTags: ["Analytics"],
+			providesTags: [{ type: "Analytics", id: "payment-methods" }],
 		}),
 
 		getInventoryAnalytics: builder.query<InventoryValueResult, void>({
 			query: () => "/api/analytics/inventory",
-			providesTags: ["Analytics"],
+			providesTags: [{ type: "Analytics", id: "inventory-analytics" }],
 		}),
 
 		getActivityLogs: builder.query<
@@ -585,7 +592,9 @@ export const api = createApi({
 				url: "/api/analytics/products/top-performing",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `top-products-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getCategoryRevenue: builder.query<
@@ -596,7 +605,9 @@ export const api = createApi({
 				url: "/api/analytics/revenue/by-category",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `category-revenue-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getSalesTrends: builder.query<SalesTrendResult, SalesTrendParams>({
@@ -604,7 +615,9 @@ export const api = createApi({
 				url: "/api/analytics/sales/trends",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `sales-trends-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getPaymentBreakdown: builder.query<
@@ -615,7 +628,9 @@ export const api = createApi({
 				url: "/api/analytics/payments/breakdown",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `payment-breakdown-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getCashierPerformance: builder.query<
@@ -626,12 +641,14 @@ export const api = createApi({
 				url: "/api/analytics/cashiers/performance",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `cashier-performance-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getInventoryValue: builder.query<InventoryValueResult, void>({
 			query: () => "/api/analytics/inventory/value",
-			providesTags: ["Analytics"],
+			providesTags: [{ type: "Analytics", id: "inventory-value" }],
 		}),
 
 		getTopCustomers: builder.query<TopCustomersResult, TopCustomersParams>({
@@ -639,7 +656,9 @@ export const api = createApi({
 				url: "/api/analytics/customers/top",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `top-customers-${JSON.stringify(arg)}` },
+			],
 		}),
 
 		getCustomerTrends: builder.query<
@@ -650,7 +669,9 @@ export const api = createApi({
 				url: "/api/analytics/customers/trends",
 				params: params,
 			}),
-			providesTags: ["Analytics"],
+			providesTags: (result, error, arg) => [
+				{ type: "Analytics", id: `customer-trends-${JSON.stringify(arg)}` },
+			],
 		}),
 	}),
 });

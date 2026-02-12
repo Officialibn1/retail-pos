@@ -31,6 +31,7 @@ export default function RootLayout({
 					<Toaster
 						richColors
 						position='top-center'
+						closeButton
 					/>
 				</ReduxProvider>
 			</body>

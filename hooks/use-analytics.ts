@@ -146,7 +146,7 @@ export function useTopPerformingProducts(
 
 	const queryResult = useGetTopPerformingProductsQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -164,6 +164,11 @@ export function useTopPerformingProducts(
 		return queryResult.error ? parseAnalyticsError(queryResult.error) : null;
 	}, [queryResult.error]);
 
+	// Custom refetch that forces a new request
+	const refetch = useCallback(() => {
+		return queryResult.refetch();
+	}, [queryResult]);
+
 	return {
 		data: queryResult.data,
 		isLoading: queryResult.isLoading,
@@ -171,7 +176,7 @@ export function useTopPerformingProducts(
 		error,
 		isSuccess: queryResult.isSuccess,
 		isFetching: queryResult.isFetching,
-		refetch: queryResult.refetch,
+		refetch,
 		retry,
 	};
 }
@@ -194,7 +199,7 @@ export function useCategoryRevenue(
 
 	const queryResult = useGetCategoryRevenueQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -241,7 +246,7 @@ export function useSalesTrends(
 
 	const queryResult = useGetSalesTrendsQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -288,7 +293,7 @@ export function usePaymentBreakdown(
 
 	const queryResult = useGetPaymentBreakdownQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -335,7 +340,7 @@ export function useCashierPerformance(
 
 	const queryResult = useGetCashierPerformanceQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -381,7 +386,7 @@ export function useInventoryValue(
 
 	const queryResult = useGetInventoryValueQuery(undefined, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -428,7 +433,7 @@ export function useTopCustomers(
 
 	const queryResult = useGetTopCustomersQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -475,7 +480,7 @@ export function useCustomerTrends(
 
 	const queryResult = useGetCustomerTrendsQuery(params, {
 		skip: skip || !enabled || !user,
-		refetchOnMountOrArgChange: refetchOnMount,
+		refetchOnMountOrArgChange: true, // Always refetch on mount or when params change
 		refetchOnFocus: refetchOnWindowFocus,
 		pollingInterval,
 	});
@@ -565,6 +570,17 @@ export function useAnalyticsDashboard(
 		customerTrends,
 	].some((query) => query.isLoading);
 
+	const isFetching = [
+		topProducts,
+		categoryRevenue,
+		salesTrends,
+		paymentBreakdown,
+		cashierPerformance,
+		inventoryValue,
+		topCustomers,
+		customerTrends,
+	].some((query) => query.isFetching);
+
 	const isError = [
 		topProducts,
 		categoryRevenue,
@@ -651,6 +667,7 @@ export function useAnalyticsDashboard(
 			customerTrends,
 		},
 		isLoading,
+		isFetching,
 		isError,
 		errors,
 		refetchAll,
@@ -784,26 +801,107 @@ export function useAnalyticsDashboardWithRefresh(
 	options: AnalyticsHookOptions = {},
 ) {
 	const dashboard = useAnalyticsDashboard(dateRange, options);
+	const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+	const prevFetchingRef = useRef(dashboard.isFetching);
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+	const [refreshCount, setRefreshCount] = useState(0);
 
-	// Real-time refresh setup
-	const refresh = useRealTimeRefresh([dashboard.refetchAll], refreshConfig);
+	// Track when fetching completes after a manual refresh
+	useEffect(() => {
+		// If we were fetching and now we're not, the refresh is complete
+		if (
+			prevFetchingRef.current &&
+			!dashboard.isFetching &&
+			isManualRefreshing
+		) {
+			setIsManualRefreshing(false);
+			setLastRefresh(new Date());
+			setRefreshCount((prev) => prev + 1);
+			refreshConfig.onRefresh?.();
+		}
+		prevFetchingRef.current = dashboard.isFetching;
+	}, [dashboard.isFetching, isManualRefreshing, refreshConfig]);
+
+	// Manual refresh function that tracks completion
+	const manualRefresh = useCallback(() => {
+		setIsManualRefreshing(true);
+		dashboard.refetchAll();
+	}, [dashboard]);
+
+	// Auto refresh setup
+	useEffect(() => {
+		if (refreshConfig.enabled && refreshConfig.interval > 0) {
+			intervalRef.current = setInterval(() => {
+				manualRefresh();
+			}, refreshConfig.interval);
+
+			return () => {
+				if (intervalRef.current) {
+					clearInterval(intervalRef.current);
+				}
+			};
+		}
+	}, [refreshConfig.enabled, refreshConfig.interval, manualRefresh]);
+
+	// Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		};
+	}, []);
+
+	// Start/stop auto refresh
+	const startAutoRefresh = useCallback(() => {
+		if (!intervalRef.current && refreshConfig.interval > 0) {
+			intervalRef.current = setInterval(() => {
+				manualRefresh();
+			}, refreshConfig.interval);
+		}
+	}, [refreshConfig.interval, manualRefresh]);
+
+	const stopAutoRefresh = useCallback(() => {
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current);
+			intervalRef.current = null;
+		}
+	}, []);
 
 	// Enhanced refresh function that includes retry logic
-	const smartRefresh = useCallback(async () => {
+	const smartRefresh = useCallback(() => {
 		if (dashboard.isError) {
 			// If there are errors, try retry instead of refetch
 			dashboard.retryAll();
 		} else {
 			// Normal refresh
-			await refresh.manualRefresh();
+			manualRefresh();
 		}
-	}, [dashboard.isError, dashboard.retryAll, refresh.manualRefresh]);
+	}, [dashboard.isError, dashboard.retryAll, manualRefresh]);
+
+	// Combine isRefreshing with isFetching for accurate loading state
+	const isRefreshing = isManualRefreshing || dashboard.isFetching;
 
 	return {
 		...dashboard,
 		refresh: {
-			...refresh,
+			isRefreshing,
+			lastRefresh,
+			refreshCount,
+			isAutoRefreshActive: intervalRef.current !== null,
+			manualRefresh,
 			smartRefresh,
+			startAutoRefresh,
+			stopAutoRefresh,
+			getTimeSinceLastRefresh: () => {
+				if (!lastRefresh) return null;
+				return Date.now() - lastRefresh.getTime();
+			},
+			formatLastRefresh: () => {
+				if (!lastRefresh) return "Never";
+				return lastRefresh.toLocaleTimeString();
+			},
 		},
 	};
 }

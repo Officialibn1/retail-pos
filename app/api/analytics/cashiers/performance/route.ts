@@ -73,12 +73,14 @@ export async function GET(request: NextRequest) {
 			userRoles,
 		);
 
-		// Set cache headers for performance optimization
+		// Disable caching for real-time analytics data
 		const response = NextResponse.json(result);
 		response.headers.set(
 			"Cache-Control",
-			"public, max-age=300, stale-while-revalidate=600",
+			"no-store, no-cache, must-revalidate, max-age=0",
 		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
 
 		return response;
 	} catch (error) {

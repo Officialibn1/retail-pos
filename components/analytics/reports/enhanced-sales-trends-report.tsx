@@ -17,6 +17,7 @@ import { CashierPerformanceChart } from "@/components/analytics/cashier-performa
 import { useSalesTrends, useCashierPerformance } from "@/hooks/use-analytics";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewAllData } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 interface EnhancedSalesTrendsReportProps {
 	dateRange: {
@@ -53,7 +54,6 @@ export function EnhancedSalesTrendsReport({
 		if (canSeeAll) {
 			cashierPerformanceQuery.refetch();
 		}
-		onRefresh?.();
 	};
 
 	const handleRetry = () => {
@@ -61,12 +61,14 @@ export function EnhancedSalesTrendsReport({
 		if (canSeeAll) {
 			cashierPerformanceQuery.retry();
 		}
-		onRefresh?.();
 	};
 
 	const isLoading =
 		salesTrendsQuery.isLoading ||
 		(canSeeAll && cashierPerformanceQuery.isLoading);
+	const isFetching =
+		salesTrendsQuery.isFetching ||
+		(canSeeAll && cashierPerformanceQuery.isFetching);
 	const isError =
 		salesTrendsQuery.isError || (canSeeAll && cashierPerformanceQuery.isError);
 	const error =
@@ -177,7 +179,11 @@ export function EnhancedSalesTrendsReport({
 					size='sm'
 					onClick={handleRefresh}
 					className='flex items-center gap-2'>
-					<RefreshCw className='h-3 w-3' />
+					<RefreshCw
+						className={cn("h-3 w-3", {
+							"animate-spin": isFetching,
+						})}
+					/>
 					Refresh
 				</Button>
 			</div>

@@ -79,7 +79,16 @@ export async function GET(request: NextRequest) {
 				userRoles,
 			);
 
-		return NextResponse.json(customerTrendsAnalytics);
+		// Disable caching for real-time analytics data
+		const response = NextResponse.json(customerTrendsAnalytics);
+		response.headers.set(
+			"Cache-Control",
+			"no-store, no-cache, must-revalidate, max-age=0",
+		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
+
+		return response;
 	} catch (error) {
 		console.error("Error fetching customer trends analytics:", error);
 

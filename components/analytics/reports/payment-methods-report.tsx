@@ -14,7 +14,7 @@ import { AlertTriangle, RefreshCw, CreditCard } from "lucide-react";
 import { PaymentMethodChart } from "@/components/analytics/payment-methods-chart";
 import { usePaymentBreakdown } from "@/hooks/use-analytics";
 import { useGetPaymentMethodsQuery } from "@/lib/store/api";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, cn } from "@/lib/utils";
 
 interface PaymentMethodsReportProps {
 	dateRange: {
@@ -40,11 +40,14 @@ export function PaymentMethodsReport({
 		isError: isLegacyError,
 		error: legacyError,
 		refetch: refetchLegacy,
+		isFetching: isLegacyFetching,
 	} = useGetPaymentMethodsQuery();
 
 	// Use enhanced data if available, otherwise fallback to legacy
 	const isLoading =
 		enhancedQuery.isLoading || (enhancedQuery.error && isLegacyLoading);
+	const isFetching =
+		enhancedQuery.isFetching || (enhancedQuery.error && isLegacyFetching);
 	const isError = enhancedQuery.isError && isLegacyError;
 	const error = enhancedQuery.error || legacyError;
 	const hasData = enhancedQuery.data || legacyPaymentMethods.length > 0;
@@ -134,7 +137,11 @@ export function PaymentMethodsReport({
 						size='sm'
 						onClick={handleRefresh}
 						className='flex items-center gap-2'>
-						<RefreshCw className='h-3 w-3' />
+						<RefreshCw
+							className={cn("h-3 w-3", {
+								"animate-spin": isFetching,
+							})}
+						/>
 						Refresh
 					</Button>
 				</div>

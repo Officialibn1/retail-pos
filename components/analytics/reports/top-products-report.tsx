@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Package } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, cn } from "@/lib/utils";
 import { useGetTopProductsQuery } from "@/lib/store/api";
 
 interface TopProductsReportProps {
@@ -31,11 +31,11 @@ export function TopProductsReport({
 		isError,
 		error,
 		refetch,
+		isFetching,
 	} = useGetTopProductsQuery({ limit });
 
 	const handleRefresh = () => {
 		refetch();
-		onRefresh?.();
 	};
 
 	if (isLoading) {
@@ -122,7 +122,11 @@ export function TopProductsReport({
 						size='sm'
 						onClick={handleRefresh}
 						className='flex items-center gap-2'>
-						<RefreshCw className='h-3 w-3' />
+						<RefreshCw
+							className={cn("h-3 w-3", {
+								"animate-spin": isFetching,
+							})}
+						/>
 						Refresh
 					</Button>
 				</div>

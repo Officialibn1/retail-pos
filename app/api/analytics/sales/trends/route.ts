@@ -91,14 +91,14 @@ export async function GET(request: NextRequest) {
 			user.roles,
 		);
 
-		// Set cache headers for performance optimization
+		// Disable caching for real-time analytics data
 		const response = NextResponse.json(result);
-
-		// Cache for 5 minutes for frequently accessed analytics data
 		response.headers.set(
 			"Cache-Control",
-			"public, max-age=300, stale-while-revalidate=600",
+			"no-store, no-cache, must-revalidate, max-age=0",
 		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
 
 		return response;
 	} catch (error) {

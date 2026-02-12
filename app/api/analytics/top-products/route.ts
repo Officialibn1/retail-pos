@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireManager } from "@/lib/middleware/auth";
 import { getTopSellingProducts } from "@/lib/services/analytics.service";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/analytics/top-products
@@ -49,7 +49,16 @@ export async function GET(request: NextRequest) {
 		// Get top selling products with role-based filtering
 		const topProducts = await getTopSellingProducts(limit, user.id, user.roles);
 
-		return NextResponse.json(topProducts, { status: 200 });
+		// Disable caching for real-time analytics data
+		const response = NextResponse.json(topProducts, { status: 200 });
+		response.headers.set(
+			"Cache-Control",
+			"no-store, no-cache, must-revalidate, max-age=0",
+		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
+
+		return response;
 	} catch (error: any) {
 		console.error("Error getting top selling products:", error);
 

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Loader2 } from "lucide-react";
 import { TopProductsChart } from "@/components/analytics/top-products-chart";
 import { useTopPerformingProducts } from "@/hooks/use-analytics";
+import { cn } from "@/lib/utils";
 
 interface EnhancedTopProductsReportProps {
 	dateRange: {
@@ -30,7 +31,7 @@ export function EnhancedTopProductsReport({
 	onProductClick,
 	onRefresh,
 }: EnhancedTopProductsReportProps) {
-	const { data, isLoading, isError, error, refetch, retry } =
+	const { data, isLoading, isError, error, refetch, retry, isFetching } =
 		useTopPerformingProducts({
 			...dateRange,
 			sortBy: "revenue",
@@ -40,12 +41,10 @@ export function EnhancedTopProductsReport({
 
 	const handleRefresh = () => {
 		refetch();
-		onRefresh?.();
 	};
 
 	const handleRetry = () => {
 		retry();
-		onRefresh?.();
 	};
 
 	if (isLoading) {
@@ -146,7 +145,11 @@ export function EnhancedTopProductsReport({
 					size='sm'
 					onClick={handleRefresh}
 					className='flex items-center gap-2'>
-					<RefreshCw className='h-3 w-3' />
+					<RefreshCw
+						className={cn("h-3 w-3", {
+							"animate-spin": isFetching,
+						})}
+					/>
 					Refresh
 				</Button>
 			</div>

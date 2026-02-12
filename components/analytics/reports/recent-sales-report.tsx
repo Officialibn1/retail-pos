@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Receipt } from "lucide-react";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, cn } from "@/lib/utils";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
 
 interface RecentSalesReportProps {
@@ -29,11 +29,11 @@ export function RecentSalesReport({
 		isError,
 		error,
 		refetch,
+		isFetching,
 	} = useGetDashboardStatsQuery();
 
 	const handleRefresh = () => {
 		refetch();
-		onRefresh?.();
 	};
 
 	if (isLoading) {
@@ -128,7 +128,11 @@ export function RecentSalesReport({
 						size='sm'
 						onClick={handleRefresh}
 						className='flex items-center gap-2'>
-						<RefreshCw className='h-3 w-3' />
+						<RefreshCw
+							className={cn("h-3 w-3", {
+								"animate-spin": isFetching,
+							})}
+						/>
 						Refresh
 					</Button>
 				</div>

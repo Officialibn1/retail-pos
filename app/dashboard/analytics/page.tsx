@@ -292,9 +292,9 @@ export default function AnalyticsPage() {
 							variant='outline'
 							size='sm'
 							onClick={dashboard.refresh.manualRefresh}
-							disabled={dashboard.isLoading}
+							disabled={dashboard.refresh.isRefreshing}
 							className='flex items-center gap-2'>
-							{dashboard.isLoading ? (
+							{dashboard.refresh.isRefreshing ? (
 								<RefreshCw className='h-4 w-4 animate-spin' />
 							) : (
 								<RefreshCw className='h-4 w-4' />

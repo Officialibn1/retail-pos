@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Loader2, Users } from "lucide-react";
 import { CustomerAnalyticsChart } from "@/components/analytics/customer-analytics-chart";
 import { useTopCustomers, useCustomerTrends } from "@/hooks/use-analytics";
+import { cn } from "@/lib/utils";
 
 interface CustomerAnalyticsReportProps {
 	dateRange: {
@@ -62,6 +63,8 @@ export function CustomerAnalyticsReport({
 
 	const isLoading =
 		topCustomersQuery.isLoading || customerTrendsQuery.isLoading;
+	const isFetching =
+		topCustomersQuery.isFetching || customerTrendsQuery.isFetching;
 	const isError = topCustomersQuery.isError || customerTrendsQuery.isError;
 	const error = topCustomersQuery.error || customerTrendsQuery.error;
 
@@ -165,7 +168,11 @@ export function CustomerAnalyticsReport({
 					size='sm'
 					onClick={handleRefresh}
 					className='flex items-center gap-2'>
-					<RefreshCw className='h-3 w-3' />
+					<RefreshCw
+						className={cn("h-3 w-3", {
+							"animate-spin": isFetching,
+						})}
+					/>
 					Refresh
 				</Button>
 			</div>

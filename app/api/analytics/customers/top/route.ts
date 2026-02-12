@@ -69,7 +69,16 @@ export async function GET(request: NextRequest) {
 		const topCustomersAnalytics =
 			await enhancedAnalyticsService.getTopCustomers(params, userId, userRoles);
 
-		return NextResponse.json(topCustomersAnalytics);
+		// Disable caching for real-time analytics data
+		const response = NextResponse.json(topCustomersAnalytics);
+		response.headers.set(
+			"Cache-Control",
+			"no-store, no-cache, must-revalidate, max-age=0",
+		);
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
+
+		return response;
 	} catch (error) {
 		console.error("Error fetching top customers analytics:", error);
 
