@@ -13,78 +13,78 @@ export const dynamic = "force-dynamic";
  *   - endDate: End date (ISO format, default: today)
  */
 export async function GET(request: NextRequest) {
-	// Authenticate user
-	const authResult = await requireAuth(request);
-	if (authResult instanceof NextResponse) {
-		return authResult;
-	}
+  // Authenticate user
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) {
+    return authResult;
+  }
 
-	const { request: authenticatedRequest } = authResult;
-	const user = authenticatedRequest.user;
+  const { request: authenticatedRequest } = authResult;
+  const user = authenticatedRequest.user;
 
-	// Check role permissions
-	const roleCheck = requireManager()(authenticatedRequest);
-	if (roleCheck) {
-		return roleCheck;
-	}
+  // Check role permissions
+  const roleCheck = requireManager()(authenticatedRequest);
+  if (roleCheck) {
+    return roleCheck;
+  }
 
-	try {
-		// Get date range from query params
-		const { searchParams } = new URL(request.url);
-		const startDateParam = searchParams.get("startDate");
-		const endDateParam = searchParams.get("endDate");
+  try {
+    // Get date range from query params
+    const { searchParams } = new URL(request.url);
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
 
-		// Default to last 7 days if not provided
-		const endDate = endDateParam ? new Date(endDateParam) : new Date();
-		const startDate = startDateParam
-			? new Date(startDateParam)
-			: new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    // Default to last 30 days if not provided
+    const endDate = endDateParam ? new Date(endDateParam) : new Date();
+    const startDate = startDateParam
+      ? new Date(startDateParam)
+      : new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-		// Validate dates
-		if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-			return NextResponse.json(
-				{
-					error: {
-						message: "Invalid date format. Use ISO format (YYYY-MM-DD)",
-						code: "VALIDATION_ERROR",
-					},
-				},
-				{ status: 400 },
-			);
-		}
+    // Validate dates
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return NextResponse.json(
+        {
+          error: {
+            message: "Invalid date format. Use ISO format (YYYY-MM-DD)",
+            code: "VALIDATION_ERROR",
+          },
+        },
+        { status: 400 },
+      );
+    }
 
-		if (startDate > endDate) {
-			return NextResponse.json(
-				{
-					error: {
-						message: "Start date must be before or equal to end date",
-						code: "VALIDATION_ERROR",
-					},
-				},
-				{ status: 400 },
-			);
-		}
+    if (startDate > endDate) {
+      return NextResponse.json(
+        {
+          error: {
+            message: "Start date must be before or equal to end date",
+            code: "VALIDATION_ERROR",
+          },
+        },
+        { status: 400 },
+      );
+    }
 
-		// Get sales by date range with role-based filtering
-		const salesByDate = await getSalesByDateRange(
-			startDate,
-			endDate,
-			user.id,
-			user.roles,
-		);
+    // Get sales by date range with role-based filtering
+    const salesByDate = await getSalesByDateRange(
+      startDate,
+      endDate,
+      user.id,
+      user.roles,
+    );
 
-		return NextResponse.json(salesByDate, { status: 200 });
-	} catch (error: any) {
-		console.error("Error getting sales by date:", error);
+    return NextResponse.json(salesByDate, { status: 200 });
+  } catch (error: any) {
+    console.error("Error getting sales by date:", error);
 
-		return NextResponse.json(
-			{
-				error: {
-					message: "Failed to retrieve sales by date",
-					code: "INTERNAL_ERROR",
-				},
-			},
-			{ status: 500 },
-		);
-	}
+    return NextResponse.json(
+      {
+        error: {
+          message: "Failed to retrieve sales by date",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: 500 },
+    );
+  }
 }

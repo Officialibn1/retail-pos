@@ -121,7 +121,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar
       variant="inset"
-      className="bg-brand-main-50 border-brand-main-200 border-r"
+      className="bg-brand-main-50/5 border-brand-main-200 border-r"
       collapsible="icon"
     >
       <SidebarHeader className="w-full pb-4">

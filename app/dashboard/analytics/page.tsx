@@ -54,6 +54,7 @@ import {
 	CustomerAnalyticsReport,
 	CategoryRevenueReport,
 } from "@/components/analytics/reports";
+import { toast } from "sonner";
 
 // Date range presets
 const DATE_PRESETS = [
@@ -136,10 +137,12 @@ export default function AnalyticsPage() {
 		enabled: refreshPrefs.preferences.enabled,
 		interval: refreshPrefs.preferences.interval,
 		onRefresh: () => {
-			console.log("Analytics data refreshed successfully");
+			toast.success("Analytics data refreshed successfully");
 		},
 		onError: (error) => {
-			console.error("Analytics refresh failed:", error);
+			toast.error(
+				`Analytics refresh failed: ${JSON.stringify(error, null, 2)}`,
+			);
 		},
 	});
 
@@ -148,7 +151,7 @@ export default function AnalyticsPage() {
 		const to = new Date();
 		const from = days === 0 ? new Date() : subDays(new Date(), days);
 		setDateRange({ from, to });
-		setIsDatePickerOpen(false);
+		// setIsDatePickerOpen(false);
 	};
 
 	// Handle CSV export with enhanced functionality
@@ -202,7 +205,7 @@ export default function AnalyticsPage() {
 							},
 							{
 								metric: "Inventory Value",
-								value: dashboard.data.inventoryValue?.totalEstimatedValue || 0,
+								value: dashboard.data.inventoryValue?.totalValue || 0,
 								period: "Current",
 							},
 						];
@@ -289,9 +292,9 @@ export default function AnalyticsPage() {
 							variant='outline'
 							size='sm'
 							onClick={dashboard.refresh.manualRefresh}
-							disabled={dashboard.refresh.isRefreshing}
+							disabled={dashboard.isLoading}
 							className='flex items-center gap-2'>
-							{dashboard.refresh.isRefreshing ? (
+							{dashboard.isLoading ? (
 								<RefreshCw className='h-4 w-4 animate-spin' />
 							) : (
 								<RefreshCw className='h-4 w-4' />
@@ -300,7 +303,7 @@ export default function AnalyticsPage() {
 						</Button>
 
 						<Popover>
-							<PopoverTrigger asChild>
+							<PopoverTrigger>
 								<Button
 									variant='outline'
 									size='sm'
@@ -380,8 +383,9 @@ export default function AnalyticsPage() {
 					<Popover
 						open={isDatePickerOpen}
 						onOpenChange={setIsDatePickerOpen}>
-						<PopoverTrigger asChild>
+						<PopoverTrigger>
 							<Button
+								// onClick={() => setIsDatePickerOpen((prev) => !prev)}
 								variant='outline'
 								className={cn(
 									"w-[280px] justify-start text-left font-normal",
@@ -418,6 +422,13 @@ export default function AnalyticsPage() {
 											{preset.label}
 										</Button>
 									))}
+
+									<Button
+										onClick={() => setIsDatePickerOpen((prev) => !prev)}
+										variant='outline'
+										className='mt-auto'>
+										Apply Filter
+									</Button>
 								</div>
 								<Calendar
 									mode='range'
@@ -426,7 +437,6 @@ export default function AnalyticsPage() {
 									onSelect={(range) => {
 										if (range?.from && range?.to) {
 											setDateRange({ from: range.from, to: range.to });
-											setIsDatePickerOpen(false);
 										}
 									}}
 									numberOfMonths={2}

@@ -308,7 +308,6 @@ export async function getInventoryAnalytics(): Promise<InventoryValueResult> {
 		WHERE ii."deletedAt" IS NULL
 		AND ii.stock < 10
 		ORDER BY ii.stock ASC
-		LIMIT 10
 	`;
 
 	const lowStockItems = await prisma.$queryRawUnsafe<
