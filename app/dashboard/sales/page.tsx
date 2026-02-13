@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -186,26 +193,32 @@ export default function SalesHistoryPage() {
 					<div className='flex gap-4'>
 						<div className='relative flex-1'>
 							{isFetching ? (
-								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+								<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
 							) : (
 								<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							)}
 							<Input
 								placeholder='Search sales...'
 								value={searchTerm}
+								disabled={loading || isFetching}
 								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+								className='pl-8 border-brand-main-200 focus:border-brand-main-400 disabled:cursor-not-allowed'
 							/>
 						</div>
-						<select
+						<Select
 							value={statusFilter}
-							onChange={(e) => setStatusFilter(e.target.value)}
-							className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
-							<option value='all'>All Status</option>
-							<option value='COMPLETED'>Completed</option>
-							<option value='PENDING'>Pending</option>
-							<option value='CANCELLED'>Cancelled</option>
-						</select>
+							onValueChange={setStatusFilter}
+							disabled={loading || isFetching}>
+							<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+								<SelectValue placeholder='All Status' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Status</SelectItem>
+								<SelectItem value='COMPLETED'>Completed</SelectItem>
+								<SelectItem value='PENDING'>Pending</SelectItem>
+								<SelectItem value='CANCELLED'>Cancelled</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 				</CardHeader>
 				<CardContent>
