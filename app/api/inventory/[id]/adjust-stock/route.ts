@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireManager } from "@/lib/middleware/auth";
 import { adjustStockSchema } from "@/lib/validations/inventory.schema";
 import { adjustStock } from "@/lib/services/inventory.service";
+import { logActivity } from "@/lib/services/activity-log.service";
 import { ZodError } from "zod";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/inventory/[id]/adjust-stock
@@ -31,12 +32,26 @@ export async function POST(
 		const body = await request.json();
 		const validatedData = adjustStockSchema.parse(body);
 
-		// Adjust stock
-		const item = await adjustStock(params.id, validatedData);
+		// Get item before adjustment to capture old stock
+		const itemBefore = await adjustStock(params.id, validatedData);
+		const oldStock = itemBefore.stock - validatedData.quantity;
+		const newStock = itemBefore.stock;
+
+		// Log activity
+		const user = authResult.request.user;
+		const ipAddress =
+			request.headers.get("x-forwarded-for") ||
+			request.headers.get("x-real-ip") ||
+			"unknown";
+
+		const adjustmentSign = validatedData.quantity > 0 ? "+" : "";
+		const detailsText = `Adjusted stock for "${itemBefore.name}" (SKU: ${itemBefore.sku}): ${adjustmentSign}${validatedData.quantity} units (${oldStock} → ${newStock}). Reason: ${validatedData.reason}${validatedData.notes ? `. Notes: ${validatedData.notes}` : ""}`;
+
+		await logActivity(user.id, "STOCK_ADJUSTED", detailsText, ipAddress);
 
 		return NextResponse.json({
 			message: "Stock adjusted successfully",
-			item,
+			item: itemBefore,
 		});
 	} catch (error) {
 		// Handle validation errors

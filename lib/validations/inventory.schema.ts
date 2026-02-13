@@ -42,6 +42,7 @@ export const createInventoryItemSchema = z.object({
 			/^[a-zA-Z0-9-]+$/,
 			"Barcode can only contain letters, numbers, and hyphens",
 		)
+		.or(z.literal(""))
 		.optional()
 		.nullable(),
 	categoryId: z.string().cuid("Invalid category ID"),
@@ -69,11 +70,6 @@ export const updateInventoryItemSchema = z.object({
 				.transform(Number),
 		)
 		.optional(),
-	stock: z
-		.number()
-		.int("Stock must be an integer")
-		.min(0, "Stock cannot be negative")
-		.optional(),
 	sku: z
 		.string()
 		.min(1, "SKU is required")
@@ -90,6 +86,7 @@ export const updateInventoryItemSchema = z.object({
 			/^[a-zA-Z0-9-]+$/,
 			"Barcode can only contain letters, numbers, and hyphens",
 		)
+		.or(z.literal(""))
 		.optional()
 		.nullable(),
 	categoryId: z.string().cuid("Invalid category ID").optional(),
@@ -104,28 +101,16 @@ export const adjustStockSchema = z.object({
 		}),
 	reason: z
 		.string()
-		.min(1, "Reason is required")
+		.min(5, "Reason is required")
 		.max(200, "Reason must not exceed 200 characters")
 		.refine(
 			(val) =>
-				[
-					"RESTOCK",
-					"DAMAGE",
-					"THEFT",
-					"ADJUSTMENT",
-					"RETURN",
-					"SALE",
-					"SALE_CANCELLED",
-				].includes(val),
+				["RESTOCK", "DAMAGE", "THEFT", "ADJUSTMENT", "RETURN"].includes(val),
 			{
 				message: "Invalid reason",
 			},
 		),
-	notes: z
-		.string()
-		.max(500, "Notes must not exceed 500 characters")
-		.optional()
-		.nullable(),
+	notes: z.string().max(500, "Notes must not exceed 500 characters"),
 });
 
 export type CreateInventoryItemInput = z.infer<

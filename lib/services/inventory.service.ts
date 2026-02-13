@@ -72,7 +72,7 @@ export async function getInventoryItemById(
  * @param id - Inventory item ID
  * @param data - Inventory item update data
  * @returns Updated inventory item
- * @throws Error if SKU already exists on another item
+ * @throws Error if SKU already exists on another item or if stock is provided
  */
 export async function updateInventoryItem(
 	id: string,
@@ -94,14 +94,13 @@ export async function updateInventoryItem(
 		}
 	}
 
-	// Update inventory item
+	// Update inventory item (stock is excluded - use adjustStock instead)
 	const item = await prisma.inventoryItem.update({
 		where: { id },
 		data: {
 			name: data.name,
 			description: data.description,
 			price: data.price,
-			stock: data.stock,
 			sku: data.sku,
 			barcode: data.barcode,
 			categoryId: data.categoryId,

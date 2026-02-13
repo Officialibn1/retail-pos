@@ -3,18 +3,30 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Search, Activity, Clock, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewActivityLogs } from "@/lib/auth";
 import { useGetActivityLogsQuery } from "@/lib/store/api";
 import DataTable from "@/components/dashboard/data-table";
 import { activitiesTableDef } from "@/components/activities/activities-table-def";
+import { ActivityDetailsDialog } from "@/components/activities/activity-details-dialog";
 import { useDebounce } from "@/hooks/use-debounce";
+import { ActivityLogWithUser } from "@/lib/prisma-extended-types";
 
 export default function ActivityLogsPage() {
 	const { user } = useAuth();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [actionFilter, setActionFilter] = useState("all");
+	const [selectedActivity, setSelectedActivity] =
+		useState<ActivityLogWithUser | null>(null);
+	const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
 	// Use RTK Query hook to fetch activity logs with server-side filtering
@@ -85,6 +97,11 @@ export default function ActivityLogsPage() {
 	// Get column definitions
 	const columns = activitiesTableDef();
 
+	const handleRowClick = (activity: ActivityLogWithUser) => {
+		setSelectedActivity(activity);
+		setShowDetailsDialog(true);
+	};
+
 	return (
 		<div className='space-y-6 p-6'>
 			<div>
@@ -148,27 +165,34 @@ export default function ActivityLogsPage() {
 					<CardTitle className='text-brand-main-800'>Activity Logs</CardTitle>
 					<div className='flex gap-4 mt-4'>
 						<div className='relative flex-1'>
-							<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
-							{isFetching && (
-								<Loader2 className='absolute right-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+							{isFetching ? (
+								<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+							) : (
+								<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
 							)}
 							<Input
 								placeholder='Search activities...'
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
+								disabled={loading || isFetching}
 								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
 							/>
 						</div>
-						<select
+						<Select
 							value={actionFilter}
-							onChange={(e) => setActionFilter(e.target.value)}
-							className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
-							<option value='all'>All Actions</option>
-							<option value='login'>Authentication</option>
-							<option value='sale'>Sales</option>
-							<option value='inventory'>Inventory</option>
-							<option value='user'>User Management</option>
-						</select>
+							onValueChange={setActionFilter}
+							disabled={loading || isFetching}>
+							<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+								<SelectValue placeholder='All Actions' />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value='all'>All Actions</SelectItem>
+								<SelectItem value='login'>Authentication</SelectItem>
+								<SelectItem value='sale'>Sales</SelectItem>
+								<SelectItem value='inventory'>Inventory</SelectItem>
+								<SelectItem value='user'>User Management</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 				</CardHeader>
 				<CardContent className='overflow-x-auto'>
@@ -176,9 +200,16 @@ export default function ActivityLogsPage() {
 						columns={columns}
 						data={logs}
 						tableName='Activity Logs'
+						onRowClick={handleRowClick}
 					/>
 				</CardContent>
 			</Card>
+
+			<ActivityDetailsDialog
+				open={showDetailsDialog}
+				onOpenChange={setShowDetailsDialog}
+				activity={selectedActivity}
+			/>
 		</div>
 	);
 }

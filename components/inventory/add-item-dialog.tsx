@@ -1,8 +1,9 @@
 "use client";
 
-import type React from "react";
-import { useState, useRef } from "react"; // Import useRef
-import { BarcodeScanner, DetectedBarcode } from "react-barcode-scanner"; // Import BarcodeScanner
+import { useState, useRef, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { BarcodeScanner, DetectedBarcode } from "react-barcode-scanner";
 import {
 	Dialog,
 	DialogContent,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
 	Select,
@@ -22,18 +22,27 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Camera } from "lucide-react"; // Import Camera icon
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Camera } from "lucide-react";
 import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
 import { useGetCategoriesQuery } from "@/lib/store/api";
-import { Spinner } from "../ui/spinner";
-import { InventoryItem } from "@/generated/prisma";
+import { Spinner } from "@/components/ui/spinner";
+import {
+	createInventoryItemSchema,
+	type CreateInventoryItemInput,
+} from "@/lib/validations/inventory.schema";
 
 interface AddItemDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (
-		item: Omit<InventoryItem, "id" | "createdAt" | "updatedAt" | "deletedAt">,
-	) => void;
+	onSave: (item: CreateInventoryItemInput) => void;
 	isCreatingItem: boolean;
 }
 
@@ -43,56 +52,45 @@ export function AddItemDialog({
 	onSave,
 	isCreatingItem,
 }: AddItemDialogProps) {
-	const [formData, setFormData] = useState({
-		name: "",
-		description: "",
-		sku: "",
-		price: "",
-		cost: "",
-		stock: "",
-		categoryId: "",
-		barcode: "",
-	});
-	const [isScanning, setIsScanning] = useState(false); // State to control scanner visibility
-	const scannerRef = useRef(null); // Ref for the scanner component
+	const [isScanning, setIsScanning] = useState(false);
+	const scannerRef = useRef(null);
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-
-		const newItem = {
-			name: formData.name,
-			description: formData.description,
-			sku: formData.sku,
-			price: Number.parseFloat(formData.price),
-			cost: Number.parseFloat(formData.cost),
-			stock: Number.parseInt(formData.stock),
-			categoryId: formData.categoryId,
-			barcode: formData.barcode || null,
-		};
-
-		onSave(newItem);
-
-		// Reset form
-		setFormData({
+	const form = useForm<CreateInventoryItemInput>({
+		resolver: zodResolver(createInventoryItemSchema),
+		defaultValues: {
 			name: "",
 			description: "",
 			sku: "",
-			price: "",
-			cost: "",
-			stock: "",
+			price: 0,
+			stock: 0,
 			categoryId: "",
 			barcode: "",
-		});
+		},
+	});
 
-		setIsScanning(false); // Close scanner when dialog is closed or form is saved
+	const { data: categoriesData, isLoading: categoriesLoading } =
+		useGetCategoriesQuery();
+
+	const categories = categoriesData?.categories || [];
+
+	// Reset form when dialog closes
+	useEffect(() => {
+		if (!open) {
+			form.reset();
+			setIsScanning(false);
+		}
+	}, [open, form]);
+
+	const onSubmit = (data: CreateInventoryItemInput) => {
+		onSave(data);
+		form.reset();
+		setIsScanning(false);
 	};
 
 	const handleScan = (decodedBarcodes: DetectedBarcode[]) => {
-		setFormData({ ...formData, barcode: decodedBarcodes[0].rawValue });
-		setIsScanning(false); // Stop scanning after a successful scan
+		form.setValue("barcode", decodedBarcodes[0].rawValue);
+		setIsScanning(false);
 	};
-
-	const { isLoading, data: categories, isError } = useGetCategoriesQuery();
 
 	return (
 		<Dialog
@@ -109,225 +107,235 @@ export function AddItemDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form
-					onSubmit={handleSubmit}
-					className='space-y-4'>
-					<div className='grid grid-cols-2 gap-4'>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='name'
-								className='text-brand-main-700'>
-								Product Name *
-							</Label>
-							<Input
-								disabled={isCreatingItem || isLoading || isError}
-								id='name'
-								value={formData.name}
-								onChange={(e) =>
-									setFormData({ ...formData, name: e.target.value })
-								}
-								className='border-brand-main-200 focus:border-brand-main-400'
-								required
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className='space-y-4'>
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
+								name='name'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>
+											Product Name *
+										</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												disabled={isCreatingItem || categoriesLoading}
+												className='border-brand-main-200 focus:border-brand-main-400'
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name='sku'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>SKU *</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												disabled={isCreatingItem || categoriesLoading}
+												className='border-brand-main-200 focus:border-brand-main-400'
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
 						</div>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='sku'
-								className='text-brand-main-700'>
-								SKU *
-							</Label>
-							<Input
-								id='sku'
-								disabled={isCreatingItem || isLoading || isError}
-								value={formData.sku}
-								onChange={(e) =>
-									setFormData({ ...formData, sku: e.target.value })
-								}
-								className='border-brand-main-200 focus:border-brand-main-400'
-								required
-							/>
-						</div>
-					</div>
 
-					<div className='space-y-2'>
-						<Label
-							htmlFor='description'
-							className='text-brand-main-700'>
-							Description
-						</Label>
-						<Textarea
-							id='description'
-							disabled={isCreatingItem || isLoading || isError}
-							value={formData.description}
-							onChange={(e) =>
-								setFormData({ ...formData, description: e.target.value })
-							}
-							className='border-brand-main-200 focus:border-brand-main-400'
-							rows={3}
+						<FormField
+							control={form.control}
+							name='description'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Description
+									</FormLabel>
+									<FormControl>
+										<Textarea
+											{...field}
+											value={field.value || ""}
+											disabled={isCreatingItem || categoriesLoading}
+											className='border-brand-main-200 focus:border-brand-main-400'
+											rows={3}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
 						/>
-					</div>
 
-					<div className='grid grid-cols-2 gap-4'>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='categoryId'
-								className='text-brand-main-700'>
-								Category *
-							</Label>
-							<Select
-								value={formData.categoryId}
-								onValueChange={(value) =>
-									setFormData({ ...formData, categoryId: value })
-								}
-								disabled={isCreatingItem || isLoading || isError}>
-								<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
-									<SelectValue placeholder='Select category' />
-								</SelectTrigger>
-								<SelectContent>
-									{categories &&
-										categories.categories.map((category) => (
-											<SelectItem
-												disabled={isCreatingItem || isLoading || isError}
-												key={category.name}
-												value={category.id}>
-												{category.name}
-											</SelectItem>
-										))}
-								</SelectContent>
-							</Select>
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
+								name='categoryId'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>
+											Category *
+										</FormLabel>
+										<Select
+											value={field.value}
+											onValueChange={field.onChange}
+											disabled={isCreatingItem || categoriesLoading}>
+											<FormControl>
+												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+													<SelectValue placeholder='Select category' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{categories.map((category) => (
+													<SelectItem
+														key={category.id}
+														value={category.id}>
+														{category.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name='barcode'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>
+											Barcode
+										</FormLabel>
+										<div className='flex items-center gap-2'>
+											<FormControl>
+												<Input
+													{...field}
+													value={field.value || ""}
+													disabled={
+														isCreatingItem || categoriesLoading || isScanning
+													}
+													className='border-brand-main-200 focus:border-brand-main-400 flex-grow'
+												/>
+											</FormControl>
+											<Button
+												type='button'
+												variant='outline'
+												disabled={
+													isCreatingItem || categoriesLoading || isScanning
+												}
+												onClick={() => setIsScanning(!isScanning)}
+												className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
+												aria-label='Scan Barcode'>
+												<Camera className='h-4 w-4' />
+											</Button>
+										</div>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='barcode'
-								className='text-brand-main-700'>
-								Barcode
-							</Label>
-							<div className='flex items-center gap-2'>
-								<Input
-									id='barcode'
-									disabled={
-										isCreatingItem || isLoading || isError || isScanning
-									}
-									value={formData.barcode}
-									onChange={(e) =>
-										setFormData({ ...formData, barcode: e.target.value })
-									}
-									className='border-brand-main-200 focus:border-brand-main-400 flex-grow'
+
+						{isScanning && (
+							<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
+								<BarcodeScanner
+									ref={scannerRef}
+									onCapture={handleScan}
+									onError={() => setIsScanning(false)}
+									width={300}
+									height={200}
+									trackConstraints={{
+										facingMode: {
+											ideal: "environment",
+										},
+									}}
+									options={{
+										formats: QR_SCANNER_FORMAT_OPTIONS,
+									}}
 								/>
-								<Button
-									type='button'
-									variant='outline'
-									disabled={
-										isCreatingItem || isLoading || isError || isScanning
-									}
-									onClick={() => setIsScanning(!isScanning)}
-									className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
-									aria-label='Scan Barcode'>
-									<Camera className='h-4 w-4' />
-								</Button>
 							</div>
-						</div>
-					</div>
+						)}
 
-					{isScanning && (
-						<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
-							<BarcodeScanner
-								ref={scannerRef}
-								onCapture={handleScan}
-								onError={() => setIsScanning(false)}
-								width={300}
-								height={200}
-								trackConstraints={{
-									facingMode: {
-										ideal: "environment",
-									},
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
+								name='price'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>
+											Selling Price *
+										</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												type='number'
+												step='0.01'
+												disabled={isCreatingItem || categoriesLoading}
+												className='border-brand-main-200 focus:border-brand-main-400'
+												onChange={(e) =>
+													field.onChange(
+														e.target.value ? Number(e.target.value) : "",
+													)
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name='stock'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>
+											Quantity *
+										</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												type='number'
+												disabled={isCreatingItem || categoriesLoading}
+												className='border-brand-main-200 focus:border-brand-main-400'
+												onChange={(e) =>
+													field.onChange(
+														e.target.value ? Number(e.target.value) : "",
+													)
+												}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<DialogFooter>
+							<Button
+								type='button'
+								disabled={isCreatingItem || categoriesLoading}
+								variant='outline'
+								onClick={() => {
+									onOpenChange(false);
+									setIsScanning(false);
 								}}
-								options={{
-									formats: QR_SCANNER_FORMAT_OPTIONS,
-								}}
-							/>
-						</div>
-					)}
-
-					<div className='grid grid-cols-3 gap-4'>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='price'
-								className='text-brand-main-700'>
-								Selling Price *
-							</Label>
-							<Input
-								id='price'
-								disabled={isCreatingItem || isLoading || isError}
-								type='number'
-								step='0.01'
-								value={formData.price}
-								onChange={(e) =>
-									setFormData({ ...formData, price: e.target.value })
-								}
-								className='border-brand-main-200 focus:border-brand-main-400'
-								required
-							/>
-						</div>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='cost'
-								className='text-brand-main-700'>
-								Cost Price *
-							</Label>
-							<Input
-								id='cost'
-								disabled={isCreatingItem || isLoading || isError}
-								type='number'
-								step='0.01'
-								value={formData.cost}
-								onChange={(e) =>
-									setFormData({ ...formData, cost: e.target.value })
-								}
-								className='border-brand-main-200 focus:border-brand-main-400'
-								required
-							/>
-						</div>
-						<div className='space-y-2'>
-							<Label
-								htmlFor='stock'
-								className='text-brand-main-700'>
-								Quantity *
-							</Label>
-							<Input
-								id='stock'
-								disabled={isCreatingItem || isLoading || isError}
-								type='number'
-								value={formData.stock}
-								onChange={(e) =>
-									setFormData({ ...formData, stock: e.target.value })
-								}
-								className='border-brand-main-200 focus:border-brand-main-400'
-								required
-							/>
-						</div>
-					</div>
-
-					<DialogFooter>
-						<Button
-							type='button'
-							disabled={isCreatingItem || isLoading || isError}
-							variant='outline'
-							onClick={() => {
-								onOpenChange(false);
-								setIsScanning(false); // Ensure scanner is off when dialog closes
-							}}
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
-							Cancel
-						</Button>
-						<Button
-							type='submit'
-							disabled={isCreatingItem || isLoading || isError}
-							className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
-							{isCreatingItem ? <Spinner /> : "Add Item"}
-						</Button>
-					</DialogFooter>
-				</form>
+								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								Cancel
+							</Button>
+							<Button
+								type='submit'
+								disabled={isCreatingItem || categoriesLoading}
+								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								{isCreatingItem ? <Spinner /> : "Add Item"}
+							</Button>
+						</DialogFooter>
+					</form>
+				</Form>
 			</DialogContent>
 		</Dialog>
 	);

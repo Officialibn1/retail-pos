@@ -27,6 +27,7 @@ import {
 import { InventoryTable } from "@/components/inventory/inventory-table";
 import { AddItemDialog } from "@/components/inventory/add-item-dialog";
 import { EditItemDialog } from "@/components/inventory/edit-item-dialog";
+import { AdjustStockDialog } from "@/components/inventory/adjust-stock-dialog";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import { formatNaira } from "@/lib/utils";
@@ -47,7 +48,10 @@ import {
 	useCreateInventoryItemMutation,
 	useUpdateInventoryItemMutation,
 	useDeleteInventoryItemMutation,
+	useAdjustStockMutation,
 } from "@/lib/store/api";
+import { CreateInventoryItemInput } from "@/lib/validations/inventory.schema";
+import { AdjustStockInput } from "@/lib/validations/inventory.schema";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
@@ -61,6 +65,7 @@ export default function InventoryPage() {
 	const { user } = useAuth();
 	const [showAddDialog, setShowAddDialog] = useState(false);
 	const [showEditDialog, setShowEditDialog] = useState(false);
+	const [showAdjustStockDialog, setShowAdjustStockDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [selectedItem, setSelectedItem] =
 		useState<InventoryItemWithCategory | null>(null);
@@ -90,8 +95,11 @@ export default function InventoryPage() {
 
 	const [createInventoryItem, { isLoading: isCreatingItem }] =
 		useCreateInventoryItemMutation();
-	const [updateInventoryItem] = useUpdateInventoryItemMutation();
+	const [updateInventoryItem, { isLoading: isUpdatingItem }] =
+		useUpdateInventoryItemMutation();
 	const [deleteInventoryItem] = useDeleteInventoryItemMutation();
+	const [adjustStock, { isLoading: isAdjustingStock }] =
+		useAdjustStockMutation();
 
 	const totalItems = inventory.length;
 	const lowStockItems = inventory.filter((item) => item.stock < 10).length;
@@ -104,12 +112,7 @@ export default function InventoryPage() {
 	// Extract categories from the API response
 	const categories = categoriesData?.categories || [];
 
-	const handleAddItem = async (
-		newItem: Omit<
-			InventoryItem,
-			"id" | "createdAt" | "updatedAt" | "deletedAt"
-		>,
-	) => {
+	const handleAddItem = async (newItem: CreateInventoryItemInput) => {
 		try {
 			await createInventoryItem(newItem).unwrap();
 			setShowAddDialog(false);
@@ -127,11 +130,18 @@ export default function InventoryPage() {
 		setShowEditDialog(true);
 	};
 
-	const handleSaveEdit = async (updatedItem: InventoryItem) => {
+	const handleSaveEdit = async (
+		updatedData: Omit<
+			InventoryItem,
+			"id" | "createdAt" | "updatedAt" | "deletedAt"
+		>,
+	) => {
+		if (!selectedItem) return;
+
 		try {
 			await updateInventoryItem({
-				id: updatedItem.id,
-				data: updatedItem,
+				id: selectedItem.id,
+				data: updatedData,
 			}).unwrap();
 			setShowEditDialog(false);
 			setSelectedItem(null);
@@ -140,6 +150,28 @@ export default function InventoryPage() {
 			console.error("Failed to update item:", err);
 			toast.error(
 				err.data?.error?.message || err.message || "Failed to update item",
+			);
+		}
+	};
+
+	const handleAdjustStock = (item: InventoryItemWithCategory) => {
+		setSelectedItem(item);
+		setShowAdjustStockDialog(true);
+	};
+
+	const handleSaveAdjustStock = async (
+		itemId: string,
+		data: AdjustStockInput,
+	) => {
+		try {
+			await adjustStock({ id: itemId, data }).unwrap();
+			setShowAdjustStockDialog(false);
+			setSelectedItem(null);
+			toast.success("Stock adjusted successfully");
+		} catch (err: any) {
+			console.error("Failed to adjust stock:", err);
+			toast.error(
+				err.data?.error?.message || err.message || "Failed to adjust stock",
 			);
 		}
 	};
@@ -337,7 +369,11 @@ export default function InventoryPage() {
 					</CardHeader>
 					<CardContent>
 						<DataTable
-							columns={inventoryTableDef({ handleDeleteItem, handleEditItem })}
+							columns={inventoryTableDef({
+								handleDeleteItem,
+								handleEditItem,
+								handleAdjustStock,
+							})}
 							data={inventory}
 						/>
 					</CardContent>
@@ -354,8 +390,17 @@ export default function InventoryPage() {
 				<EditItemDialog
 					open={showEditDialog}
 					onOpenChange={setShowEditDialog}
-					item={selectedItem as InventoryItem | null}
+					item={selectedItem}
 					onSave={handleSaveEdit}
+					isUpdating={isUpdatingItem}
+				/>
+
+				<AdjustStockDialog
+					open={showAdjustStockDialog}
+					onOpenChange={setShowAdjustStockDialog}
+					item={selectedItem}
+					onSave={handleSaveAdjustStock}
+					isAdjusting={isAdjustingStock}
 				/>
 
 				<AlertDialog

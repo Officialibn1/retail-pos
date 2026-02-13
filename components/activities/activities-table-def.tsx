@@ -19,20 +19,26 @@ export const activitiesTableDef = (): ColumnDef<ActivityLogWithUser>[] => {
 		{
 			header: "User",
 			accessorKey: "user",
-			cell: ({ row }) => {
-				// Extract user name from nested user object
-				return row.original.user.name;
-			},
+			cell: ({ row }) => <p className='text-xs'>{row.original.user.name}</p>,
 		},
 		{
 			header: "Action",
 			accessorKey: "action",
+			cell: ({ row }) => <p className='text-xs'>{row.original.action}</p>,
 		},
 		{
 			header: "Details",
 			accessorKey: "details",
 			cell: ({ row }) => {
-				return <span className='truncate'>{row.original.details}</span>;
+				return (
+					<div className='max-w-xs lg:max-w-md xl:max-w-3xl'>
+						<p
+							className='truncate text-xs'
+							title={row.original.details}>
+							{row.original.details}
+						</p>
+					</div>
+				);
 			},
 		},
 	];

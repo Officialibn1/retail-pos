@@ -42,12 +42,14 @@ interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
 	tableName?: string;
+	onRowClick?: (row: TData) => void;
 }
 
 const DataTable = <TData, TValue>({
 	columns,
 	data,
 	tableName,
+	onRowClick,
 }: DataTableProps<TData, TValue>) => {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [isDownloading, setIsdownlaoding] = useState(false);
@@ -173,9 +175,9 @@ const DataTable = <TData, TValue>({
 			<div
 				data-slot='table-container'
 				className='relative w-full overflow-x-auto'>
-				<div className=' bg-white'>
+				<div className='bg-white min-w-full'>
 					<Table
-						className=' relative w-full bg-white'
+						className='relative w-full bg-white min-w-[800px]'
 						ref={tableRef}>
 						<TableHeader className='rounded-lg'>
 							{table.getHeaderGroups().map((headerGroup) => (
@@ -193,7 +195,7 @@ const DataTable = <TData, TValue>({
 													: flexRender(
 															header.column.columnDef.header,
 															header.getContext(),
-													  )}
+														)}
 											</TableHead>
 										);
 									})}
@@ -206,10 +208,12 @@ const DataTable = <TData, TValue>({
 								table.getRowModel().rows.map((row, rowIndex) => (
 									<TableRow
 										key={row.id + rowIndex}
+										onClick={() => onRowClick?.(row.original)}
 										className={cn(
 											"hover:bg-brand-main-100/50 h-9 border border-brand-main-900/20 text-xs border-x",
 											{
 												"bg-brand-main-100/20": rowIndex % 2 === 0,
+												"cursor-pointer": onRowClick,
 											},
 										)}>
 										{row.getVisibleCells().map((cell, cellIndex) => (

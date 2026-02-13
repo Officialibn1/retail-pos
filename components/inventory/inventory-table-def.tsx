@@ -1,24 +1,33 @@
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
 import { formatNaira, getStockStatus } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { AlertTriangle, Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+	AlertTriangle,
+	Edit,
+	MoreHorizontal,
+	Trash2,
+	Package,
+} from "lucide-react";
 import { Badge } from "../ui/badge";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
+	DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 
 interface TableDef {
 	handleEditItem: (item: InventoryItemWithCategory) => void;
 	handleDeleteItem: (item: InventoryItemWithCategory) => void;
+	handleAdjustStock: (item: InventoryItemWithCategory) => void;
 }
 
 export const inventoryTableDef = ({
 	handleEditItem,
 	handleDeleteItem,
+	handleAdjustStock,
 }: TableDef) => {
 	const column: ColumnDef<InventoryItemWithCategory>[] = [
 		{
@@ -73,8 +82,8 @@ export const inventoryTableDef = ({
 							stockStatus.variant === "destructive"
 								? "bg-red-100 text-red-800 hover:bg-red-100"
 								: stockStatus.variant === "secondary"
-								? "bg-amber-100 text-amber-800 hover:bg-amber-100"
-								: "bg-green-100 text-green-800 hover:bg-green-100"
+									? "bg-amber-100 text-amber-800 hover:bg-amber-100"
+									: "bg-green-100 text-green-800 hover:bg-green-100"
 						}>
 						{stockStatus.label}
 					</Badge>
@@ -105,9 +114,16 @@ export const inventoryTableDef = ({
 								Edit
 							</DropdownMenuItem>
 							<DropdownMenuItem
+								onClick={() => handleAdjustStock(item)}
+								className='text-brand-main-700'>
+								<Package className='h-4 w-4 mr-2' />
+								Adjust Stock
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
 								onClick={() => handleDeleteItem(item)}
 								className='text-red-600 focus:text-red-600'>
-								<Trash2 className='h-4 w-4 mr-2' />
+								<Trash2 className='h-4 w-4 mr-2 text-red-600 focus:text-red-600' />
 								Delete
 							</DropdownMenuItem>
 						</DropdownMenuContent>

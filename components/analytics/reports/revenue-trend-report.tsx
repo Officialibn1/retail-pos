@@ -108,6 +108,7 @@ export function RevenueTrendReport({
 						variant='outline'
 						size='sm'
 						onClick={handleRefresh}
+						disabled={isLoading || isFetching}
 						className='flex items-center gap-2'>
 						<RefreshCw
 							className={cn("h-3 w-3", {
