@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireManager } from "@/lib/middleware/auth";
+import { requireAuth, requireCategoryManager } from "@/lib/middleware/auth";
 import { updateCategorySchema } from "@/lib/validations/category.schema";
 import {
 	getCategoryById,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/services/category.service";
 import { ZodError } from "zod";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/categories/[id]
@@ -60,7 +60,7 @@ export async function GET(
 
 /**
  * PUT /api/categories/[id]
- * Update category (MANAGER+ only)
+ * Update category (SUPERADMIN, MANAGER, ADMIN only)
  */
 export async function PUT(
 	request: NextRequest,
@@ -73,8 +73,8 @@ export async function PUT(
 			return authResult;
 		}
 
-		// Check MANAGER+ role
-		const roleCheck = requireManager()(authResult.request);
+		// Check category management permission
+		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
 		}
@@ -150,7 +150,7 @@ export async function PUT(
 
 /**
  * DELETE /api/categories/[id]
- * Delete category (MANAGER+ only)
+ * Delete category (SUPERADMIN, MANAGER, ADMIN only)
  */
 export async function DELETE(
 	request: NextRequest,
@@ -163,8 +163,8 @@ export async function DELETE(
 			return authResult;
 		}
 
-		// Check MANAGER+ role
-		const roleCheck = requireManager()(authResult.request);
+		// Check category management permission
+		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
 		}

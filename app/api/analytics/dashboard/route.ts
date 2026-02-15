@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/analytics/dashboard
  * Get comprehensive dashboard statistics with role-based filtering
- * Requires MANAGER+ role
+ * All authenticated users can access (data is filtered by role in service)
  */
 export async function GET(request: NextRequest) {
 	// Authenticate user
@@ -19,14 +19,10 @@ export async function GET(request: NextRequest) {
 	const { request: authenticatedRequest } = authResult;
 	const user = authenticatedRequest.user;
 
-	// Check role permissions
-	const roleCheck = requireManager()(authenticatedRequest);
-	if (roleCheck) {
-		return roleCheck;
-	}
-
 	try {
 		// Get dashboard statistics with role-based filtering
+		// SUPERADMIN and MANAGER see all data
+		// ADMIN and CASHIER see only their own data
 		const stats = await getDashboardStats(user.id, user.roles);
 
 		// Disable caching for real-time analytics data

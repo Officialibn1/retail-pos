@@ -139,6 +139,9 @@ export interface UserSearchParams {
 export interface SaleSearchParams {
 	searchTerm?: string;
 	status?: string;
+	paymentMethod?: string;
+	startDate?: string;
+	endDate?: string;
 }
 
 // Get customers response

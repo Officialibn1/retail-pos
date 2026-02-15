@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireManager } from "@/lib/middleware/auth";
+import { requireAuth, requireCategoryManager } from "@/lib/middleware/auth";
 import { createCategorySchema } from "@/lib/validations/category.schema";
 import {
 	createCategory,
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/categories
- * Create a new category (MANAGER+ only)
+ * Create a new category (SUPERADMIN, MANAGER, ADMIN only)
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
 			return authResult;
 		}
 
-		// Check MANAGER+ role
-		const roleCheck = requireManager()(authResult.request);
+		// Check category management permission
+		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
 		}

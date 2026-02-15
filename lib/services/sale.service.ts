@@ -43,85 +43,101 @@ const taxRate = Number(
  * @throws Error if inventory is insufficient
  */
 export async function createSale(data: CreateSaleInput): Promise<Sale> {
-	// Use transaction to ensure atomicity
-
-	const result = await prisma.$transaction(async (tx) => {
-		// Validate inventory availability for all items
-		for (const item of data.items) {
-			const inventoryItem = await tx.inventoryItem.findFirst({
+	// Use transaction to ensure atomicity with increased timeout
+	const result = await prisma.$transaction(
+		async (tx) => {
+			// Fetch all inventory items in a single query
+			const inventoryItemIds = data.items.map((item) => item.inventoryItemId);
+			const inventoryItems = await tx.inventoryItem.findMany({
 				where: {
-					id: item.inventoryItemId,
+					id: { in: inventoryItemIds },
 					deletedAt: null,
 				},
 			});
 
-			if (!inventoryItem) {
-				throw new Error(
-					`Inventory item ${item.inventoryItemId} not found or deleted`,
-				);
+			// Create a map for quick lookup
+			const inventoryMap = new Map(
+				inventoryItems.map((item) => [item.id, item]),
+			);
+
+			// Validate inventory availability for all items
+			for (const item of data.items) {
+				const inventoryItem = inventoryMap.get(item.inventoryItemId);
+
+				if (!inventoryItem) {
+					throw new Error(
+						`Inventory item ${item.inventoryItemId} not found or deleted`,
+					);
+				}
+
+				if (inventoryItem.stock < item.quantity) {
+					throw new Error(
+						`Insufficient stock for ${inventoryItem.name}. Available: ${inventoryItem.stock}, Requested: ${item.quantity}`,
+					);
+				}
 			}
 
-			if (inventoryItem.stock < item.quantity) {
-				throw new Error(
-					`Insufficient stock for ${inventoryItem.name}. Available: ${inventoryItem.stock}, Requested: ${item.quantity}`,
-				);
-			}
-		}
+			// Calculate total
+			const subtotal = data.items.reduce(
+				(sum, item) => sum + item.price * item.quantity,
+				0,
+			);
+			const discountAmount = (subtotal * data.discountRate) / 100;
+			const taxAmount = (subtotal - discountAmount) * Number(taxRate);
+			const total = subtotal - discountAmount + taxAmount;
 
-		// Calculate total
-		const subtotal = data.items.reduce(
-			(sum, item) => sum + item.price * item.quantity,
-			0,
-		);
-		const discountAmount = (subtotal * data.discountRate) / 100;
-		const taxAmount = (subtotal - discountAmount) * Number(taxRate);
-		const total = subtotal - discountAmount + taxAmount;
+			// Batch update inventory stock and create stock movements
+			await Promise.all(
+				data.items.map(async (item) => {
+					// Update inventory stock
+					await tx.inventoryItem.update({
+						where: { id: item.inventoryItemId },
+						data: {
+							stock: {
+								decrement: item.quantity,
+							},
+						},
+					});
 
-		// Deduct inventory stock for all items and create stock movements
-		for (const item of data.items) {
-			// Update inventory stock
-			await tx.inventoryItem.update({
-				where: { id: item.inventoryItemId },
+					// Create stock movement record
+					await tx.stockMovement.create({
+						data: {
+							inventoryItemId: item.inventoryItemId,
+							quantity: -item.quantity,
+							reason: "SALE_PENDING",
+							notes: `Pending Sale - Reserved stock`,
+						},
+					});
+				}),
+			);
+
+			// Create sale with PENDING status
+			const sale = await tx.sale.create({
 				data: {
-					stock: {
-						decrement: item.quantity,
+					userId: data.userId,
+					customerId: data.customerId,
+					total,
+					subTotal: subtotal,
+					taxAmount,
+					discountAmount,
+					status: SaleStatus.PENDING,
+					items: {
+						create: data.items.map((item) => ({
+							inventoryItemId: item.inventoryItemId,
+							quantity: item.quantity,
+							price: item.price,
+						})),
 					},
 				},
 			});
 
-			// Create stock movement record
-			await tx.stockMovement.create({
-				data: {
-					inventoryItemId: item.inventoryItemId,
-					quantity: -item.quantity,
-					reason: "SALE_PENDING",
-					notes: `Pending Sale - Reserved stock`,
-				},
-			});
-		}
-
-		// Create sale with PENDING status
-		const sale = await tx.sale.create({
-			data: {
-				userId: data.userId,
-				customerId: data.customerId,
-				total,
-				subTotal: subtotal,
-				taxAmount,
-				discountAmount,
-				status: SaleStatus.PENDING,
-				items: {
-					create: data.items.map((item) => ({
-						inventoryItemId: item.inventoryItemId,
-						quantity: item.quantity,
-						price: item.price,
-					})),
-				},
-			},
-		});
-
-		return sale;
-	});
+			return sale;
+		},
+		{
+			maxWait: 10000, // 10 seconds
+			timeout: 15000, // 15 seconds
+		},
+	);
 
 	return result;
 }
@@ -141,14 +157,13 @@ export async function getSaleById(
 	// Build where clause based on role
 	const whereClause: any = { id };
 
-	// CASHIER can only see their own sales
+	// Only SUPERADMIN and MANAGER can see all sales
+	// ADMIN and CASHIER can only see their own sales
 	if (
 		userId &&
 		userRoles &&
-		userRoles.includes(UserRole.CASHIER) &&
-		!userRoles.includes(UserRole.MANAGER) &&
-		!userRoles.includes(UserRole.ADMIN) &&
-		!userRoles.includes(UserRole.SUPERADMIN)
+		!userRoles.includes(UserRole.SUPERADMIN) &&
+		!userRoles.includes(UserRole.MANAGER)
 	) {
 		whereClause.userId = userId;
 	}
@@ -394,26 +409,29 @@ export async function listSales(
 	// Extract search and filter parameters
 	const searchTerm = params?.get("searchTerm");
 	const statusFilter = params?.get("status");
+	const paymentMethodFilter = params?.get("paymentMethod");
+	const startDate = params?.get("startDate");
+	const endDate = params?.get("endDate");
 
 	// Build where clause based on role
 	const whereClause: any = {};
 
-	// CASHIER can only see their own sales
+	// Only SUPERADMIN and MANAGER can see all sales
+	// ADMIN and CASHIER can only see their own sales
 	if (
 		userId &&
 		userRoles &&
-		userRoles.includes(UserRole.CASHIER) &&
-		!userRoles.includes(UserRole.MANAGER) &&
-		!userRoles.includes(UserRole.ADMIN) &&
-		!userRoles.includes(UserRole.SUPERADMIN)
+		!userRoles.includes(UserRole.SUPERADMIN) &&
+		!userRoles.includes(UserRole.MANAGER)
 	) {
 		whereClause.userId = userId;
 	}
 
-	// Apply search term with OR logic for id and paymentMethod
+	// Apply search term with OR logic for id, paymentMethod, customer name, and user name
 	if (searchTerm) {
 		const searchConditions: any[] = [];
 
+		// Search by sale ID (string field - supports contains)
 		searchConditions.push({
 			id: {
 				contains: searchTerm,
@@ -421,10 +439,37 @@ export async function listSales(
 			},
 		});
 
+		// Search by payment method (enum - use exact match)
+		const paymentMethodMatch = searchTerm.toUpperCase().replace(/\s+/g, "_");
+		const validPaymentMethods = [
+			"CASH",
+			"CARD",
+			"MOBILE_MONEY",
+			"BANK_TRANSFER",
+		];
+		if (validPaymentMethods.includes(paymentMethodMatch)) {
+			searchConditions.push({
+				paymentMethod: paymentMethodMatch,
+			});
+		}
+
+		// Search by customer name
 		searchConditions.push({
-			paymentMethod: {
-				contains: searchTerm,
-				mode: "insensitive" as const,
+			customer: {
+				name: {
+					contains: searchTerm,
+					mode: "insensitive" as const,
+				},
+			},
+		});
+
+		// Search by user (cashier) name
+		searchConditions.push({
+			user: {
+				name: {
+					contains: searchTerm,
+					mode: "insensitive" as const,
+				},
 			},
 		});
 
@@ -440,6 +485,25 @@ export async function listSales(
 	// Apply status filter with AND logic
 	if (statusFilter && statusFilter !== "all") {
 		whereClause.status = statusFilter as SaleStatus;
+	}
+
+	// Apply payment method filter
+	if (paymentMethodFilter && paymentMethodFilter !== "all") {
+		whereClause.paymentMethod = paymentMethodFilter;
+	}
+
+	// Apply date range filter
+	if (startDate || endDate) {
+		whereClause.createdAt = {};
+		if (startDate) {
+			whereClause.createdAt.gte = new Date(startDate);
+		}
+		if (endDate) {
+			// Add one day to include the entire end date
+			const endDateTime = new Date(endDate);
+			endDateTime.setDate(endDateTime.getDate() + 1);
+			whereClause.createdAt.lt = endDateTime;
+		}
 	}
 
 	const sales = await prisma.sale.findMany({

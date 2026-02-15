@@ -67,13 +67,11 @@ export async function getSalesAnalytics(
 	userId?: string,
 	userRoles?: UserRole[],
 ): Promise<SalesAnalytics> {
-	// Determine if user can see all data
+	// Determine if user can see all data - only SUPERADMIN and MANAGER
 	const canSeeAll =
-		!userId ||
-		!userRoles ||
-		userRoles.includes(UserRole.MANAGER) ||
-		userRoles.includes(UserRole.ADMIN) ||
-		userRoles.includes(UserRole.SUPERADMIN);
+		userRoles &&
+		(userRoles.includes(UserRole.MANAGER) ||
+			userRoles.includes(UserRole.SUPERADMIN));
 
 	// Build WHERE clause for role-based filtering
 	const whereClause = canSeeAll ? "" : `WHERE s."userId" = '${userId}'`;
@@ -121,13 +119,11 @@ export async function getTopSellingProducts(
 	userId?: string,
 	userRoles?: UserRole[],
 ): Promise<TopProduct[]> {
-	// Determine if user can see all data
+	// Determine if user can see all data - only SUPERADMIN and MANAGER
 	const canSeeAll =
-		!userId ||
-		!userRoles ||
-		userRoles.includes(UserRole.MANAGER) ||
-		userRoles.includes(UserRole.ADMIN) ||
-		userRoles.includes(UserRole.SUPERADMIN);
+		userRoles &&
+		(userRoles.includes(UserRole.MANAGER) ||
+			userRoles.includes(UserRole.SUPERADMIN));
 
 	// Build WHERE clause for role-based filtering
 	const whereClause = canSeeAll ? "" : `AND s."userId" = '${userId}'`;
@@ -179,13 +175,11 @@ export async function getSalesByDateRange(
 	userId?: string,
 	userRoles?: UserRole[],
 ): Promise<DailySales[]> {
-	// Determine if user can see all data
+	// Determine if user can see all data - only SUPERADMIN and MANAGER
 	const canSeeAll =
-		!userId ||
-		!userRoles ||
-		userRoles.includes(UserRole.MANAGER) ||
-		userRoles.includes(UserRole.ADMIN) ||
-		userRoles.includes(UserRole.SUPERADMIN);
+		userRoles &&
+		(userRoles.includes(UserRole.MANAGER) ||
+			userRoles.includes(UserRole.SUPERADMIN));
 
 	// Build WHERE clause for role-based filtering
 	const whereClause = canSeeAll ? "" : `AND s."userId" = '${userId}'`;
@@ -229,13 +223,11 @@ export async function getPaymentMethodBreakdown(
 	userId?: string,
 	userRoles?: UserRole[],
 ): Promise<PaymentMethodStats[]> {
-	// Determine if user can see all data
+	// Determine if user can see all data - only SUPERADMIN and MANAGER
 	const canSeeAll =
-		!userId ||
-		!userRoles ||
-		userRoles.includes(UserRole.MANAGER) ||
-		userRoles.includes(UserRole.ADMIN) ||
-		userRoles.includes(UserRole.SUPERADMIN);
+		userRoles &&
+		(userRoles.includes(UserRole.MANAGER) ||
+			userRoles.includes(UserRole.SUPERADMIN));
 
 	// Build WHERE clause for role-based filtering
 	const whereClause = canSeeAll ? "" : `AND s."userId" = '${userId}'`;
@@ -387,13 +379,23 @@ export async function getDashboardStats(
 		low_stock_count: 0,
 	};
 
-	// Determine if user can see all sales
+	// Determine if user can see all sales - only SUPERADMIN and MANAGER
 	const canSeeAll =
-		!userId ||
-		!userRoles ||
-		userRoles.includes(UserRole.MANAGER) ||
-		userRoles.includes(UserRole.ADMIN) ||
-		userRoles.includes(UserRole.SUPERADMIN);
+		userRoles &&
+		(userRoles.includes(UserRole.MANAGER) ||
+			userRoles.includes(UserRole.SUPERADMIN));
+
+	// Get daily sales for the last 7 days
+	const sevenDaysAgo = new Date();
+	sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+	const today = new Date();
+
+	const dailySalesData = await getSalesByDateRange(
+		sevenDaysAgo,
+		today,
+		userId,
+		userRoles,
+	);
 
 	// Get recent sales with proper parameterization
 	// FIX: Added quotes to camelCase columns ("createdAt", "customerId", "saleId")
@@ -463,6 +465,7 @@ export async function getDashboardStats(
 			customerName: sale.customer_name,
 			itemCount: sale.item_count,
 		})),
+		dailySales: dailySalesData,
 	};
 }
 

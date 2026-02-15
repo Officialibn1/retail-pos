@@ -8,7 +8,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
-import { canViewAllData, canViewDashboardPage } from "@/lib/auth";
+import { canViewAllData } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { SalesChart } from "@/components/analytics/sales-chart";
 import Link from "next/link";
@@ -16,12 +16,9 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, Loader2 } from "lucide-react";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function DashboardPage() {
 	const { user } = useAuth();
-	const router = useRouter();
 
 	const {
 		data: stats,
@@ -29,22 +26,14 @@ export default function DashboardPage() {
 		isError,
 		error,
 	} = useGetDashboardStatsQuery(undefined, {
-		skip: !user || user?.roles.includes("CASHIER"),
+		skip: !user,
 	});
-
-	const pathName = usePathname();
 
 	if (!user) return null;
 
 	const canSeeAllData = canViewAllData(user.roles);
-
-	useEffect(() => {
-		if (!canViewDashboardPage(user.roles) && pathName === "/dashboard") {
-			router.replace("/dashboard/sales/new");
-
-			return;
-		}
-	}, [user, pathName]);
+	const canAccessAnalytics =
+		user.roles.includes("SUPERADMIN") || user.roles.includes("MANAGER");
 
 	if (loading) {
 		return (
@@ -80,6 +69,10 @@ export default function DashboardPage() {
 		return null;
 	}
 
+	// Debug: Log the daily sales data
+	console.log("Dashboard stats:", stats);
+	console.log("Daily sales data:", stats.dailySales);
+
 	return (
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
@@ -99,15 +92,17 @@ export default function DashboardPage() {
 						className='bg-brand-main-100 text-brand-main-800'>
 						{user.roles}
 					</Badge>
-					<Button
-						asChild
-						variant='outline'
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
-						<Link href='/dashboard/analytics'>
-							<BarChart3 className='h-4 w-4 mr-2' />
-							View Analytics
-						</Link>
-					</Button>
+					{canAccessAnalytics && (
+						<Button
+							asChild
+							variant='outline'
+							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
+							<Link href='/dashboard/analytics'>
+								<BarChart3 className='h-4 w-4 mr-2' />
+								View Analytics
+							</Link>
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -236,11 +231,13 @@ export default function DashboardPage() {
 							Sales Overview
 						</CardTitle>
 						<CardDescription className='text-brand-main-600'>
-							Daily sales for the last 7 days
+							{canSeeAllData
+								? "Daily sales count for the last 7 days"
+								: "Your sales count for the last 7 days"}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className='pl-2'>
-						<SalesChart data={[]} />
+						<SalesChart data={stats.dailySales} />
 					</CardContent>
 				</Card>
 				<Card className='col-span-3 border-brand-main-200'>

@@ -45,14 +45,13 @@ export async function getActivityLogs(
 	// Build where clause based on role
 	const whereClause: any = {};
 
-	// CASHIER can only see their own activities
+	// Only SUPERADMIN and MANAGER can see all activities
+	// ADMIN and CASHIER can only see their own activities
 	if (
 		userId &&
 		userRoles &&
-		userRoles.includes(UserRole.CASHIER) &&
-		!userRoles.includes(UserRole.MANAGER) &&
-		!userRoles.includes(UserRole.ADMIN) &&
-		!userRoles.includes(UserRole.SUPERADMIN)
+		!userRoles.includes(UserRole.SUPERADMIN) &&
+		!userRoles.includes(UserRole.MANAGER)
 	) {
 		whereClause.userId = userId;
 	}

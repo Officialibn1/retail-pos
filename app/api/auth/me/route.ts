@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/middleware/auth";
 import { prisma } from "@/lib/prisma";
+import { initializeServer } from "@/lib/server-init";
+
+// Initialize server services (cron jobs, etc.)
+initializeServer();
 
 export const dynamic = "force-dynamic";
 

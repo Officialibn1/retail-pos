@@ -3,7 +3,13 @@ import { dateTimeFormatter, formatNaira } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Eye, Printer } from "lucide-react";
+import { Eye, Printer, MoreVertical } from "lucide-react";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface TableProps {
 	canSeeAll: boolean;
@@ -15,7 +21,7 @@ const getStatusBadge = (status: string) => {
 	switch (status) {
 		case "COMPLETED":
 			return (
-				<Badge className='bg-brand-main-100 text-brand-main-800 hover:bg-brand-main-100'>
+				<Badge className='bg-green-100 text-green-800 hover:bg-green-100'>
 					Completed
 				</Badge>
 			);
@@ -58,7 +64,7 @@ export const salesHistoryTableDef = ({
 						accessorKey: "user",
 						cell: ({ row }) => row.original.user?.name || "N/A",
 					},
-			  ] satisfies ColumnDef<SaleWithDetails>[])
+				] satisfies ColumnDef<SaleWithDetails>[])
 			: []),
 		{
 			header: "Order Time",
@@ -75,20 +81,47 @@ export const salesHistoryTableDef = ({
 			accessorKey: "paymentMethod",
 		},
 		{
+			header: "Subtotal",
+			accessorKey: "subTotal",
+			cell: ({ row }) => (
+				<div className='text-end w-full flex justify-end'>
+					{formatNaira(row.original.subTotal)}
+				</div>
+			),
+		},
+		{
+			header: "Tax",
+			accessorKey: "taxAmount",
+			cell: ({ row }) => (
+				<div className='text-end w-full flex justify-end'>
+					{formatNaira(row.original.taxAmount || 0)}
+				</div>
+			),
+		},
+		{
+			header: "Discount",
+			accessorKey: "discountAmount",
+			cell: ({ row }) => (
+				<div className='text-end w-full flex justify-end'>
+					{formatNaira(row.original.discountAmount || 0)}
+				</div>
+			),
+		},
+		{
+			header: "Total",
+			accessorKey: "total",
+			cell: ({ row }) => (
+				<div className='text-end w-full flex justify-end'>
+					{formatNaira(row.original.total)}
+				</div>
+			),
+		},
+		{
 			header: "Total Paid",
 			accessorKey: "amountPaid",
 			cell: ({ row }) => (
 				<div className='text-end w-full flex justify-end'>
 					{formatNaira(row.original.amountPaid)}
-				</div>
-			),
-		},
-		{
-			header: "Tax Paid",
-			accessorKey: "taxAmount",
-			cell: ({ row }) => (
-				<div className='text-end w-full flex justify-end'>
-					{formatNaira(row.original.taxAmount || 0)}
 				</div>
 			),
 		},
@@ -110,24 +143,26 @@ export const salesHistoryTableDef = ({
 			header: "Actions",
 			accessorKey: "id",
 			cell: ({ row }) => (
-				<div className='flex w-full gap-3 items-center '>
-					<Button
-						size='sm'
-						variant='ghost'
-						className='text-brand-main-600 hover:bg-brand-main-100'
-						onClick={() => handleViewSale(row.original)}>
-						<Eye className='h-4 w-4 mr-1' />
-						View
-					</Button>
-					<Button
-						size='sm'
-						variant='ghost'
-						className='text-brand-main-600 hover:bg-brand-main-100'
-						onClick={() => handlePrintReceipt(row.original)}>
-						<Printer className='h-4 w-4 mr-1' />
-						Receipt
-					</Button>
-				</div>
+				<DropdownMenu>
+					<DropdownMenuTrigger>
+						<Button
+							size='sm'
+							variant='ghost'
+							className='text-brand-main-600 hover:bg-brand-main-100'>
+							<MoreVertical className='h-4 w-4' />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align='end'>
+						<DropdownMenuItem onClick={() => handleViewSale(row.original)}>
+							<Eye className='h-4 w-4 mr-2' />
+							View Details
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => handlePrintReceipt(row.original)}>
+							<Printer className='h-4 w-4 mr-2' />
+							Print Receipt
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			),
 		},
 	];

@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Update RBAC Documentation",
+  "description": "Automatically updates RBAC.md when role or permission-related files are modified to keep documentation in sync with implementation",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lib/auth.ts",
+      "prisma/schema.prisma",
+      "app/api/*/route.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the changes made to role and permission logic. Update the RBAC.md document to reflect any changes in user roles, permissions, or access control rules. Ensure the documentation accurately describes the current implementation."
+  }
+}

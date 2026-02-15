@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -26,23 +25,41 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Search, Receipt, Plus, Loader2 } from "lucide-react";
+import {
+	Search,
+	Receipt,
+	Plus,
+	Loader2,
+	Download,
+	Calendar as CalendarIcon,
+} from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { canViewAllData } from "@/lib/auth";
 import { ReceiptPrintDialog } from "@/components/receipts/receipt-print-dialog";
 import Link from "next/link";
 import { useGetSalesQuery } from "@/lib/store/api";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, cn } from "@/lib/utils";
 import { SaleWithDetails } from "@/lib/services/sale.service";
 import DataTable from "@/components/dashboard/data-table";
 import { salesHistoryTableDef } from "@/components/sales-history/sales-history-table-def";
 import { useDebounce } from "@/hooks/use-debounce";
+import { exportSales } from "@/lib/export-utils";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
 export default function SalesHistoryPage() {
 	const { user } = useAuth();
 	const [searchTerm, setSearchTerm] = useState("");
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 	const [statusFilter, setStatusFilter] = useState("all");
+	const [paymentMethodFilter, setPaymentMethodFilter] = useState("all");
+	const [dateRange, setDateRange] = useState<DateRange | undefined>();
 	const [showReceipt, setShowReceipt] = useState(false);
 	const [selectedSale, setSelectedSale] = useState<SaleWithDetails>();
 	const [showSaleDetails, setShowSaleDetails] = useState(false);
@@ -59,6 +76,12 @@ export default function SalesHistoryPage() {
 		{
 			searchTerm: debouncedSearchTerm || undefined,
 			status: statusFilter !== "all" ? statusFilter : undefined,
+			paymentMethod:
+				paymentMethodFilter !== "all" ? paymentMethodFilter : undefined,
+			startDate: dateRange?.from
+				? format(dateRange.from, "yyyy-MM-dd")
+				: undefined,
+			endDate: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
 		},
 		{
 			skip: !user,
@@ -87,6 +110,23 @@ export default function SalesHistoryPage() {
 		setSelectedSale(sale);
 		setShowReceipt(true);
 	};
+
+	const handleExport = () => {
+		exportSales(sales);
+	};
+
+	const handleClearFilters = () => {
+		setSearchTerm("");
+		setStatusFilter("all");
+		setPaymentMethodFilter("all");
+		setDateRange(undefined);
+	};
+
+	const hasActiveFilters =
+		searchTerm ||
+		statusFilter !== "all" ||
+		paymentMethodFilter !== "all" ||
+		dateRange;
 
 	if (loading) {
 		return (
@@ -190,35 +230,112 @@ export default function SalesHistoryPage() {
 
 			<Card className='border-brand-main-200'>
 				<CardHeader>
-					<div className='flex gap-4'>
-						<div className='relative flex-1'>
-							{isFetching ? (
-								<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
-							) : (
-								<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
-							)}
-							<Input
-								placeholder='Search sales...'
-								value={searchTerm}
-								disabled={loading || isFetching}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className='pl-8 border-brand-main-200 focus:border-brand-main-400 disabled:cursor-not-allowed'
-							/>
+					<div className='space-y-4'>
+						<div className='flex gap-4'>
+							<div className='relative flex-1'>
+								{isFetching ? (
+									<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+								) : (
+									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+								)}
+								<Input
+									placeholder='Search by ID, customer, cashier...'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className='pl-8 border-brand-main-200 focus:border-brand-main-400 disabled:cursor-not-allowed'
+								/>
+							</div>
+							<Button
+								onClick={handleExport}
+								disabled={loading || isFetching || sales.length === 0}
+								variant='outline'
+								className='border-brand-main-200 hover:bg-brand-main-50'>
+								<Download className='h-4 w-4 mr-2' />
+								Export CSV
+							</Button>
 						</div>
-						<Select
-							value={statusFilter}
-							onValueChange={setStatusFilter}
-							disabled={loading || isFetching}>
-							<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
-								<SelectValue placeholder='All Status' />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='all'>All Status</SelectItem>
-								<SelectItem value='COMPLETED'>Completed</SelectItem>
-								<SelectItem value='PENDING'>Pending</SelectItem>
-								<SelectItem value='CANCELLED'>Cancelled</SelectItem>
-							</SelectContent>
-						</Select>
+
+						<div className='flex gap-4 flex-wrap'>
+							<Select
+								value={statusFilter}
+								onValueChange={setStatusFilter}
+								disabled={loading || isFetching}>
+								<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+									<SelectValue placeholder='All Status' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Status</SelectItem>
+									<SelectItem value='COMPLETED'>Completed</SelectItem>
+									<SelectItem value='PENDING'>Pending</SelectItem>
+									<SelectItem value='CANCELLED'>Cancelled</SelectItem>
+								</SelectContent>
+							</Select>
+
+							<Select
+								value={paymentMethodFilter}
+								onValueChange={setPaymentMethodFilter}
+								disabled={loading || isFetching}>
+								<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+									<SelectValue placeholder='All Payment Methods' />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='all'>All Payment Methods</SelectItem>
+									<SelectItem value='CASH'>Cash</SelectItem>
+									<SelectItem value='CARD'>Card</SelectItem>
+									<SelectItem value='MOBILE_MONEY'>Mobile Money</SelectItem>
+									<SelectItem value='BANK_TRANSFER'>Bank Transfer</SelectItem>
+								</SelectContent>
+							</Select>
+
+							<Popover>
+								<PopoverTrigger className='bg-white'>
+									<Button
+										variant='outline'
+										className={cn(
+											"w-64 justify-start text-left border-brand-main-200 hover:bg-brand-main-50 bg-white ",
+											!dateRange && "text-muted-foreground",
+										)}
+										disabled={loading || isFetching}>
+										<CalendarIcon className='mr-2 h-4 w-4' />
+										{dateRange?.from ? (
+											dateRange.to ? (
+												<>
+													{format(dateRange.from, "LLL dd, y")} -{" "}
+													{format(dateRange.to, "LLL dd, y")}
+												</>
+											) : (
+												format(dateRange.from, "LLL dd, y")
+											)
+										) : (
+											<span>Pick a date range</span>
+										)}
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent
+									className='w-auto p-0'
+									align='start'>
+									<Calendar
+										mode='range'
+										defaultMonth={dateRange?.from}
+										selected={dateRange}
+										onSelect={setDateRange}
+										numberOfMonths={2}
+										disabled={(date) =>
+											date > new Date() || date < new Date("1900-01-01")
+										}
+									/>
+								</PopoverContent>
+							</Popover>
+
+							{hasActiveFilters && (
+								<Button
+									variant='ghost'
+									onClick={handleClearFilters}
+									className='text-brand-main-600 hover:text-brand-main-700 hover:bg-brand-main-50'>
+									Clear All Filters
+								</Button>
+							)}
+						</div>
 					</div>
 				</CardHeader>
 				<CardContent>

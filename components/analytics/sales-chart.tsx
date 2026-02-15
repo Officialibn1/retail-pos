@@ -28,8 +28,19 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function SalesChart({ data }: SalesChartProps) {
+	// Show message if no data
+	if (!data || data.length === 0) {
+		return (
+			<div className='flex items-center justify-center h-[300px] text-sm text-muted-foreground'>
+				No sales data available for the last 7 days
+			</div>
+		);
+	}
+
 	return (
-		<ChartContainer config={chartConfig}>
+		<ChartContainer
+			config={chartConfig}
+			className='h-[300px]'>
 			<BarChart data={data}>
 				<CartesianGrid strokeDasharray='3 3' />
 				<XAxis

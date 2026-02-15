@@ -102,6 +102,28 @@ const exportToCSV = (data: any[], filename: string) => {
 
 export default function AnalyticsPage() {
 	const { user } = useAuth();
+
+	// Check if user has access to analytics page (only SUPERADMIN and MANAGER)
+	const canAccessAnalytics =
+		user?.roles.includes("SUPERADMIN") || user?.roles.includes("MANAGER");
+
+	// Redirect unauthorized users
+	if (user && !canAccessAnalytics) {
+		return (
+			<div className='flex items-center justify-center h-screen'>
+				<div className='text-center space-y-4'>
+					<h1 className='text-2xl font-bold text-red-600'>Access Denied</h1>
+					<p className='text-gray-600'>
+						You do not have permission to access the analytics page.
+					</p>
+					<Button asChild>
+						<a href='/dashboard'>Go to Dashboard</a>
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
 	const [activeTab, setActiveTab] = useState("overview");
 	const [dateRange, setDateRange] = useState<{
 		from: Date;

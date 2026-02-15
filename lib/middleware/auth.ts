@@ -143,9 +143,26 @@ export function requireSuperAdmin() {
 
 /**
  * Helper function to check if user has MANAGER or higher role
+ * Note: This now excludes ADMIN as per new permission structure
  */
 export function requireManager() {
-	return requireRoles([UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.MANAGER]);
+	return requireRoles([UserRole.SUPERADMIN, UserRole.MANAGER]);
+}
+
+/**
+ * Helper function to check if user can manage categories
+ * SUPERADMIN, MANAGER, and ADMIN can manage categories
+ */
+export function requireCategoryManager() {
+	return requireRoles([UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.ADMIN]);
+}
+
+/**
+ * Helper function to check if user can manage customers (full CRUD)
+ * SUPERADMIN, MANAGER, and ADMIN can manage customers
+ */
+export function requireCustomerManager() {
+	return requireRoles([UserRole.SUPERADMIN, UserRole.MANAGER, UserRole.ADMIN]);
 }
 
 /**

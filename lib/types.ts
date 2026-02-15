@@ -57,6 +57,11 @@ export interface DashboardStats {
 		customerName: string | null;
 		itemCount: number;
 	}>;
+	dailySales: Array<{
+		date: string;
+		sales: number;
+		revenue: number;
+	}>;
 }
 
 // ============================================================================

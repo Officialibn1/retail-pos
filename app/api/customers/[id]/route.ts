@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/middleware/auth";
+import { requireAuth, requireCustomerManager } from "@/lib/middleware/auth";
 import { customerSchema } from "@/lib/validations/customer.schema";
 import {
 	getCustomerById,
@@ -60,7 +60,7 @@ export async function GET(
 
 /**
  * PUT /api/customers/[id]
- * Update customer
+ * Update customer (SUPERADMIN, MANAGER, ADMIN only)
  */
 export async function PUT(
 	request: NextRequest,
@@ -71,6 +71,12 @@ export async function PUT(
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
 			return authResult;
+		}
+
+		// Check customer management permission
+		const roleCheck = requireCustomerManager()(authResult.request);
+		if (roleCheck) {
+			return roleCheck;
 		}
 
 		// Parse and validate request body
@@ -144,7 +150,7 @@ export async function PUT(
 
 /**
  * DELETE /api/customers/[id]
- * Delete customer (only if no associated sales)
+ * Delete customer (SUPERADMIN, MANAGER, ADMIN only - only if no associated sales)
  */
 export async function DELETE(
 	request: NextRequest,
@@ -155,6 +161,12 @@ export async function DELETE(
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
 			return authResult;
+		}
+
+		// Check customer management permission
+		const roleCheck = requireCustomerManager()(authResult.request);
+		if (roleCheck) {
+			return roleCheck;
 		}
 
 		// Delete customer
