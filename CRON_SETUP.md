@@ -16,6 +16,9 @@ Add these to your `.env` or `.env.local` file:
 # Set to "true" if your store operates 24/7 (disables auto-cancel)
 OPEN_IN_MIDNIGHT=false
 
+# Optional: Completely disable cron jobs (useful for debugging or specific deployments)
+DISABLE_CRON=false
+
 # Optional: Set your timezone (defaults to UTC if not set)
 # Examples: America/New_York, Europe/London, Asia/Tokyo, Africa/Lagos
 TZ=UTC
@@ -23,13 +26,15 @@ TZ=UTC
 
 ## How It Works
 
-1. **Automatic Initialization**: The cron job starts automatically when your application starts
-2. **Environment Check**: Checks the `OPEN_IN_MIDNIGHT` variable
+1. **Build-Time Safety**: The cron job is automatically skipped during build phase to prevent deployment errors
+2. **Automatic Initialization**: The cron job starts automatically when your application starts (after build)
+3. **Environment Check**: Checks the `OPEN_IN_MIDNIGHT` variable
    - If `true`: Store operates 24/7, no orders are cancelled
    - If `false` or not set: Orders are cancelled at midnight
-3. **Execution**: At 23:59:59 daily (in your configured timezone), all orders with status `PENDING` are changed to `CANCELLED`
-4. **Logging**: The system logs the cancellation activity for audit purposes
-5. **In-Process**: Runs within your Node.js application, no external services needed
+4. **Execution**: At 23:59:59 daily (in your configured timezone), all orders with status `PENDING` are changed to `CANCELLED`
+5. **Logging**: The system logs the cancellation activity with all cancelled order IDs for audit purposes
+6. **In-Process**: Runs within your Node.js application, no external services needed
+7. **Automated User**: Uses a system user (`automated_tasks@pos_store.com`) for activity logging
 
 ## Setup Instructions
 
@@ -61,12 +66,20 @@ pnpm start
 You should see console output like:
 
 ```
+🔧 Initializing server services...
 🚀 Initializing cron jobs...
 ⏰ Initializing auto-cancel pending orders cron job...
 📅 Schedule: Daily at 23:59:59
 ✅ Auto-cancel pending orders cron job initialized
 🌍 Timezone: Africa/Lagos
 ✅ All cron jobs initialized
+✅ Server services initialized
+```
+
+During build phase, you'll see:
+
+```
+⏭️  Skipping server initialization during build phase
 ```
 
 ### 3. That's It!
@@ -146,16 +159,32 @@ Or if no orders:
 
 ## Disabling Auto-Cancel
 
+### For 24/7 Stores
+
 To disable automatic cancellation (for 24/7 stores):
 
 ```bash
 OPEN_IN_MIDNIGHT=true
 ```
 
-Console output will sh
+Console output will show:
 
 ```
 🏪 Store operates 24/7 - Auto-cancel pending orders is DISABLED
+```
+
+### Completely Disable Cron Jobs
+
+To completely disable all cron jobs (useful for debugging or specific deployments):
+
+```bash
+DISABLE_CRON=true
+```
+
+Console output will show:
+
+```
+⏭️  Cron jobs disabled via DISABLE_CRON environment variable
 ```
 
 ## Deployment Platforms
@@ -201,11 +230,16 @@ Set environment variables in your platform's configuration:
 - Google Cloud Run: Environment Variables
 - Azure App Service: Application Settings
 
-### Vercel / Netlify
+### Vercel / Netlify / Other Serverless Platforms
 
 Works on these platforms too! The cron job runs in-process, so it works anywhere Node.js runs.
 
-s when the server is active. For guaranteed execution, consider using the platform's native cron features or keep a server instance running.
+**Important Notes:**
+
+- The build phase automatically skips cron initialization to prevent build errors
+- Cron jobs run when the server is active
+- For serverless platforms with cold starts, consider using the platform's native cron features for guaranteed execution
+- On Vercel, you can use Vercel Cron (vercel.json) as an alternative if needed
 
 ## Monitoring
 

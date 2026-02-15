@@ -14,11 +14,43 @@ export function initializeServer() {
 		return;
 	}
 
+	// Skip initialization during build phase
+	// Next.js sets NEXT_PHASE during build
+	const isBuildTime =
+		process.env.NEXT_PHASE === "phase-production-build" ||
+		process.env.NEXT_PHASE === "phase-export";
+
+	if (isBuildTime) {
+		console.log("⏭️  Skipping server initialization during build phase");
+		return;
+	}
+
+	// Allow disabling cron jobs via environment variable
+	const cronDisabled = process.env.DISABLE_CRON === "true";
+
+	if (cronDisabled) {
+		console.log("⏭️  Cron jobs disabled via DISABLE_CRON environment variable");
+		initialized = true;
+		return;
+	}
+
 	console.log("🔧 Initializing server services...");
 
-	// Initialize cron jobs
-	initializeCronJobs();
+	try {
+		// Initialize cron jobs
+		initializeCronJobs();
 
-	initialized = true;
-	console.log("✅ Server services initialized");
+		initialized = true;
+		console.log("✅ Server services initialized");
+	} catch (error: any) {
+		console.error("❌ Error initializing server services:", error);
+		console.error("Error details:", error.message);
+
+		// Mark as initialized to prevent retry loops
+		// The app should continue to work even if cron fails
+		initialized = true;
+		console.log(
+			"⚠️  Server services initialization failed, but app will continue",
+		);
+	}
 }

@@ -72,6 +72,15 @@ export function initializeCancelPendingOrdersCron() {
 	// Format: second minute hour day month weekday
 	const cronSchedule = "59 59 23 * * *";
 
+	// Get timezone, default to UTC if not set or invalid
+	let timezone = process.env.TZ?.trim() || "UTC";
+
+	// Validate timezone - if it's empty or just ":", default to UTC
+	if (!timezone || timezone === ":" || timezone.startsWith(":")) {
+		console.log("⚠️  Invalid timezone detected, using UTC");
+		timezone = "UTC";
+	}
+
 	cron.schedule(
 		cronSchedule,
 		async () => {
@@ -165,10 +174,10 @@ export function initializeCancelPendingOrdersCron() {
 			}
 		},
 		{
-			timezone: process.env.TZ || "UTC", // Use system timezone or UTC
+			timezone: timezone,
 		},
 	);
 
 	console.log("✅ Auto-cancel pending orders cron job initialized");
-	console.log(`🌍 Timezone: ${process.env.TZ || "UTC"}`);
+	console.log(`🌍 Timezone: ${timezone}`);
 }
