@@ -109,7 +109,7 @@ export function CategoryRevenueChart({
 		if (active && payload && payload.length) {
 			const data = payload[0].payload;
 			return (
-				<div className='bg-white p-3 border rounded-lg shadow-lg'>
+				<div className='bg-brand-main-50 p-3 border rounded-lg shadow-lg'>
 					<p className='font-semibold text-sm mb-2'>{data.name}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
@@ -125,9 +125,9 @@ export function CategoryRevenueChart({
 							{data.totalSalesCount.toLocaleString()}
 						</p>
 					</div>
-					{onCategoryClick && (
+					{/* {onCategoryClick && (
 						<p className='text-xs text-blue-600 mt-2'>Click to view details</p>
-					)}
+					)} */}
 				</div>
 			);
 		}

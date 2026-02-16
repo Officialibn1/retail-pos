@@ -1,6 +1,13 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	LabelList,
+} from "recharts";
 import {
 	ChartContainer,
 	ChartTooltip,
@@ -40,7 +47,7 @@ export function SalesChart({ data }: SalesChartProps) {
 	return (
 		<ChartContainer
 			config={chartConfig}
-			className='h-[300px]'>
+			className='min-h-[300px] h-full'>
 			<BarChart data={data}>
 				<CartesianGrid strokeDasharray='3 3' />
 				<XAxis
@@ -59,8 +66,14 @@ export function SalesChart({ data }: SalesChartProps) {
 				<Bar
 					dataKey='sales'
 					fill='var(--color-brand-main-600)'
-					radius={[4, 4, 0, 0]}
-				/>
+					radius={[4, 4, 0, 0]}>
+					<LabelList
+						position='top'
+						offset={12}
+						className='fill-brand-main-600'
+						fontSize={12}
+					/>
+				</Bar>
 			</BarChart>
 		</ChartContainer>
 	);

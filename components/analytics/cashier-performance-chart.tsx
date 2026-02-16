@@ -50,7 +50,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
 		return (
-			<div className='bg-white p-3 border rounded-lg shadow-lg'>
+			<div className='bg-brand-main-50 p-3 border rounded-lg shadow-lg'>
 				<p className='font-semibold'>{data.fullName}</p>
 				<p className='text-sm'>Revenue: ₦{formatCurrency(data.totalRevenue)}</p>
 				<p className='text-sm'>Transactions: {data.transactionCount}</p>

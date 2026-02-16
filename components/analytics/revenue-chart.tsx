@@ -1,6 +1,13 @@
 "use client";
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	LabelList,
+} from "recharts";
 import {
 	ChartContainer,
 	ChartTooltip,
@@ -53,8 +60,8 @@ export function RevenueChart({ data }: RevenueChartProps) {
 					<ChartTooltip
 						content={<ChartTooltipContent />}
 						formatter={(value) => [
+							"Revenue: ",
 							`₦${formatCurrency(Number(value))}`,
-							"Revenue",
 						]}
 					/>
 					<Line

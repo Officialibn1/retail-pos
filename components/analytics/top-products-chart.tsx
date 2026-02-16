@@ -78,7 +78,7 @@ export function TopProductsChart({
 		if (active && payload && payload.length) {
 			const data = payload[0].payload;
 			return (
-				<div className='bg-white p-3 border rounded-lg shadow-lg'>
+				<div className='bg-brand-main-50 p-3 border rounded-lg shadow-lg'>
 					<p className='font-semibold text-sm'>{data.fullName}</p>
 					<p className='text-xs text-gray-600 mb-2'>SKU: {data.sku}</p>
 					<p className='text-xs text-gray-600 mb-2'>
@@ -98,9 +98,9 @@ export function TopProductsChart({
 							{formatCurrency(data.averageSellingPrice)}
 						</p>
 					</div>
-					{onProductClick && (
+					{/* {onProductClick && (
 						<p className='text-xs text-blue-600 mt-2'>Click to view details</p>
-					)}
+					)} */}
 				</div>
 			);
 		}

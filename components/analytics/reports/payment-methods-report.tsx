@@ -8,7 +8,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, CreditCard } from "lucide-react";
 import { PaymentMethodChart } from "@/components/analytics/payment-methods-chart";
@@ -44,10 +43,10 @@ export function PaymentMethodsReport({
 	} = useGetPaymentMethodsQuery();
 
 	// Use enhanced data if available, otherwise fallback to legacy
-	const isLoading =
-		enhancedQuery.isLoading || (enhancedQuery.error && isLegacyLoading);
-	const isFetching =
-		enhancedQuery.isFetching || (enhancedQuery.error && isLegacyFetching);
+	const isLoading = (enhancedQuery.isLoading ||
+		(enhancedQuery.error && isLegacyLoading))!;
+	const isFetching = (enhancedQuery.isFetching ||
+		(enhancedQuery.error && isLegacyFetching))!;
 	const isError = enhancedQuery.isError && isLegacyError;
 	const error = enhancedQuery.error || legacyError;
 	const hasData = enhancedQuery.data || legacyPaymentMethods.length > 0;

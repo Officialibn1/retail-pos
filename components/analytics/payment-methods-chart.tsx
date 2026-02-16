@@ -8,6 +8,7 @@ import {
 	YAxis,
 	CartesianGrid,
 	ResponsiveContainer,
+	LabelList,
 } from "recharts";
 import {
 	ChartContainer,
@@ -155,7 +156,7 @@ export function PaymentMethodChart({
 		if (active && payload && payload.length) {
 			const data = payload[0].payload;
 			return (
-				<div className='bg-white p-3 border rounded-lg shadow-lg'>
+				<div className='bg-brand-main-50 p-3 border rounded-lg shadow-lg'>
 					<p className='font-semibold text-sm mb-2'>{label}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
@@ -175,9 +176,9 @@ export function PaymentMethodChart({
 							{formatCurrency(data.totalAmount / data.transactionCount)}
 						</p>
 					</div>
-					{onPaymentMethodClick && (
+					{/* {onPaymentMethodClick && (
 						<p className='text-xs text-blue-600 mt-2'>Click to view details</p>
-					)}
+					)} */}
 				</div>
 			);
 		}
@@ -360,8 +361,17 @@ export function PaymentMethodChart({
 										fill='var(--color-brand-main-600)'
 										radius={[4, 4, 0, 0]}
 										onClick={handleBarClick}
-										className='cursor-pointer hover:opacity-80'
-									/>
+										className='cursor-pointer hover:opacity-80'>
+										<LabelList
+											position='top'
+											offset={12}
+											className='fill-brand-main-600'
+											fontSize={12}
+											formatter={(value) =>
+												`₦${formatCurrency(value as unknown as number)}`
+											}
+										/>
+									</Bar>
 								</BarChart>
 							</ResponsiveContainer>
 						</ChartContainer>
