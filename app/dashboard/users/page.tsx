@@ -216,9 +216,9 @@ export default function UsersPage() {
 
 		try {
 			await deleteUser(selectedUser.id).unwrap();
+			toast.success("User deleted successfully");
 			setShowDeleteDialog(false);
 			setSelectedUser(null);
-			toast.success("User deleted successfully");
 		} catch (err: any) {
 			console.error("Failed to delete user:", err);
 			const errorMessage =
@@ -226,6 +226,7 @@ export default function UsersPage() {
 				err?.data?.message ||
 				"Failed to delete user";
 			toast.error(errorMessage);
+			// Don't close dialog on error so user can retry or cancel
 		}
 	};
 
@@ -412,10 +413,20 @@ export default function UsersPage() {
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction
-							onClick={confirmDelete}
+							onClick={(e) => {
+								e.preventDefault();
+								confirmDelete();
+							}}
 							disabled={isDeleting}
 							className='bg-red-600 hover:bg-red-700 text-white'>
-							{isDeleting ? <Spinner className='h-4 w-4' /> : "Delete"}
+							{isDeleting ? (
+								<>
+									<Spinner className='h-4 w-4' />
+									Deleting...
+								</>
+							) : (
+								"Delete"
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

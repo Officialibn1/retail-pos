@@ -351,6 +351,10 @@ All API routes follow a consistent protection pattern using authentication, role
 
 - `GET /api/users` - SUPERADMIN only, ACTIVE or SUSPENDED users
 - `POST /api/users` - SUPERADMIN only, **ACTIVE users only** (mutation protected with `requireActiveMutation`)
+  - Automatically generates a secure random password (12 characters)
+  - Sends welcome email with login credentials to the new user
+  - Returns the temporary password in the API response for admin reference
+  - Response message: "User created successfully. Login credentials have been sent to the user's email."
 - `GET /api/users/:id` - SUPERADMIN only, ACTIVE or SUSPENDED users
 - `PUT /api/users/:id` - SUPERADMIN only, **ACTIVE users only** (mutation protected)
 - `DELETE /api/users/:id` - SUPERADMIN only, **ACTIVE users only** (mutation protected)
@@ -431,6 +435,9 @@ The system uses cookie-based JWT authentication:
 7. **Middleware Protection**: API routes use middleware to enforce permissions before processing
 8. **Layered Security**: Three layers of protection (authentication → role → status) ensure comprehensive access control
 9. **HTTP-Only Cookies**: Authentication tokens are stored in HTTP-only cookies to prevent XSS attacks
+10. **Secure Password Generation**: New user accounts are created with randomly generated 12-character passwords
+11. **Email Notification**: Login credentials are automatically sent to new users via email
+12. **Admin Password Access**: Temporary passwords are included in the API response for admin reference and backup
 
 ## Testing RBAC
 

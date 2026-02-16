@@ -1,61 +1,16 @@
+// Cron job to cancel pending orders at midnight using node-cron
+
 import cron from "node-cron";
 import { prisma } from "@/lib/prisma";
 import { SaleStatus, UserRole } from "@/generated/prisma/client";
-import bcrypt from "bcryptjs";
+import { sendCanceledOrdersEmail } from "@/lib/email";
+import { logActivity } from "@/lib/services/activity-log.service";
 
 /**
- * Get or create the automated tasks user
- * This user is used for system-generated activities like cron jobs
- */
-async function getOrCreateAutomatedUser() {
-	const automatedEmail = "automated_tasks@pos_store.com";
-
-	// Try to find existing automated user
-	let automatedUser = await prisma.user.findUnique({
-		where: { email: automatedEmail },
-	});
-
-	// Create if doesn't exist
-	if (!automatedUser) {
-		console.log("Creating automated tasks user...");
-
-		// Generate a long random password (64 characters)
-		const randomPassword = Array.from(
-			{ length: 64 },
-			() =>
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*"[
-					Math.floor(Math.random() * 70)
-				],
-		).join("");
-
-		const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
-		automatedUser = await prisma.user.create({
-			data: {
-				email: automatedEmail,
-				username: "automated_tasks",
-				name: "Automated Tasks System",
-				password: hashedPassword,
-				roles: [UserRole.SUPERADMIN], // Give SUPERADMIN role for system tasks
-			},
-		});
-
-		console.log("✅ Automated tasks user created");
-	}
-
-	return automatedUser;
-}
-
-/**
- * Cron job to automatically cancel pending orders at midnight
- *
- * Schedule: Runs at 23:59:59 every day
- * Condition: Only runs if OPEN_IN_MIDNIGHT is not set to "true"
- *
- * This runs in-process and works on any hosting platform (VPS, dedicated server, etc.)
+ * Initialize the cron job to cancel pending orders at midnight
+ * Runs at 23:59:59 daily
  */
 export function initializeCancelPendingOrdersCron() {
-	// Check if cron should be enabled
 	const openInMidnight = process.env.OPEN_IN_MIDNIGHT === "true";
 
 	if (openInMidnight) {
@@ -68,116 +23,157 @@ export function initializeCancelPendingOrdersCron() {
 	console.log("⏰ Initializing auto-cancel pending orders cron job...");
 	console.log("📅 Schedule: Daily at 23:59:59");
 
-	// Schedule: Run at 23:59:59 every day
-	// Format: second minute hour day month weekday
+	// Schedule: second minute hour day month weekday
+	// 59 59 23 * * * = 23:59:59 every day
 	const cronSchedule = "59 59 23 * * *";
 
-	// Get timezone, default to UTC if not set or invalid
-	let timezone = process.env.TZ?.trim() || "UTC";
-
-	// Validate timezone - if it's empty or just ":", default to UTC
-	if (!timezone || timezone === ":" || timezone.startsWith(":")) {
-		console.log("⚠️  Invalid timezone detected, using UTC");
-		timezone = "UTC";
-	}
-
-	cron.schedule(
-		cronSchedule,
-		async () => {
-			try {
-				console.log("🔄 Running auto-cancel pending orders job...");
-
-				// Double-check the environment variable at runtime
-				const openInMidnight = process.env.OPEN_IN_MIDNIGHT === "true";
-				if (openInMidnight) {
-					console.log("⏭️  Store operates 24/7, skipping cancellation");
-					return;
-				}
-
-				// Get or create automated user
-				const automatedUser = await getOrCreateAutomatedUser();
-
-				// Get all pending orders
-				const pendingOrders = await prisma.sale.findMany({
-					where: {
-						status: SaleStatus.PENDING,
-					},
-					select: {
-						id: true,
-						total: true,
-						createdAt: true,
-						userId: true,
-					},
-				});
-
-				if (pendingOrders.length === 0) {
-					console.log("✅ No pending orders to cancel");
-					return;
-				}
-
-				console.log(
-					`📋 Found ${pendingOrders.length} pending orders to cancel`,
-				);
-
-				// Cancel all pending orders
-				const result = await prisma.sale.updateMany({
-					where: {
-						status: SaleStatus.PENDING,
-					},
-					data: {
-						status: SaleStatus.CANCELLED,
-						updatedAt: new Date(),
-					},
-				});
-
-				console.log(`✅ Successfully cancelled ${result.count} pending orders`);
-
-				// Create detailed message with all order IDs
-				const orderIdsList = pendingOrders.map((o) => o.id).join(", ");
-				const detailsMessage = `Automatically cancelled ${result.count} pending order(s) at midnight. Order IDs: ${orderIdsList}. Timestamp: ${new Date().toISOString()}`;
-
-				// Log the activity
-				await prisma.activityLog.create({
-					data: {
-						userId: automatedUser.id,
-						action: "SYSTEM_AUTO_CANCEL_PENDING_ORDERS",
-						details: detailsMessage,
-						ipAddress: "127.0.0.1", // System/localhost
-						userAgent: "Cron Job - Auto Cancel Pending Orders",
-					},
-				});
-
-				console.log("📝 Activity logged successfully");
-				console.log(`📄 Cancelled order IDs: ${orderIdsList}`);
-			} catch (error: any) {
-				console.error(
-					"❌ Error in auto-cancel pending orders cron job:",
-					error,
-				);
-				console.error("Error details:", error.message);
-
-				// Try to log the error
-				try {
-					const automatedUser = await getOrCreateAutomatedUser();
-					await prisma.activityLog.create({
-						data: {
-							userId: automatedUser.id,
-							action: "SYSTEM_AUTO_CANCEL_ERROR",
-							details: `Error during auto-cancel pending orders: ${error.message}. Timestamp: ${new Date().toISOString()}`,
-							ipAddress: "127.0.0.1",
-							userAgent: "Cron Job - Auto Cancel Pending Orders",
-						},
-					});
-				} catch (logError) {
-					console.error("Failed to log error:", logError);
-				}
-			}
-		},
-		{
-			timezone: timezone,
-		},
-	);
+	cron.schedule(cronSchedule, async () => {
+		await cancelPendingOrdersJob();
+	});
 
 	console.log("✅ Auto-cancel pending orders cron job initialized");
-	console.log(`🌍 Timezone: ${timezone}`);
+	console.log(`🌍 Timezone: ${process.env.TZ || "UTC"}`);
+}
+
+/**
+ * The actual job that cancels pending orders
+ */
+async function cancelPendingOrdersJob() {
+	try {
+		console.log("🔄 Running auto-cancel pending orders job...");
+
+		// Get all pending sales
+		const pendingSales = await prisma.sale.findMany({
+			where: {
+				status: SaleStatus.PENDING,
+			},
+			include: {
+				items: true,
+				customer: {
+					select: {
+						name: true,
+					},
+				},
+			},
+		});
+
+		if (pendingSales.length === 0) {
+			console.log("✅ No pending orders to cancel");
+			return;
+		}
+
+		console.log(`📋 Found ${pendingSales.length} pending orders to cancel`);
+
+		// Cancel each sale and restore stock
+		const canceledOrders = [];
+
+		for (const sale of pendingSales) {
+			try {
+				await prisma.$transaction(async (tx) => {
+					// Restore inventory stock for all items
+					for (const item of sale.items) {
+						await tx.inventoryItem.update({
+							where: { id: item.inventoryItemId },
+							data: {
+								stock: {
+									increment: item.quantity,
+								},
+							},
+						});
+
+						// Create stock movement record
+						await tx.stockMovement.create({
+							data: {
+								inventoryItemId: item.inventoryItemId,
+								quantity: item.quantity,
+								reason: "SALE_CANCELLED",
+								notes: `Sale ID: ${sale.id} - Auto-cancelled at midnight`,
+							},
+						});
+					}
+
+					// Update sale status to CANCELLED
+					await tx.sale.update({
+						where: { id: sale.id },
+						data: {
+							status: SaleStatus.CANCELLED,
+							cancelledAt: new Date(),
+						},
+					});
+				});
+
+				canceledOrders.push({
+					id: sale.id,
+					customerName: sale.customer?.name || undefined,
+					total: Number(sale.total),
+					createdAt: sale.createdAt,
+				});
+			} catch (error) {
+				console.error(`❌ Failed to cancel sale ${sale.id}:`, error);
+			}
+		}
+
+		console.log(
+			`✅ Successfully cancelled ${canceledOrders.length} pending orders`,
+		);
+
+		// Log activity
+		try {
+			const systemUser = await prisma.user.findUnique({
+				where: { email: "automated_tasks@pos_store.com" },
+			});
+
+			if (systemUser) {
+				await logActivity(
+					systemUser.id,
+					"SYSTEM_AUTO_CANCEL",
+					`Automatically cancelled ${canceledOrders.length} pending orders at midnight`,
+					"system",
+				);
+				console.log("📝 Activity logged successfully");
+			}
+		} catch (logError) {
+			console.error("⚠️  Failed to log activity:", logError);
+		}
+
+		// Send email notification to SUPERADMIN and MANAGER users
+		if (canceledOrders.length > 0) {
+			try {
+				const admins = await prisma.user.findMany({
+					where: {
+						roles: {
+							hasSome: [UserRole.SUPERADMIN, UserRole.MANAGER],
+						},
+					},
+					select: {
+						email: true,
+					},
+				});
+
+				const adminEmails = admins.map((admin) => admin.email);
+
+				if (adminEmails.length > 0) {
+					const totalAmount = canceledOrders.reduce(
+						(sum, order) => sum + order.total,
+						0,
+					);
+
+					await sendCanceledOrdersEmail(adminEmails, {
+						canceledOrders,
+						totalAmount,
+						date: new Date(),
+					});
+
+					console.log(
+						`📧 Sent notification email to ${adminEmails.length} admin(s)`,
+					);
+				}
+			} catch (emailError) {
+				console.error("⚠️  Failed to send notification email:", emailError);
+				// Don't fail the job if email fails
+			}
+		}
+	} catch (error) {
+		console.error("❌ Error in cancelPendingOrdersJob:", error);
+	}
 }

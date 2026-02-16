@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { UserStatus, UserRole } from "@/generated/prisma/client";
+import { sendUserStatusEmail } from "@/lib/email";
 
 /**
  * Get user status by user ID
@@ -62,8 +63,23 @@ export async function updateUserStatus(
 		select: {
 			id: true,
 			status: true,
+			name: true,
+			email: true,
 		},
 	});
+
+	// Send email notification if user has email
+	if (updatedUser.email) {
+		try {
+			await sendUserStatusEmail(updatedUser.email, {
+				userName: updatedUser.name,
+				status: newStatus,
+			});
+		} catch (emailError) {
+			console.error("Failed to send user status email:", emailError);
+			// Don't fail the status update if email fails
+		}
+	}
 
 	return {
 		userId: updatedUser.id,

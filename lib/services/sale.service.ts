@@ -4,6 +4,7 @@ import {
 	CreateSaleInput,
 	CompleteSaleInput,
 } from "@/lib/validations/sale.schema";
+import { sendPurchaseReceiptEmail } from "@/lib/email";
 
 /**
  * Sale with items and customer information
@@ -296,6 +297,31 @@ export async function completeSale(
 
 		return completedSale;
 	});
+
+	// Send purchase receipt email if customer has email
+	if (result.customer?.email) {
+		try {
+			await sendPurchaseReceiptEmail(result.customer.email, {
+				customerName: result.customer.name || "Valued Customer",
+				saleId: result.id,
+				items: result.items.map((item) => ({
+					name: item.inventoryItem.name,
+					quantity: item.quantity,
+					price: Number(item.price),
+					total: Number(item.price) * item.quantity,
+				})),
+				subtotal: Number(result.subTotal),
+				discount: Number(result.discountAmount),
+				tax: Number(result.taxAmount),
+				total: Number(result.total),
+				paymentMethod: result.paymentMethod || "N/A",
+				date: result.completedAt || new Date(),
+			});
+		} catch (emailError) {
+			console.error("Failed to send purchase receipt email:", emailError);
+			// Don't fail the sale completion if email fails
+		}
+	}
 
 	return result;
 }

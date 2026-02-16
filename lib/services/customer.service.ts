@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Customer, Prisma } from "@/generated/prisma/client";
 import { CustomerInput } from "@/lib/validations/customer.schema";
+import { sendCustomerWelcomeEmail } from "@/lib/email";
 
 /**
  * Customer with sales history
@@ -48,6 +49,19 @@ export async function createCustomer(data: CustomerInput): Promise<Customer> {
 			email: data.email,
 		},
 	});
+
+	// Send welcome email if customer has email
+	if (customer.email) {
+		try {
+			await sendCustomerWelcomeEmail(customer.email, {
+				customerName: customer.name || "Valued Customer",
+				phone: customer.phone,
+			});
+		} catch (emailError) {
+			console.error("Failed to send customer welcome email:", emailError);
+			// Don't fail customer creation if email fails
+		}
+	}
 
 	return customer;
 }

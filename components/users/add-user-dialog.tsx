@@ -168,7 +168,7 @@ export function AddUserDialog({
 											defaultValue={field.value?.[0]}
 											disabled={isCreating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
+												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select role' />
 												</SelectTrigger>
 											</FormControl>
@@ -203,7 +203,7 @@ export function AddUserDialog({
 											defaultValue={field.value}
 											disabled={isCreating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
+												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select shift' />
 												</SelectTrigger>
 											</FormControl>

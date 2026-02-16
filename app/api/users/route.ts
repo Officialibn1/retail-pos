@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 		const validatedData = createUserSchema.parse(body);
 
 		// Create user
-		const user = await createUser(validatedData);
+		const { user, password } = await createUser(validatedData);
 
 		// Log activity
 		const currentUser = authResult.request.user;
@@ -56,8 +56,10 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json(
 			{
-				message: "User created successfully",
+				message:
+					"User created successfully. Login credentials have been sent to the user's email.",
 				user,
+				temporaryPassword: password, // Include in response for admin reference
 			},
 			{ status: 201 },
 		);

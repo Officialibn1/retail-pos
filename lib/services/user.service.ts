@@ -5,6 +5,8 @@ import {
 	CreateUserInput,
 	UpdateUserInput,
 } from "@/lib/validations/user.schema";
+import { generateRandomPassword } from "@/lib/utils/password-generator";
+import { sendUserCreationEmail } from "@/lib/email";
 
 /**
  * User returned without password field
@@ -12,14 +14,16 @@ import {
 export type SafeUser = Omit<User, "password">;
 
 /**
- * Create a new user with default password
+ * Create a new user with randomly generated password
  * @param data - User creation data
- * @returns Created user without password
+ * @returns Created user without password and the generated password
  */
-export async function createUser(data: CreateUserInput): Promise<SafeUser> {
-	// Use default password for all new users
-	const defaultPassword = "password123";
-	const hashedPassword = await hashPassword(defaultPassword);
+export async function createUser(
+	data: CreateUserInput,
+): Promise<{ user: SafeUser; password: string }> {
+	// Generate a random secure password
+	const generatedPassword = generateRandomPassword(12);
+	const hashedPassword = await hashPassword(generatedPassword);
 
 	// Create user with hashed password
 	const user = await prisma.user.create({
@@ -33,9 +37,23 @@ export async function createUser(data: CreateUserInput): Promise<SafeUser> {
 		},
 	});
 
-	// Return user without password
+	// Send welcome email with credentials
+	try {
+		await sendUserCreationEmail(user.email, {
+			userName: user.name,
+			email: user.email,
+			username: user.username,
+			password: generatedPassword,
+			roles: user.roles,
+		});
+	} catch (emailError) {
+		console.error("Failed to send user creation email:", emailError);
+		// Don't fail user creation if email fails
+	}
+
+	// Return user without password and the generated password
 	const { password, ...safeUser } = user;
-	return safeUser;
+	return { user: safeUser, password: generatedPassword };
 }
 
 /**

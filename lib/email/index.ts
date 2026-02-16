@@ -1,0 +1,118 @@
+// Email service main entry point
+
+import { sendEmail } from "./email-provider";
+import { generateUserStatusEmail } from "./templates/user-status";
+import { generatePurchaseReceiptEmail } from "./templates/purchase-receipt";
+import { generateCanceledOrdersEmail } from "./templates/canceled-orders";
+import { generateUserCreationEmail } from "./templates/user-creation";
+import { generateCustomerWelcomeEmail } from "./templates/customer-welcome";
+import type {
+	UserStatusEmailData,
+	PurchaseEmailData,
+	CanceledOrdersEmailData,
+	UserCreationEmailData,
+	CustomerWelcomeEmailData,
+} from "./types";
+
+export async function sendUserStatusEmail(
+	to: string,
+	data: UserStatusEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generateUserStatusEmail(data);
+
+		const statusTitles = {
+			ACTIVE: "Account Activated",
+			BLOCKED: "Account Blocked",
+			SUSPENDED: "Account Suspended",
+		};
+
+		await sendEmail({
+			to,
+			subject: statusTitles[data.status],
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send user status email:", error);
+		throw error;
+	}
+}
+
+export async function sendUserCreationEmail(
+	to: string,
+	data: UserCreationEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generateUserCreationEmail(data);
+
+		await sendEmail({
+			to,
+			subject: "Welcome to POS System - Your Account Details",
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send user creation email:", error);
+		throw error;
+	}
+}
+
+export async function sendCustomerWelcomeEmail(
+	to: string,
+	data: CustomerWelcomeEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generateCustomerWelcomeEmail(data);
+
+		await sendEmail({
+			to,
+			subject: "Welcome! Thank You for Joining Us",
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send customer welcome email:", error);
+		throw error;
+	}
+}
+
+export async function sendPurchaseReceiptEmail(
+	to: string,
+	data: PurchaseEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generatePurchaseReceiptEmail(data);
+
+		await sendEmail({
+			to,
+			subject: `Purchase Receipt - Order #${data.saleId}`,
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send purchase receipt email:", error);
+		throw error;
+	}
+}
+
+export async function sendCanceledOrdersEmail(
+	recipients: string[],
+	data: CanceledOrdersEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generateCanceledOrdersEmail(data);
+
+		await sendEmail({
+			to: recipients,
+			subject: `Automated Order Cancellation Report - ${data.canceledOrders.length} Orders Canceled`,
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send canceled orders email:", error);
+		throw error;
+	}
+}
+
+export * from "./types";
