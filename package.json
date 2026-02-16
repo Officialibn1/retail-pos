@@ -86,6 +86,7 @@
     "vaul": "^0.9.9",
     "vue": "latest",
     "vue-router": "latest",
+    "xlsx": "^0.18.5",
     "zod": "3.25.67"
   },
   "devDependencies": {
@@ -100,6 +101,7 @@
     "@types/pg": "^8.15.6",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/xlsx": "^0.0.36",
     "dotenv": "^17.2.3",
     "eslint": "^8.57.1",
     "eslint-config-next": "16.0.5",

@@ -365,6 +365,8 @@ All API routes follow a consistent protection pattern using authentication, role
 ### Backup Routes
 
 - `POST /api/backup` - SUPERADMIN only, ACTIVE or SUSPENDED users (read-only operation that exports database to Excel)
+  - Uses standard middleware pattern: `requireAuth()` followed by `requireSuperAdmin()`
+  - Exports all database tables to Excel workbook format
 
 ### Protection Pattern
 
@@ -399,9 +401,28 @@ function MyComponent() {
 }
 ```
 
+## Authentication Mechanism
+
+The system uses cookie-based JWT authentication:
+
+1. **Cookie Storage**: JWT tokens are stored in HTTP-only cookies named `auth-token`
+2. **Token Extraction**: The `getTokenFromCookies()` helper extracts tokens from request cookies
+3. **Token Verification**: JWT tokens are verified using the `JWT_SECRET` environment variable
+4. **Session Validation**: Tokens are validated against active sessions in the database
+5. **Standard Middleware**: Most routes use the `requireAuth()` middleware from `lib/middleware/auth.ts`
+
+### Authentication Flow
+
+1. User logs in via `/api/auth/login`
+2. Server generates JWT token and stores it in `auth-token` cookie
+3. Session record is created in database
+4. Subsequent requests include the cookie automatically
+5. Middleware extracts token from cookie, verifies JWT, and validates session
+6. User information is attached to the request object
+
 ## Security Considerations
 
-1. **Token-Based Authentication**: All API routes require valid JWT tokens
+1. **Token-Based Authentication**: All API routes require valid JWT tokens stored in HTTP-only cookies
 2. **Session Validation**: Tokens are validated against active sessions in the database
 3. **Role Verification**: User roles are fetched fresh from the database on each request
 4. **User Status Enforcement**: User status is checked on each request to enforce access restrictions
@@ -409,6 +430,7 @@ function MyComponent() {
 6. **Data Filtering**: Backend services enforce role-based data filtering
 7. **Middleware Protection**: API routes use middleware to enforce permissions before processing
 8. **Layered Security**: Three layers of protection (authentication → role → status) ensure comprehensive access control
+9. **HTTP-Only Cookies**: Authentication tokens are stored in HTTP-only cookies to prevent XSS attacks
 
 ## Testing RBAC
 
