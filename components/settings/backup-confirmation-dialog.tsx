@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Download } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useCreateBackupMutation } from "@/lib/store/api";
 
 interface BackupConfirmationDialogProps {
 	open: boolean;
@@ -22,39 +23,20 @@ export function BackupConfirmationDialog({
 	open,
 	onOpenChange,
 }: BackupConfirmationDialogProps) {
-	const [isLoading, setIsLoading] = useState(false);
-	const { toast } = useToast();
+	const [createBackup, { isLoading }] = useCreateBackupMutation();
 
 	const handleBackup = async () => {
-		setIsLoading(true);
 		try {
-			const response = await fetch("/api/backup", {
-				method: "POST",
-				credentials: "include", // Include cookies for authentication
-			});
-
-			if (!response.ok) {
-				// Try to parse error response
-				const errorData = await response.json().catch(() => ({
-					error: { message: "Backup failed" },
-				}));
-				throw new Error(errorData.error?.message || "Backup failed");
-			}
-
-			// Get the blob from response
-			const blob = await response.blob();
+			const blob = await createBackup().unwrap();
 
 			// Create download link
 			const url = window.URL.createObjectURL(blob);
 			const a = document.createElement("a");
 			a.href = url;
 
-			// Extract filename from Content-Disposition header or use default
-			const contentDisposition = response.headers.get("Content-Disposition");
-			const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-			const filename = filenameMatch
-				? filenameMatch[1]
-				: `database-backup-${new Date().toISOString()}.xlsx`;
+			// Create filename with timestamp
+			const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+			const filename = `database-backup-${timestamp}.xlsx`;
 
 			a.download = filename;
 			document.body.appendChild(a);
@@ -64,24 +46,19 @@ export function BackupConfirmationDialog({
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
 
-			toast({
-				title: "Backup Successful",
+			toast.success("Backup Successful", {
 				description: "Database backup has been downloaded successfully.",
 			});
 
 			onOpenChange(false);
-		} catch (error) {
+		} catch (error: any) {
 			console.error("Backup error:", error);
-			toast({
-				title: "Backup Failed",
+			toast.error("Backup Failed", {
 				description:
-					error instanceof Error
-						? error.message
-						: "Failed to create database backup. Please try again.",
-				variant: "destructive",
+					error?.data?.error?.message ||
+					error?.message ||
+					"Failed to create database backup. Please try again.",
 			});
-		} finally {
-			setIsLoading(false);
 		}
 	};
 

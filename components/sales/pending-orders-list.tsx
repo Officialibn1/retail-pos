@@ -7,7 +7,6 @@ import { CancelOrderDialog } from "./cancel-order-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Package } from "lucide-react";
 import { useGetSalesQuery, useCancelSaleMutation } from "@/lib/store/api";
-import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 
 interface PendingOrdersListProps {

@@ -22,7 +22,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
 	changePasswordSchema,
 	type ChangePasswordInput,
@@ -44,7 +44,6 @@ export function ChangePasswordDialog({
 	const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 	const [showNewPassword, setShowNewPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-	const { toast } = useToast();
 
 	const form = useForm<ChangePasswordInput>({
 		resolver: zodResolver(changePasswordSchema),
@@ -73,8 +72,7 @@ export function ChangePasswordDialog({
 				throw new Error(result.error?.message || "Failed to change password");
 			}
 
-			toast({
-				title: "Password Changed",
+			toast.success("Password Changed", {
 				description: result.message,
 			});
 
@@ -82,11 +80,9 @@ export function ChangePasswordDialog({
 			onOpenChange(false);
 			onSuccess();
 		} catch (error) {
-			toast({
-				title: "Error",
+			toast.error("Error", {
 				description:
 					error instanceof Error ? error.message : "Failed to change password",
-				variant: "destructive",
 			});
 		} finally {
 			setIsLoading(false);

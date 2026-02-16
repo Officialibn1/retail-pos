@@ -688,6 +688,23 @@ export const api = createApi({
 				{ type: "Analytics", id: `customer-trends-${JSON.stringify(arg)}` },
 			],
 		}),
+
+		// Database backup mutation - returns a file blob
+		createBackup: builder.mutation<Blob, void>({
+			queryFn: async (_arg, _queryApi, _extraOptions, fetchWithBQ) => {
+				const result = await fetchWithBQ({
+					url: "/api/backup",
+					method: "POST",
+					responseHandler: (response) => response.blob(),
+				});
+
+				if (result.error) {
+					return { error: result.error };
+				}
+
+				return { data: result.data as Blob };
+			},
+		}),
 	}),
 });
 
@@ -737,4 +754,6 @@ export const {
 	useGetInventoryValueQuery,
 	useGetTopCustomersQuery,
 	useGetCustomerTrendsQuery,
+	// Backup
+	useCreateBackupMutation,
 } = api;
