@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireSuperAdmin } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { createUserSchema } from "@/lib/validations/user.schema";
 import { createUser, listUsers } from "@/lib/services/user.service";
 import { logActivity } from "@/lib/services/activity-log.service";
@@ -23,6 +24,12 @@ export async function POST(request: NextRequest) {
 		const roleCheck = requireSuperAdmin()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body

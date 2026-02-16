@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/components/auth/auth-provider";
 import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
-import { Store, Shield, DatabaseBackup, User2 } from "lucide-react";
+import { BackupConfirmationDialog } from "@/components/settings/backup-confirmation-dialog";
+import { Store, Shield, DatabaseBackup, User2, Download } from "lucide-react";
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
 const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
@@ -20,8 +20,8 @@ export default function SettingsPage() {
 	const { user, logout } = useAuth();
 	const router = useRouter();
 
-	const [autoBackup, setAutoBackup] = useState(true);
 	const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+	const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
 	const handlePasswordChangeSuccess = async () => {
 		// Log out the user after successful password change
@@ -192,35 +192,21 @@ export default function SettingsPage() {
 						<CardHeader>
 							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 								<DatabaseBackup className='h-5 w-5' />
-								Database
+								Database Backup
 							</CardTitle>
 						</CardHeader>
 						<CardContent className='space-y-4'>
-							{/* <div className='flex items-center justify-between'>
 							<div>
-								<Label className='text-brand-main-700'>
-									Enable Notifications
-								</Label>
-								<p className='text-sm text-brand-main-600'>
-									Receive alerts for low stock and sales
+								<Label className='text-brand-main-700'>Manual Backup</Label>
+								<p className='text-sm text-brand-main-600 mb-3'>
+									Download a complete backup of your database as an Excel file
 								</p>
-							</div>
-							<Switch
-								checked={notifications}
-								onCheckedChange={setNotifications}
-							/>
-						</div> */}
-							<div className='flex items-center justify-between'>
-								<div>
-									<Label className='text-brand-main-700'>Auto Backup</Label>
-									<p className='text-sm text-brand-main-600'>
-										Automatically backup data daily
-									</p>
-								</div>
-								<Switch
-									checked={autoBackup}
-									onCheckedChange={setAutoBackup}
-								/>
+								<Button
+									onClick={() => setBackupDialogOpen(true)}
+									className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+									<Download className='h-4 w-4 mr-2' />
+									Create Backup
+								</Button>
 							</div>
 						</CardContent>
 					</Card>
@@ -254,6 +240,11 @@ export default function SettingsPage() {
 				open={changePasswordOpen}
 				onOpenChange={setChangePasswordOpen}
 				onSuccess={handlePasswordChangeSuccess}
+			/>
+
+			<BackupConfirmationDialog
+				open={backupDialogOpen}
+				onOpenChange={setBackupDialogOpen}
 			/>
 		</div>
 	);

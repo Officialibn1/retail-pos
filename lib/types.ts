@@ -2,6 +2,7 @@
 import {
 	Prisma,
 	UserRole,
+	UserStatus,
 	SaleStatus,
 	Shift,
 	PaymentMethod,
@@ -9,7 +10,7 @@ import {
 } from "@/generated/prisma/client";
 
 // Re-export Prisma enums for convenience
-export { UserRole, SaleStatus, Shift, PaymentMethod };
+export { UserRole, UserStatus, SaleStatus, Shift, PaymentMethod };
 export type DateStyle = Intl.DateTimeFormatOptions["dateStyle"];
 export type TimeStyle = Intl.DateTimeFormatOptions["timeStyle"];
 

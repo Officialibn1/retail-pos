@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireCategoryManager } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { createCategorySchema } from "@/lib/validations/category.schema";
 import {
 	createCategory,
@@ -25,6 +26,12 @@ export async function POST(request: NextRequest) {
 		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body

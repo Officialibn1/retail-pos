@@ -31,7 +31,7 @@ export const activitiesTableDef = (): ColumnDef<ActivityLogWithUser>[] => {
 			accessorKey: "details",
 			cell: ({ row }) => {
 				return (
-					<div className='max-w-xs lg:max-w-md xl:max-w-3xl'>
+					<div className='max-w-xs lg:max-w-md xl:max-w-2xl'>
 						<p
 							className='truncate text-xs'
 							title={row.original.details}>

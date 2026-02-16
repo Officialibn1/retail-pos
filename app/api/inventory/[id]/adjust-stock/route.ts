@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireManager } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { adjustStockSchema } from "@/lib/validations/inventory.schema";
 import { adjustStock } from "@/lib/services/inventory.service";
 import { logActivity } from "@/lib/services/activity-log.service";
@@ -26,6 +27,12 @@ export async function POST(
 		const roleCheck = requireManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body

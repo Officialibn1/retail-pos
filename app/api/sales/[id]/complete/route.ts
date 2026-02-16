@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { completeSaleSchema } from "@/lib/validations/sale.schema";
 import { completeSale } from "@/lib/services/sale.service";
 import { logActivity } from "@/lib/services/activity-log.service";
@@ -24,6 +25,12 @@ export async function POST(
 
 	const { request: authenticatedRequest } = authResult;
 	const user = authenticatedRequest.user;
+
+	// Check if user can perform mutations
+	const statusCheck = await requireActiveMutation(user.id);
+	if (statusCheck) {
+		return statusCheck;
+	}
 
 	try {
 		const { id } = params;

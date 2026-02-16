@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireCategoryManager } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { updateCategorySchema } from "@/lib/validations/category.schema";
 import {
 	getCategoryById,
@@ -77,6 +78,12 @@ export async function PUT(
 		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body
@@ -167,6 +174,12 @@ export async function DELETE(
 		const roleCheck = requireCategoryManager()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Delete category

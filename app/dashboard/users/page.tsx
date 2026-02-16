@@ -24,12 +24,13 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
+
 import {
 	useGetUsersQuery,
 	useCreateUserMutation,
 	useUpdateUserMutation,
 	useDeleteUserMutation,
+	useUpdateUserStatusMutation,
 } from "@/lib/store/api";
 import DataTable from "@/components/dashboard/data-table";
 import { usersTableDef } from "@/components/users/users-table-def";
@@ -38,14 +39,16 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Spinner } from "@/components/ui/spinner";
 import { AddUserDialog } from "@/components/users/add-user-dialog";
 import { EditUserDialog } from "@/components/users/edit-user-dialog";
+import { UpdateStatusDialog } from "@/components/users/update-status-dialog";
 import {
 	CreateUserInput,
 	UpdateUserInput,
 } from "@/lib/validations/user.schema";
+import { UserStatus } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function UsersPage() {
 	const { user } = useAuth();
-	const { toast } = useToast();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [roleFilter, setRoleFilter] = useState("all");
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -54,6 +57,7 @@ export default function UsersPage() {
 	const [showAddDialog, setShowAddDialog] = useState(false);
 	const [showEditDialog, setShowEditDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showStatusDialog, setShowStatusDialog] = useState(false);
 	const [selectedUser, setSelectedUser] = useState<UserWithoutPassword | null>(
 		null,
 	);
@@ -78,6 +82,7 @@ export default function UsersPage() {
 	const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
 	const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 	const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+	const [updateUserStatus] = useUpdateUserStatusMutation();
 
 	if (!user || !canManageUsers(user.roles)) {
 		return (
@@ -124,21 +129,14 @@ export default function UsersPage() {
 		try {
 			await createUser(data).unwrap();
 			setShowAddDialog(false);
-			toast({
-				title: "Success",
-				description: "User created successfully",
-			});
+			toast.success("User created successfully");
 		} catch (err: any) {
 			console.error("Failed to create user:", err);
 			const errorMessage =
 				err?.data?.error?.message ||
 				err?.data?.message ||
 				"Failed to create user";
-			toast({
-				title: "Error",
-				description: errorMessage,
-				variant: "destructive",
-			});
+			toast.error(errorMessage);
 		}
 	};
 
@@ -157,21 +155,14 @@ export default function UsersPage() {
 			}).unwrap();
 			setShowEditDialog(false);
 			setSelectedUser(null);
-			toast({
-				title: "Success",
-				description: "User updated successfully",
-			});
+			toast.success("User updated successfully");
 		} catch (err: any) {
 			console.error("Failed to update user:", err);
 			const errorMessage =
 				err?.data?.error?.message ||
 				err?.data?.message ||
 				"Failed to update user";
-			toast({
-				title: "Error",
-				description: errorMessage,
-				variant: "destructive",
-			});
+			toast.error(errorMessage);
 		}
 	};
 
@@ -183,6 +174,43 @@ export default function UsersPage() {
 		}
 	};
 
+	const handleUpdateStatus = (userToUpdate: UserWithoutPassword) => {
+		setSelectedUser(userToUpdate);
+		setShowStatusDialog(true);
+	};
+
+	const handleStatusUpdate = async (userId: string, newStatus: UserStatus) => {
+		try {
+			await updateUserStatus({
+				userId,
+				status: newStatus,
+			}).unwrap();
+
+			// Get status display name for toast
+			const statusDisplayName =
+				newStatus === UserStatus.ACTIVE
+					? "Active"
+					: newStatus === UserStatus.SUSPENDED
+						? "Suspended"
+						: "Blocked";
+
+			// Get user name for toast
+			const userName = selectedUser?.name || "User";
+
+			toast.success(
+				`${userName}'s status has been changed to ${statusDisplayName}`,
+			);
+		} catch (err: any) {
+			console.error("Failed to update user status:", err);
+			const errorMessage =
+				err?.data?.error?.message ||
+				err?.data?.message ||
+				"Failed to update user status";
+			toast.error(errorMessage);
+			throw err; // Re-throw to let dialog handle loading state
+		}
+	};
+
 	const confirmDelete = async () => {
 		if (!selectedUser) return;
 
@@ -190,21 +218,14 @@ export default function UsersPage() {
 			await deleteUser(selectedUser.id).unwrap();
 			setShowDeleteDialog(false);
 			setSelectedUser(null);
-			toast({
-				title: "Success",
-				description: "User deleted successfully",
-			});
+			toast.success("User deleted successfully");
 		} catch (err: any) {
 			console.error("Failed to delete user:", err);
 			const errorMessage =
 				err?.data?.error?.message ||
 				err?.data?.message ||
 				"Failed to delete user";
-			toast({
-				title: "Error",
-				description: errorMessage,
-				variant: "destructive",
-			});
+			toast.error(errorMessage);
 		}
 	};
 
@@ -212,6 +233,7 @@ export default function UsersPage() {
 	const columns = usersTableDef({
 		onEdit: handleEditUser,
 		onDelete: handleDeleteUser,
+		onUpdateStatus: handleUpdateStatus,
 	});
 
 	return (
@@ -293,12 +315,12 @@ export default function UsersPage() {
 								<label
 									htmlFor='customer-search'
 									className='sr-only'>
-									Search customers
+									Search Users
 								</label>
 								{isFetching ? (
 									<Spinner
 										className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
-										aria-label='Loading customers'
+										aria-label='Loading users'
 									/>
 								) : (
 									<Search
@@ -309,7 +331,7 @@ export default function UsersPage() {
 
 								<Input
 									id='customer-search'
-									placeholder='Search customers...'
+									placeholder='Search users...'
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
 									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
@@ -358,6 +380,18 @@ export default function UsersPage() {
 				onSave={handleSaveEdit}
 				isUpdating={isUpdating}
 			/>
+
+			{/* Update Status Dialog */}
+			{selectedUser && (
+				<UpdateStatusDialog
+					open={showStatusDialog}
+					onOpenChange={setShowStatusDialog}
+					userId={selectedUser.id}
+					userName={selectedUser.name}
+					currentStatus={selectedUser.status}
+					onStatusUpdate={handleStatusUpdate}
+				/>
+			)}
 
 			{/* Delete Confirmation Dialog */}
 			<AlertDialog

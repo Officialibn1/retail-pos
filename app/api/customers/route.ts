@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { customerSchema } from "@/lib/validations/customer.schema";
 import { createCustomer, listCustomers } from "@/lib/services/customer.service";
 import { ZodError } from "zod";
@@ -16,6 +17,12 @@ export async function POST(request: NextRequest) {
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) {
 			return authResult;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body

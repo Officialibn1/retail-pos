@@ -52,6 +52,20 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		// Check if user is blocked
+		if (user.status === "BLOCKED") {
+			return NextResponse.json(
+				{
+					error: {
+						message:
+							"You have been blocked. Please contact your administrator.",
+						code: "USER_BLOCKED",
+					},
+				},
+				{ status: 403 },
+			);
+		}
+
 		// Verify password
 		const isPasswordValid = await verifyPassword(password, user.password);
 
@@ -98,6 +112,7 @@ export async function POST(request: NextRequest) {
 			username: user.username,
 			name: user.name,
 			roles: user.roles,
+			status: user.status,
 			shift: user.shift,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,

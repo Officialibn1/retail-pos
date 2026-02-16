@@ -78,6 +78,15 @@ export namespace $Enums {
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
+export const UserStatus: {
+  ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
+  SUSPENDED: 'SUSPENDED'
+};
+
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
 export const SaleStatus: {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
@@ -110,6 +119,10 @@ export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 export type UserRole = $Enums.UserRole
 
 export const UserRole: typeof $Enums.UserRole
+
+export type UserStatus = $Enums.UserStatus
+
+export const UserStatus: typeof $Enums.UserStatus
 
 export type SaleStatus = $Enums.SaleStatus
 
@@ -4059,6 +4072,7 @@ export namespace Prisma {
     username: string | null
     name: string | null
     password: string | null
+    status: $Enums.UserStatus | null
     shift: $Enums.Shift | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4070,6 +4084,7 @@ export namespace Prisma {
     username: string | null
     name: string | null
     password: string | null
+    status: $Enums.UserStatus | null
     shift: $Enums.Shift | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4082,6 +4097,7 @@ export namespace Prisma {
     name: number
     password: number
     roles: number
+    status: number
     shift: number
     createdAt: number
     updatedAt: number
@@ -4095,6 +4111,7 @@ export namespace Prisma {
     username?: true
     name?: true
     password?: true
+    status?: true
     shift?: true
     createdAt?: true
     updatedAt?: true
@@ -4106,6 +4123,7 @@ export namespace Prisma {
     username?: true
     name?: true
     password?: true
+    status?: true
     shift?: true
     createdAt?: true
     updatedAt?: true
@@ -4118,6 +4136,7 @@ export namespace Prisma {
     name?: true
     password?: true
     roles?: true
+    status?: true
     shift?: true
     createdAt?: true
     updatedAt?: true
@@ -4203,6 +4222,7 @@ export namespace Prisma {
     name: string
     password: string
     roles: $Enums.UserRole[]
+    status: $Enums.UserStatus
     shift: $Enums.Shift
     createdAt: Date
     updatedAt: Date
@@ -4232,6 +4252,7 @@ export namespace Prisma {
     name?: boolean
     password?: boolean
     roles?: boolean
+    status?: boolean
     shift?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4249,6 +4270,7 @@ export namespace Prisma {
     name?: boolean
     password?: boolean
     roles?: boolean
+    status?: boolean
     shift?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4261,6 +4283,7 @@ export namespace Prisma {
     name?: boolean
     password?: boolean
     roles?: boolean
+    status?: boolean
     shift?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4273,12 +4296,13 @@ export namespace Prisma {
     name?: boolean
     password?: boolean
     roles?: boolean
+    status?: boolean
     shift?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "name" | "password" | "roles" | "shift" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "name" | "password" | "roles" | "status" | "shift" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
@@ -4304,6 +4328,7 @@ export namespace Prisma {
       name: string
       password: string
       roles: $Enums.UserRole[]
+      status: $Enums.UserStatus
       shift: $Enums.Shift
       createdAt: Date
       updatedAt: Date
@@ -4740,6 +4765,7 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
     readonly roles: FieldRef<"User", 'UserRole[]'>
+    readonly status: FieldRef<"User", 'UserStatus'>
     readonly shift: FieldRef<"User", 'Shift'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -13227,6 +13253,7 @@ export namespace Prisma {
     name: 'name',
     password: 'password',
     roles: 'roles',
+    status: 'status',
     shift: 'shift',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -13397,6 +13424,20 @@ export namespace Prisma {
    * Reference to a field of type 'UserRole'
    */
   export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserStatus'
+   */
+  export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserStatus[]'
+   */
+  export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus[]'>
     
 
 
@@ -13612,6 +13653,7 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
     roles?: EnumUserRoleNullableListFilter<"User">
+    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     shift?: EnumShiftFilter<"User"> | $Enums.Shift
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -13628,6 +13670,7 @@ export namespace Prisma {
     name?: SortOrder
     password?: SortOrder
     roles?: SortOrder
+    status?: SortOrder
     shift?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13647,6 +13690,7 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
     roles?: EnumUserRoleNullableListFilter<"User">
+    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     shift?: EnumShiftFilter<"User"> | $Enums.Shift
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -13663,6 +13707,7 @@ export namespace Prisma {
     name?: SortOrder
     password?: SortOrder
     roles?: SortOrder
+    status?: SortOrder
     shift?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13681,6 +13726,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     password?: StringWithAggregatesFilter<"User"> | string
     roles?: EnumUserRoleNullableListFilter<"User">
+    status?: EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
     shift?: EnumShiftWithAggregatesFilter<"User"> | $Enums.Shift
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -14303,6 +14349,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -14319,6 +14366,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -14335,6 +14383,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14351,6 +14400,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14367,6 +14417,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -14379,6 +14430,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14391,6 +14443,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15042,6 +15095,13 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type EnumUserStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusFilter<$PrismaModel> | $Enums.UserStatus
+  }
+
   export type EnumShiftFilter<$PrismaModel = never> = {
     equals?: $Enums.Shift | EnumShiftFieldRefInput<$PrismaModel>
     in?: $Enums.Shift[] | ListEnumShiftFieldRefInput<$PrismaModel>
@@ -15096,6 +15156,7 @@ export namespace Prisma {
     name?: SortOrder
     password?: SortOrder
     roles?: SortOrder
+    status?: SortOrder
     shift?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -15107,6 +15168,7 @@ export namespace Prisma {
     username?: SortOrder
     name?: SortOrder
     password?: SortOrder
+    status?: SortOrder
     shift?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -15118,9 +15180,20 @@ export namespace Prisma {
     username?: SortOrder
     name?: SortOrder
     password?: SortOrder
+    status?: SortOrder
     shift?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusWithAggregatesFilter<$PrismaModel> | $Enums.UserStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserStatusFilter<$PrismaModel>
+    _max?: NestedEnumUserStatusFilter<$PrismaModel>
   }
 
   export type EnumShiftWithAggregatesFilter<$PrismaModel = never> = {
@@ -15754,6 +15827,10 @@ export namespace Prisma {
     push?: $Enums.UserRole | $Enums.UserRole[]
   }
 
+  export type EnumUserStatusFieldUpdateOperationsInput = {
+    set?: $Enums.UserStatus
+  }
+
   export type EnumShiftFieldUpdateOperationsInput = {
     set?: $Enums.Shift
   }
@@ -16295,11 +16372,28 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusFilter<$PrismaModel> | $Enums.UserStatus
+  }
+
   export type NestedEnumShiftFilter<$PrismaModel = never> = {
     equals?: $Enums.Shift | EnumShiftFieldRefInput<$PrismaModel>
     in?: $Enums.Shift[] | ListEnumShiftFieldRefInput<$PrismaModel>
     notIn?: $Enums.Shift[] | ListEnumShiftFieldRefInput<$PrismaModel>
     not?: NestedEnumShiftFilter<$PrismaModel> | $Enums.Shift
+  }
+
+  export type NestedEnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusWithAggregatesFilter<$PrismaModel> | $Enums.UserStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserStatusFilter<$PrismaModel>
+    _max?: NestedEnumUserStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumShiftWithAggregatesFilter<$PrismaModel = never> = {
@@ -16528,6 +16622,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16543,6 +16638,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16574,6 +16670,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16589,6 +16686,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16604,6 +16702,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16619,6 +16718,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16650,6 +16750,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16665,6 +16766,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16925,6 +17027,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16940,6 +17043,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16971,6 +17075,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16986,6 +17091,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17353,6 +17459,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17368,6 +17475,7 @@ export namespace Prisma {
     name: string
     password: string
     roles?: UserCreaterolesInput | $Enums.UserRole[]
+    status?: $Enums.UserStatus
     shift?: $Enums.Shift
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17446,6 +17554,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17461,6 +17570,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     roles?: UserUpdaterolesInput | $Enums.UserRole[]
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     shift?: EnumShiftFieldUpdateOperationsInput | $Enums.Shift
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -441,6 +441,18 @@ export const api = createApi({
 			invalidatesTags: ["Users"],
 		}),
 
+		updateUserStatus: builder.mutation<
+			{ message: string; userId: string; status: string },
+			{ userId: string; status: string }
+		>({
+			query: ({ userId, status }) => ({
+				url: `/api/users/${userId}/status`,
+				method: "PATCH",
+				body: { status },
+			}),
+			invalidatesTags: ["Users"],
+		}),
+
 		getCustomers: builder.query<
 			GetCustomersResponse,
 			CustomerSearchParams | void
@@ -699,6 +711,7 @@ export const {
 	useCreateUserMutation,
 	useUpdateUserMutation,
 	useDeleteUserMutation,
+	useUpdateUserStatusMutation,
 	useGetCustomersQuery,
 	useGetCustomerQuery,
 	useCreateCustomerMutation,

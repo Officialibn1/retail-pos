@@ -73,6 +73,7 @@ export async function requireAuth(
 			id: true,
 			email: true,
 			roles: true,
+			status: true,
 		},
 	});
 
@@ -85,6 +86,19 @@ export async function requireAuth(
 				},
 			},
 			{ status: 401 },
+		);
+	}
+
+	// Check if user is blocked
+	if (user.status === "BLOCKED") {
+		return NextResponse.json(
+			{
+				error: {
+					message: "You have been blocked. Please contact your administrator.",
+					code: "USER_BLOCKED",
+				},
+			},
+			{ status: 403 },
 		);
 	}
 

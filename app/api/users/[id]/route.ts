@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireSuperAdmin } from "@/lib/middleware/auth";
+import { requireActiveMutation } from "@/lib/middleware/user-status";
 import { updateUserSchema } from "@/lib/validations/user.schema";
 import {
 	getUserById,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/services/user.service";
 import { ZodError } from "zod";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/users/[id]
@@ -81,6 +82,12 @@ export async function PUT(
 		const roleCheck = requireSuperAdmin()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Parse and validate request body
@@ -171,6 +178,12 @@ export async function DELETE(
 		const roleCheck = requireSuperAdmin()(authResult.request);
 		if (roleCheck) {
 			return roleCheck;
+		}
+
+		// Check if user can perform mutations
+		const statusCheck = await requireActiveMutation(authResult.request.user.id);
+		if (statusCheck) {
+			return statusCheck;
 		}
 
 		// Delete user (cascade deletes sessions)

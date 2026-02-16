@@ -103,7 +103,7 @@ export default function ActivityLogsPage() {
 	};
 
 	return (
-		<div className='space-y-6 p-6'>
+		<div className='space-y-6 p-6 max-w-full w-full'>
 			<div>
 				<h1 className='text-3xl font-bold text-brand-main-800'>
 					Activity Logs
@@ -160,7 +160,7 @@ export default function ActivityLogsPage() {
 				</Card>
 			</div>
 
-			<Card className='border-brand-main-200'>
+			<Card className='border-brand-main-200 max-w-full'>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800'>Activity Logs</CardTitle>
 					<div className='flex gap-4 mt-4'>
@@ -195,7 +195,7 @@ export default function ActivityLogsPage() {
 						</Select>
 					</div>
 				</CardHeader>
-				<CardContent className='overflow-x-auto'>
+				<CardContent className='overflow-x-scroll xl:max-w-full'>
 					<DataTable
 						columns={columns}
 						data={logs}

@@ -144,6 +144,7 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   password: 'password',
   roles: 'roles',
+  status: 'status',
   shift: 'shift',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -236,6 +237,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.UserStatus = exports.$Enums.UserStatus = {
+  ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
+  SUSPENDED: 'SUSPENDED'
+};
+
 exports.Shift = exports.$Enums.Shift = {
   MORNING: 'MORNING',
   EVENING: 'EVENING',

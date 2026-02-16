@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
 				username: true,
 				name: true,
 				roles: true,
+				status: true,
 				shift: true,
 				createdAt: true,
 				updatedAt: true,
