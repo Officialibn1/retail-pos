@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createResetToken } from "@/lib/auth/password";
 import { requestPasswordResetSchema } from "@/lib/validations/password-reset.schema";
+import { sendPasswordResetEmail } from "@/lib/email";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
 /**
  * POST /api/auth/request-reset
- * Request a password reset token
+ * Request a password reset token or OTP
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -28,25 +29,44 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json(
 				{
 					message:
-						"If an account with that email exists, a password reset link has been sent.",
+						"If an account with that email exists, a password reset has been sent.",
 				},
 				{ status: 200 },
 			);
 		}
 
-		// Generate reset token with 1-hour expiration
-		const token = await createResetToken(user.id);
+		// Generate reset token or OTP based on type
+		const { token, otp } = await createResetToken(user.id, validatedData.type);
 
-		// TODO: Send email with reset token
-		// For now, we'll just return success
-		// In production, you would send an email here using nodemailer or similar
+		// Construct reset link for LINK type
+		const resetLink =
+			validatedData.type === "LINK"
+				? `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${token}`
+				: undefined;
+
+		// Send email with reset link or OTP
+		try {
+			await sendPasswordResetEmail(user.email, {
+				userName: user.name,
+				resetLink,
+				otp,
+				type: validatedData.type,
+				expiryMinutes: validatedData.type === "OTP" ? 10 : 60,
+			});
+		} catch (emailError) {
+			console.error("Failed to send password reset email:", emailError);
+			// Continue even if email fails - don't expose this to the user
+		}
 
 		return NextResponse.json(
 			{
 				message:
-					"If an account with that email exists, a password reset link has been sent.",
-				// In development, include the token for testing
-				...(process.env.NODE_ENV === "development" && { token }),
+					"If an account with that email exists, a password reset has been sent.",
+				// In development, include the token/OTP for testing
+				...(process.env.NODE_ENV === "development" && {
+					token,
+					...(otp && { otp }),
+				}),
 			},
 			{ status: 200 },
 		);

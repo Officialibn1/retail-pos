@@ -8,7 +8,18 @@ The system implements a hierarchical role-based permission system with four dist
 
 ## User Roles
 
-The system defines four hierarchical roles that determine what actions a user can perform and what data they can access.
+The system defines four hierarchical roles that determine what actions a user can perform and what data they can access. Each user is assigned one or more roles stored as an array in the database.
+
+### Role Enum Values
+
+```typescript
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  MANAGER
+  CASHIER
+}
+```
 
 ### 1. SUPERADMIN
 
@@ -70,9 +81,41 @@ The system defines four hierarchical roles that determine what actions a user ca
 - ❌ Cannot view all data
 - ❌ Cannot view activity logs
 
+## User Shifts
+
+Each user is assigned a shift that indicates their work schedule. This is primarily used for organizational purposes and scheduling.
+
+### Shift Enum Values
+
+```typescript
+enum Shift {
+  MORNING
+  EVENING
+  FULLTIME
+}
+```
+
+### Shift Descriptions
+
+- **MORNING**: User works morning shift
+- **EVENING**: User works evening shift
+- **FULLTIME**: User works full-time (both shifts or flexible schedule)
+
+The default shift for new users is `MORNING`.
+
 ## User Status
 
 In addition to roles, each user has a status field that controls account access at the authentication level. User status is independent of roles and provides account-level access control.
+
+### Status Enum Values
+
+```typescript
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  SUSPENDED
+}
+```
 
 ### Status Values
 
@@ -313,6 +356,41 @@ if (
 - **SUPERADMIN & MANAGER**: See all activity logs
 - **ADMIN & CASHIER**: No access to activity logs
 
+## Database Schema
+
+### User Model
+
+```prisma
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  username  String     @unique
+  name      String
+  password  String
+  roles     UserRole[] @default([CASHIER])
+  status    UserStatus @default(ACTIVE)
+  shift     Shift      @default(MORNING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  sales               Sale[]
+  activityLogs        ActivityLog[]
+
+  @@map("users")
+}
+```
+
+Key fields:
+
+- **roles**: Array of UserRole enums (supports multiple roles)
+- **status**: UserStatus enum (ACTIVE, BLOCKED, SUSPENDED)
+- **shift**: Shift enum (MORNING, EVENING, FULLTIME)
+- Default role: CASHIER
+- Default status: ACTIVE
+- Default shift: MORNING
+
 ## API Route Protection
 
 All API routes follow a consistent protection pattern using authentication, role-based authorization, and user status checks.
@@ -407,7 +485,9 @@ function MyComponent() {
 
 ## Authentication Mechanism
 
-The system uses cookie-based JWT authentication:
+The system uses cookie-based JWT authentication with password reset capabilities:
+
+### Authentication Flow
 
 1. **Cookie Storage**: JWT tokens are stored in HTTP-only cookies named `auth-token`
 2. **Token Extraction**: The `getTokenFromCookies()` helper extracts tokens from request cookies
@@ -415,7 +495,7 @@ The system uses cookie-based JWT authentication:
 4. **Session Validation**: Tokens are validated against active sessions in the database
 5. **Standard Middleware**: Most routes use the `requireAuth()` middleware from `lib/middleware/auth.ts`
 
-### Authentication Flow
+### Login Process
 
 1. User logs in via `/api/auth/login`
 2. Server generates JWT token and stores it in `auth-token` cookie
@@ -423,6 +503,44 @@ The system uses cookie-based JWT authentication:
 4. Subsequent requests include the cookie automatically
 5. Middleware extracts token from cookie, verifies JWT, and validates session
 6. User information is attached to the request object
+
+### Password Reset
+
+The system supports two types of password reset mechanisms:
+
+```prisma
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  otp       String?
+  type      ResetType @default(LINK)
+  expires   DateTime
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([otp])
+  @@map("password_reset_tokens")
+}
+
+enum ResetType {
+  LINK
+  OTP
+}
+```
+
+**Reset Types:**
+
+- **LINK**: Email-based reset link (default)
+- **OTP**: One-time password code
+
+Password reset tokens are:
+
+- Stored in the database with expiration
+- Linked to specific users
+- Automatically deleted when user is deleted (cascade)
+- Indexed for fast lookup by userId and OTP
 
 ## Security Considerations
 

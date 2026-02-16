@@ -4,7 +4,12 @@ export interface StoreInfo {
 	name: string;
 	address: string;
 	phone: string;
+	email: string;
 	logo: string;
+	colors: {
+		primary: string;
+		secondary: string;
+	};
 }
 
 /**
@@ -16,7 +21,12 @@ export function getStoreInfo(): StoreInfo {
 		name: process.env.NEXT_PUBLIC_STORE_NAME || "POS Store",
 		address: process.env.NEXT_PUBLIC_STORE_ADDRESS || "",
 		phone: process.env.NEXT_PUBLIC_STORE_PHONE || "",
+		email: process.env.NEXT_PUBLIC_STORE_EMAIL || "",
 		logo: process.env.NEXT_PUBLIC_STORE_LOGO || "/pos_logo.png",
+		colors: {
+			primary: process.env.NEXT_PUBLIC_STORE_COLOR_PRIMARY || "#7c3aed",
+			secondary: process.env.NEXT_PUBLIC_STORE_COLOR_SECONDARY || "#a78bfa",
+		},
 	};
 }
 

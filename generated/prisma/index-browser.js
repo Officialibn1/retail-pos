@@ -133,6 +133,8 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   token: 'token',
   userId: 'userId',
+  otp: 'otp',
+  type: 'type',
   expires: 'expires',
   createdAt: 'createdAt'
 };
@@ -237,6 +239,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.ResetType = exports.$Enums.ResetType = {
+  LINK: 'LINK',
+  OTP: 'OTP'
+};
+
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
   BLOCKED: 'BLOCKED',

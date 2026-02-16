@@ -72,3 +72,11 @@ export interface CustomerWelcomeEmailData {
 	customerName: string;
 	phone: string;
 }
+
+export interface PasswordResetEmailData {
+	userName: string;
+	resetLink?: string;
+	otp?: string;
+	type: "LINK" | "OTP";
+	expiryMinutes: number;
+}

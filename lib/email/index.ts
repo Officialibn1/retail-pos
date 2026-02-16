@@ -6,12 +6,14 @@ import { generatePurchaseReceiptEmail } from "./templates/purchase-receipt";
 import { generateCanceledOrdersEmail } from "./templates/canceled-orders";
 import { generateUserCreationEmail } from "./templates/user-creation";
 import { generateCustomerWelcomeEmail } from "./templates/customer-welcome";
+import { generatePasswordResetEmail } from "./templates/password-reset";
 import type {
 	UserStatusEmailData,
 	PurchaseEmailData,
 	CanceledOrdersEmailData,
 	UserCreationEmailData,
 	CustomerWelcomeEmailData,
+	PasswordResetEmailData,
 } from "./types";
 
 export async function sendUserStatusEmail(
@@ -73,6 +75,30 @@ export async function sendCustomerWelcomeEmail(
 		});
 	} catch (error) {
 		console.error("Failed to send customer welcome email:", error);
+		throw error;
+	}
+}
+
+export async function sendPasswordResetEmail(
+	to: string,
+	data: PasswordResetEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = generatePasswordResetEmail(data);
+
+		const subject =
+			data.type === "OTP"
+				? "Password Reset OTP - Action Required"
+				: "Password Reset Link - Action Required";
+
+		await sendEmail({
+			to,
+			subject,
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send password reset email:", error);
 		throw error;
 	}
 }

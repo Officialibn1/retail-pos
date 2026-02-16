@@ -1,5 +1,6 @@
 // User status change email template
 
+import { getStoreInfo } from "../store-info";
 import { UserStatusEmailData } from "../types";
 
 export function generateUserStatusEmail(data: UserStatusEmailData): {
@@ -7,6 +8,7 @@ export function generateUserStatusEmail(data: UserStatusEmailData): {
 	text: string;
 } {
 	const { userName, status, reason } = data;
+	const store = getStoreInfo();
 
 	const statusMessages = {
 		ACTIVE: {
@@ -82,9 +84,15 @@ export function generateUserStatusEmail(data: UserStatusEmailData): {
                 <!-- Footer -->
                 <tr>
                   <td style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-                    <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                      This is an automated message from your POS System. Please do not reply to this email.
+                    <p style="margin: 0 0 10px; font-size: 12px; color: #9ca3af;">
+                      This is an automated message from ${store.name}. Please do not reply to this email.
                     </p>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                      <p style="margin: 5px 0; font-size: 12px; color: #6b7280;"><strong>${store.name}</strong></p>
+                      ${store.address ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">${store.address}</p>` : ""}
+                      ${store.phone ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Phone: ${store.phone}</p>` : ""}
+                      ${store.email ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Email: ${store.email}</p>` : ""}
+                    </div>
                   </td>
                 </tr>
               </table>
@@ -107,7 +115,12 @@ ${reason ? `Reason: ${reason}` : ""}
 If you have any questions, please contact your system administrator.
 
 ---
-This is an automated message from your POS System. Please do not reply to this email.
+This is an automated message from ${store.name}. Please do not reply to this email.
+
+${store.name}
+${store.address || ""}
+${store.phone ? `Phone: ${store.phone}` : ""}
+${store.email ? `Email: ${store.email}` : ""}
   `.trim();
 
 	return { html, text };

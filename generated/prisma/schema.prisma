@@ -24,15 +24,23 @@ model Session {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
+  id        String    @id @default(cuid())
+  token     String    @unique
   userId    String
+  otp       String?
+  type      ResetType @default(LINK)
   expires   DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([otp])
   @@map("password_reset_tokens")
+}
+
+enum ResetType {
+  LINK
+  OTP
 }
 
 model User {

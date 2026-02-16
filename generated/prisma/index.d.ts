@@ -68,7 +68,15 @@ export type SaleItem = $Result.DefaultSelection<Prisma.$SaleItemPayload>
  * Enums
  */
 export namespace $Enums {
-  export const UserRole: {
+  export const ResetType: {
+  LINK: 'LINK',
+  OTP: 'OTP'
+};
+
+export type ResetType = (typeof ResetType)[keyof typeof ResetType]
+
+
+export const UserRole: {
   SUPERADMIN: 'SUPERADMIN',
   ADMIN: 'ADMIN',
   MANAGER: 'MANAGER',
@@ -115,6 +123,10 @@ export const PaymentMethod: {
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]
 
 }
+
+export type ResetType = $Enums.ResetType
+
+export const ResetType: typeof $Enums.ResetType
 
 export type UserRole = $Enums.UserRole
 
@@ -3012,6 +3024,8 @@ export namespace Prisma {
     id: string | null
     token: string | null
     userId: string | null
+    otp: string | null
+    type: $Enums.ResetType | null
     expires: Date | null
     createdAt: Date | null
   }
@@ -3020,6 +3034,8 @@ export namespace Prisma {
     id: string | null
     token: string | null
     userId: string | null
+    otp: string | null
+    type: $Enums.ResetType | null
     expires: Date | null
     createdAt: Date | null
   }
@@ -3028,6 +3044,8 @@ export namespace Prisma {
     id: number
     token: number
     userId: number
+    otp: number
+    type: number
     expires: number
     createdAt: number
     _all: number
@@ -3038,6 +3056,8 @@ export namespace Prisma {
     id?: true
     token?: true
     userId?: true
+    otp?: true
+    type?: true
     expires?: true
     createdAt?: true
   }
@@ -3046,6 +3066,8 @@ export namespace Prisma {
     id?: true
     token?: true
     userId?: true
+    otp?: true
+    type?: true
     expires?: true
     createdAt?: true
   }
@@ -3054,6 +3076,8 @@ export namespace Prisma {
     id?: true
     token?: true
     userId?: true
+    otp?: true
+    type?: true
     expires?: true
     createdAt?: true
     _all?: true
@@ -3135,6 +3159,8 @@ export namespace Prisma {
     id: string
     token: string
     userId: string
+    otp: string | null
+    type: $Enums.ResetType
     expires: Date
     createdAt: Date
     _count: PasswordResetTokenCountAggregateOutputType | null
@@ -3160,6 +3186,8 @@ export namespace Prisma {
     id?: boolean
     token?: boolean
     userId?: boolean
+    otp?: boolean
+    type?: boolean
     expires?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3169,6 +3197,8 @@ export namespace Prisma {
     id?: boolean
     token?: boolean
     userId?: boolean
+    otp?: boolean
+    type?: boolean
     expires?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3178,6 +3208,8 @@ export namespace Prisma {
     id?: boolean
     token?: boolean
     userId?: boolean
+    otp?: boolean
+    type?: boolean
     expires?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -3187,11 +3219,13 @@ export namespace Prisma {
     id?: boolean
     token?: boolean
     userId?: boolean
+    otp?: boolean
+    type?: boolean
     expires?: boolean
     createdAt?: boolean
   }
 
-  export type PasswordResetTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "token" | "userId" | "expires" | "createdAt", ExtArgs["result"]["passwordResetToken"]>
+  export type PasswordResetTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "token" | "userId" | "otp" | "type" | "expires" | "createdAt", ExtArgs["result"]["passwordResetToken"]>
   export type PasswordResetTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -3211,6 +3245,8 @@ export namespace Prisma {
       id: string
       token: string
       userId: string
+      otp: string | null
+      type: $Enums.ResetType
       expires: Date
       createdAt: Date
     }, ExtArgs["result"]["passwordResetToken"]>
@@ -3640,6 +3676,8 @@ export namespace Prisma {
     readonly id: FieldRef<"PasswordResetToken", 'String'>
     readonly token: FieldRef<"PasswordResetToken", 'String'>
     readonly userId: FieldRef<"PasswordResetToken", 'String'>
+    readonly otp: FieldRef<"PasswordResetToken", 'String'>
+    readonly type: FieldRef<"PasswordResetToken", 'ResetType'>
     readonly expires: FieldRef<"PasswordResetToken", 'DateTime'>
     readonly createdAt: FieldRef<"PasswordResetToken", 'DateTime'>
   }
@@ -13239,6 +13277,8 @@ export namespace Prisma {
     id: 'id',
     token: 'token',
     userId: 'userId',
+    otp: 'otp',
+    type: 'type',
     expires: 'expires',
     createdAt: 'createdAt'
   };
@@ -13410,6 +13450,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResetType'
+   */
+  export type EnumResetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResetType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ResetType[]'
+   */
+  export type ListEnumResetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResetType[]'>
     
 
 
@@ -13595,6 +13649,8 @@ export namespace Prisma {
     id?: StringFilter<"PasswordResetToken"> | string
     token?: StringFilter<"PasswordResetToken"> | string
     userId?: StringFilter<"PasswordResetToken"> | string
+    otp?: StringNullableFilter<"PasswordResetToken"> | string | null
+    type?: EnumResetTypeFilter<"PasswordResetToken"> | $Enums.ResetType
     expires?: DateTimeFilter<"PasswordResetToken"> | Date | string
     createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -13604,6 +13660,8 @@ export namespace Prisma {
     id?: SortOrder
     token?: SortOrder
     userId?: SortOrder
+    otp?: SortOrderInput | SortOrder
+    type?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -13616,6 +13674,8 @@ export namespace Prisma {
     OR?: PasswordResetTokenWhereInput[]
     NOT?: PasswordResetTokenWhereInput | PasswordResetTokenWhereInput[]
     userId?: StringFilter<"PasswordResetToken"> | string
+    otp?: StringNullableFilter<"PasswordResetToken"> | string | null
+    type?: EnumResetTypeFilter<"PasswordResetToken"> | $Enums.ResetType
     expires?: DateTimeFilter<"PasswordResetToken"> | Date | string
     createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -13625,6 +13685,8 @@ export namespace Prisma {
     id?: SortOrder
     token?: SortOrder
     userId?: SortOrder
+    otp?: SortOrderInput | SortOrder
+    type?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
     _count?: PasswordResetTokenCountOrderByAggregateInput
@@ -13639,6 +13701,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"PasswordResetToken"> | string
     token?: StringWithAggregatesFilter<"PasswordResetToken"> | string
     userId?: StringWithAggregatesFilter<"PasswordResetToken"> | string
+    otp?: StringNullableWithAggregatesFilter<"PasswordResetToken"> | string | null
+    type?: EnumResetTypeWithAggregatesFilter<"PasswordResetToken"> | $Enums.ResetType
     expires?: DateTimeWithAggregatesFilter<"PasswordResetToken"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"PasswordResetToken"> | Date | string
   }
@@ -14290,6 +14354,8 @@ export namespace Prisma {
   export type PasswordResetTokenCreateInput = {
     id?: string
     token: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutPasswordResetTokensInput
@@ -14299,6 +14365,8 @@ export namespace Prisma {
     id?: string
     token: string
     userId: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
   }
@@ -14306,6 +14374,8 @@ export namespace Prisma {
   export type PasswordResetTokenUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput
@@ -14315,6 +14385,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14323,6 +14395,8 @@ export namespace Prisma {
     id?: string
     token: string
     userId: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
   }
@@ -14330,6 +14404,8 @@ export namespace Prisma {
   export type PasswordResetTokenUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14338,6 +14414,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15063,10 +15141,39 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type EnumResetTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResetType | EnumResetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumResetTypeFilter<$PrismaModel> | $Enums.ResetType
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type PasswordResetTokenCountOrderByAggregateInput = {
     id?: SortOrder
     token?: SortOrder
     userId?: SortOrder
+    otp?: SortOrder
+    type?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -15075,6 +15182,8 @@ export namespace Prisma {
     id?: SortOrder
     token?: SortOrder
     userId?: SortOrder
+    otp?: SortOrder
+    type?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -15083,8 +15192,38 @@ export namespace Prisma {
     id?: SortOrder
     token?: SortOrder
     userId?: SortOrder
+    otp?: SortOrder
+    type?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type EnumResetTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResetType | EnumResetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumResetTypeWithAggregatesFilter<$PrismaModel> | $Enums.ResetType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResetTypeFilter<$PrismaModel>
+    _max?: NestedEnumResetTypeFilter<$PrismaModel>
   }
 
   export type EnumUserRoleNullableListFilter<$PrismaModel = never> = {
@@ -15206,26 +15345,6 @@ export namespace Prisma {
     _max?: NestedEnumShiftFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
-  }
-
   export type ActivityLogCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -15254,24 +15373,6 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type CustomerCountOrderByAggregateInput = {
@@ -15754,6 +15855,14 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type EnumResetTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ResetType
+  }
+
   export type UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
     create?: XOR<UserCreateWithoutPasswordResetTokensInput, UserUncheckedCreateWithoutPasswordResetTokensInput>
     connectOrCreate?: UserCreateOrConnectWithoutPasswordResetTokensInput
@@ -15951,10 +16060,6 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutActivityLogsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type UserUpdateOneRequiredWithoutActivityLogsNestedInput = {
@@ -16372,6 +16477,65 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedEnumResetTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResetType | EnumResetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumResetTypeFilter<$PrismaModel> | $Enums.ResetType
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumResetTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ResetType | EnumResetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ResetType[] | ListEnumResetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumResetTypeWithAggregatesFilter<$PrismaModel> | $Enums.ResetType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumResetTypeFilter<$PrismaModel>
+    _max?: NestedEnumResetTypeFilter<$PrismaModel>
+  }
+
   export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
     in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
@@ -16404,48 +16568,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumShiftFilter<$PrismaModel>
     _max?: NestedEnumShiftFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -16804,6 +16926,8 @@ export namespace Prisma {
   export type PasswordResetTokenCreateWithoutUserInput = {
     id?: string
     token: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
   }
@@ -16811,6 +16935,8 @@ export namespace Prisma {
   export type PasswordResetTokenUncheckedCreateWithoutUserInput = {
     id?: string
     token: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
   }
@@ -16950,6 +17076,8 @@ export namespace Prisma {
     id?: StringFilter<"PasswordResetToken"> | string
     token?: StringFilter<"PasswordResetToken"> | string
     userId?: StringFilter<"PasswordResetToken"> | string
+    otp?: StringNullableFilter<"PasswordResetToken"> | string | null
+    type?: EnumResetTypeFilter<"PasswordResetToken"> | $Enums.ResetType
     expires?: DateTimeFilter<"PasswordResetToken"> | Date | string
     createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
   }
@@ -17799,6 +17927,8 @@ export namespace Prisma {
   export type PasswordResetTokenCreateManyUserInput = {
     id?: string
     token: string
+    otp?: string | null
+    type?: $Enums.ResetType
     expires: Date | string
     createdAt?: Date | string
   }
@@ -17856,6 +17986,8 @@ export namespace Prisma {
   export type PasswordResetTokenUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17863,6 +17995,8 @@ export namespace Prisma {
   export type PasswordResetTokenUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17870,6 +18004,8 @@ export namespace Prisma {
   export type PasswordResetTokenUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumResetTypeFieldUpdateOperationsInput | $Enums.ResetType
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

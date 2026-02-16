@@ -3,6 +3,12 @@ import { z } from "zod";
 // Password Reset validation schemas
 export const requestPasswordResetSchema = z.object({
 	email: z.string().email("Invalid email address"),
+	type: z.enum(["LINK", "OTP"]).default("LINK"),
+});
+
+export const verifyOTPSchema = z.object({
+	email: z.string().email("Invalid email address"),
+	otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
 export const resetPasswordSchema = z
@@ -26,4 +32,5 @@ export const resetPasswordSchema = z
 export type RequestPasswordResetInput = z.infer<
 	typeof requestPasswordResetSchema
 >;
+export type VerifyOTPInput = z.infer<typeof verifyOTPSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

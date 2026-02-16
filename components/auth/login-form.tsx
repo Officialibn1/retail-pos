@@ -18,6 +18,7 @@ import { Store } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useAuth } from "./auth-provider";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
 
@@ -80,7 +81,14 @@ export function LoginForm() {
 							/>
 						</div>
 						<div className='space-y-2'>
-							<Label htmlFor='password'>Password</Label>
+							<div className='flex items-center justify-between'>
+								<Label htmlFor='password'>Password</Label>
+								<Link
+									href='/forgot-password'
+									className='text-xs text-brand-main-600 hover:text-brand-main-700'>
+									Forgot Password?
+								</Link>
+							</div>
 							<Input
 								id='password'
 								type='password'
