@@ -42,7 +42,7 @@ export function SalesTrendReport({
 
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className='border-brand-main-200 xl:col-span-2'>
 				<CardHeader>
 					<div className='flex items-center justify-between'>
 						<div>
@@ -64,7 +64,7 @@ export function SalesTrendReport({
 
 	if (isError) {
 		return (
-			<Card className='border-red-200 bg-red-50'>
+			<Card className='border-red-200 bg-red-50 xl:col-span-2'>
 				<CardHeader>
 					<CardTitle className='text-red-800 flex items-center gap-2'>
 						<AlertTriangle className='h-5 w-5' />
@@ -95,7 +95,7 @@ export function SalesTrendReport({
 	}
 
 	return (
-		<Card className='border-brand-main-200'>
+		<Card className='border-brand-main-200 xl:col-span-2'>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
 					<div>

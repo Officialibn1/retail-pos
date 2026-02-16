@@ -225,7 +225,7 @@ export function PaymentMethodChart({
 						<CreditCard className='h-5 w-5' />
 						Payment Method Breakdown
 					</CardTitle> */}
-					<div className='flex items-center gap-2'>
+					<div className='flex items-center gap-2 flex-wrap'>
 						{/* Metric Type Toggle */}
 						<div className='flex items-center gap-1'>
 							<Button
@@ -270,43 +270,53 @@ export function PaymentMethodChart({
 
 				{/* Summary Stats & Reconciliation */}
 				<div className='space-y-2'>
-					<div className='flex items-center gap-4 text-sm text-gray-600'>
+					<div className='flex items-center gap-4 text-sm text-gray-600 flex-wrap'>
 						<div className='flex items-center gap-1'>
 							<Badge variant='secondary'>
 								{data.paymentMethods.length} payment methods
 							</Badge>
 						</div>
-						<span>Total Amount: ₦{formatCurrency(data.totalAmount)}</span>
-						<span>
-							Total Transactions: {totalTransactions.toLocaleString()}
+						<span className='text-nowrap'>
+							Total Amount: <b>₦{formatCurrency(data.totalAmount)}</b>
+						</span>
+						<span className='text-nowrap'>
+							Total Transactions: <b>{totalTransactions.toLocaleString()}</b>
 						</span>
 					</div>
 
 					{/* Reconciliation Data */}
-					<div className='flex items-center gap-4 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg'>
-						<span className='font-medium'>Reconciliation:</span>
-						<span>
-							Avg Transaction: ₦{formatCurrency(averageTransactionValue)}
-						</span>
-						{data.paymentMethods.length > 0 && (
-							<span>
-								Top Method:{" "}
-								{
-									PAYMENT_METHOD_CONFIG[
-										data.paymentMethods.reduce((prev, current) =>
-											prev.totalAmount > current.totalAmount ? prev : current,
-										).method
-									].label
-								}{" "}
-								(
-								{data.paymentMethods
-									.reduce((prev, current) =>
-										prev.totalAmount > current.totalAmount ? prev : current,
-									)
-									.percentageOfTotal.toFixed(1)}
-								%)
+					<div className='flex gap-4 flex-col text-sm text-gray-600 bg-gray-50 p-2 rounded-lg '>
+						<span className='font-semibold w-full'>Reconciliation:</span>
+
+						<div className='flex items-center gap-4 flex-wrap'>
+							<span className='text-nowrap'>
+								Avg Transaction:{" "}
+								<b>₦{formatCurrency(averageTransactionValue)}</b>
 							</span>
-						)}
+							{data.paymentMethods.length > 0 && (
+								<span className='text-nowrap'>
+									Top Method:{" "}
+									<b>
+										{
+											PAYMENT_METHOD_CONFIG[
+												data.paymentMethods.reduce((prev, current) =>
+													prev.totalAmount > current.totalAmount
+														? prev
+														: current,
+												).method
+											].label
+										}{" "}
+										(
+										{data.paymentMethods
+											.reduce((prev, current) =>
+												prev.totalAmount > current.totalAmount ? prev : current,
+											)
+											.percentageOfTotal.toFixed(1)}
+										%)
+									</b>
+								</span>
+							)}
+						</div>
 					</div>
 				</div>
 			</CardHeader>
@@ -335,9 +345,9 @@ export function PaymentMethodChart({
 										tickLine={false}
 										axisLine={false}
 										className='text-brand-main-600'
-										// angle={-15}
-										textAnchor='middle'
-										height={40}
+										angle={-25}
+										textAnchor='end'
+										height={60}
 										interval={0}
 									/>
 									<YAxis
@@ -368,7 +378,9 @@ export function PaymentMethodChart({
 											className='fill-brand-main-600'
 											fontSize={12}
 											formatter={(value) =>
-												`₦${formatCurrency(value as unknown as number)}`
+												metricType === "amount"
+													? `₦${formatCurrency(value as unknown as number)}`
+													: value
 											}
 										/>
 									</Bar>

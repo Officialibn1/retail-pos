@@ -511,15 +511,15 @@ export default function AnalyticsPage() {
 					/>
 
 					{/* Charts Section */}
-					<div className='grid gap-4 md:grid-cols-2 h-[450px] lg:h-fit'>
-						<PaymentMethodsReport
+					<div className='grid gap-4 md:grid-cols-2 xl:grid-cols-3 h-[450px] lg:h-fit'>
+						<SalesTrendReport
 							dateRange={apiDateRange}
-							onPaymentMethodClick={handlePaymentMethodClick}
 							onRefresh={handleGlobalRefresh}
 						/>
 
-						<SalesTrendReport
+						<PaymentMethodsReport
 							dateRange={apiDateRange}
+							onPaymentMethodClick={handlePaymentMethodClick}
 							onRefresh={handleGlobalRefresh}
 						/>
 					</div>
