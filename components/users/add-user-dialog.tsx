@@ -180,8 +180,8 @@ export function AddUserDialog({
 													Manager
 												</SelectItem>
 												<SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-												<SelectItem value={UserRole.SUPERADMIN}>
-													Super Admin
+												<SelectItem value={Shift.FULLTIME}>
+													Full Time
 												</SelectItem>
 											</SelectContent>
 										</Select>
@@ -210,6 +210,9 @@ export function AddUserDialog({
 											<SelectContent>
 												<SelectItem value={Shift.MORNING}>Morning</SelectItem>
 												<SelectItem value={Shift.EVENING}>Evening</SelectItem>
+												<SelectItem value={Shift.FULLTIME}>
+													Full Time
+												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />

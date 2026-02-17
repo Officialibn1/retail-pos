@@ -192,9 +192,6 @@ export function EditUserDialog({
 													Manager
 												</SelectItem>
 												<SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-												<SelectItem value={UserRole.SUPERADMIN}>
-													Super Admin
-												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -220,6 +217,9 @@ export function EditUserDialog({
 											<SelectContent>
 												<SelectItem value={Shift.MORNING}>Morning</SelectItem>
 												<SelectItem value={Shift.EVENING}>Evening</SelectItem>
+												<SelectItem value={Shift.FULLTIME}>
+													Full Time
+												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
