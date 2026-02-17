@@ -3,6 +3,8 @@ import { enhancedAnalyticsService } from "@/lib/services/analytics.service";
 import { requireAuth } from "@/lib/middleware/auth";
 import { canViewAllData } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/inventory
  * Get current inventory value analysis

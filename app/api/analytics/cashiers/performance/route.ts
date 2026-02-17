@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/middleware/auth";
 import { CashierPerformanceParams } from "@/lib/types";
 import { canViewAllData } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/cashiers/performance
  * Get cashier performance analytics with role-based access control

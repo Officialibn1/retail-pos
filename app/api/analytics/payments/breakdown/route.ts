@@ -3,6 +3,8 @@ import { enhancedAnalyticsService } from "@/lib/services/analytics.service";
 import { requireAuth } from "@/lib/middleware/auth";
 import { PaymentBreakdownParams } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/payments/breakdown
  * Get payment method breakdown analytics

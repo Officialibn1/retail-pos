@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/middleware/auth";
 import { canViewAllData } from "@/lib/auth";
 import { CustomerTrendsParams } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/customers/trends
  * Get customer purchase trend analysis with growth classification

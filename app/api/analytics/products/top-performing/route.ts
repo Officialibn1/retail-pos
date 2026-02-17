@@ -3,6 +3,8 @@ import { enhancedAnalyticsService } from "@/lib/services/analytics.service";
 import { requireAuth } from "@/lib/middleware/auth";
 import { TopProductsParams } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/products/top-performing
  *

@@ -3,6 +3,8 @@ import { enhancedAnalyticsService } from "@/lib/services/analytics.service";
 import { requireAuth } from "@/lib/middleware/auth";
 import { SalesTrendParams } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/sales/trends
  * Get sales trends with KPI calculations and time-based aggregation

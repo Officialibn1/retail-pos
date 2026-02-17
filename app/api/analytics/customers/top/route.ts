@@ -4,6 +4,8 @@ import { requireAuth } from "@/lib/middleware/auth";
 import { canViewAllData } from "@/lib/auth";
 import { TopCustomersParams } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics/customers/top
  * Get top customers with sorting and limit options
