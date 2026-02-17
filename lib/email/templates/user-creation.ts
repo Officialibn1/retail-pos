@@ -40,9 +40,9 @@ export function generateUserCreationEmail(data: UserCreationEmailData): {
                 
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                  <td style="background: linear-gradient(135deg, ${storeInfo.colors.primary} 0%, ${storeInfo.colors.secondary} 100%); padding: 40px 30px; text-align: center;">
                     <h1 style="margin: 0 0 10px; color: #ffffff; font-size: 28px;">Welcome to ${storeInfo.name}!</h1>
-                    <p style="margin: 0; color: #e0e7ff; font-size: 16px;">Your account has been created</p>
+                    <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Your account has been created</p>
                   </td>
                 </tr>
                 
@@ -58,7 +58,7 @@ export function generateUserCreationEmail(data: UserCreationEmailData): {
                     </p>
                     
                     <!-- Credentials Box -->
-                    <div style="background-color: #f9fafb; border: 2px solid #667eea; border-radius: 8px; padding: 25px; margin: 0 0 30px;">
+                    <div style="background-color: #f9fafb; border: 2px solid ${storeInfo.colors.primary}; border-radius: 8px; padding: 25px; margin: 0 0 30px;">
                       <table width="100%" cellpadding="0" cellspacing="0">
                         <tr>
                           <td style="padding: 10px 0;">
@@ -75,7 +75,7 @@ export function generateUserCreationEmail(data: UserCreationEmailData): {
                         <tr>
                           <td style="padding: 10px 0;">
                             <p style="margin: 0; font-size: 14px; color: #6b7280;">Temporary Password:</p>
-                            <p style="margin: 5px 0 0; font-size: 18px; color: #667eea; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">${password}</p>
+                            <p style="margin: 5px 0 0; font-size: 18px; color: ${storeInfo.colors.primary}; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: 2px;">${password}</p>
                           </td>
                         </tr>
                         <tr>
@@ -102,7 +102,7 @@ export function generateUserCreationEmail(data: UserCreationEmailData): {
                     </p>
                     
                     <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                      If you have any questions or need assistance, please contact your system administrator${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}.
+                      If you have any questions or need assistance, please contact your system administrator${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}${storeInfo.email ? ` or email ${storeInfo.email}` : ""}.
                     </p>
                   </td>
                 </tr>
@@ -113,9 +113,15 @@ export function generateUserCreationEmail(data: UserCreationEmailData): {
                     <p style="margin: 0 0 10px; font-size: 14px; color: #374151;">
                       Welcome to the team!
                     </p>
-                    <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                      This is an automated message. Please do not reply to this email.
+                    <p style="margin: 0 0 10px; font-size: 12px; color: #9ca3af;">
+                      This is an automated message from ${storeInfo.name}. Please do not reply to this email.
                     </p>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                      <p style="margin: 5px 0; font-size: 12px; color: #6b7280;"><strong>${storeInfo.name}</strong></p>
+                      ${storeInfo.address ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">${storeInfo.address}</p>` : ""}
+                      ${storeInfo.phone ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Phone: ${storeInfo.phone}</p>` : ""}
+                      ${storeInfo.email ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Email: ${storeInfo.email}</p>` : ""}
+                    </div>
                   </td>
                 </tr>
               </table>
@@ -146,13 +152,13 @@ Go to Settings → Change Password.
 
 You can now log in to the system and start using your account.
 
-If you have any questions or need assistance, please contact your system administrator${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}.
+If you have any questions or need assistance, please contact your system administrator${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}${storeInfo.email ? ` or email ${storeInfo.email}` : ""}.
 
 Welcome to the team!
 ${storeFooter}
 
 ---
-This is an automated message. Please do not reply to this email.
+This is an automated message from ${storeInfo.name}. Please do not reply to this email.
   `.trim();
 
 	return { html, text };

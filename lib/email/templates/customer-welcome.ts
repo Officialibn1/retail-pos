@@ -38,9 +38,9 @@ export function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): {
                 
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                  <td style="background: linear-gradient(135deg, ${storeInfo.colors.primary} 0%, ${storeInfo.colors.secondary} 100%); padding: 40px 30px; text-align: center;">
                     <h1 style="margin: 0 0 10px; color: #ffffff; font-size: 32px;">Welcome!</h1>
-                    <p style="margin: 0; color: #d1fae5; font-size: 16px;">Thank you for joining us</p>
+                    <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Thank you for joining us</p>
                   </td>
                 </tr>
                 
@@ -56,9 +56,9 @@ export function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): {
                     </p>
                     
                     <!-- Benefits Box -->
-                    <div style="background-color: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; padding: 25px; margin: 0 0 25px;">
-                      <h2 style="margin: 0 0 15px; font-size: 18px; color: #065f46;">What's Next?</h2>
-                      <ul style="margin: 0; padding-left: 20px; color: #065f46;">
+                    <div style="background-color: #f9fafb; border: 2px solid ${storeInfo.colors.primary}; border-radius: 8px; padding: 25px; margin: 0 0 25px;">
+                      <h2 style="margin: 0 0 15px; font-size: 18px; color: #374151;">What's Next?</h2>
+                      <ul style="margin: 0; padding-left: 20px; color: #374151;">
                         <li style="margin-bottom: 10px; font-size: 14px;">Enjoy seamless shopping experience</li>
                         <li style="margin-bottom: 10px; font-size: 14px;">Receive email receipts for all your purchases</li>
                         <li style="margin-bottom: 10px; font-size: 14px;">Track your purchase history</li>
@@ -77,7 +77,7 @@ export function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): {
                     </p>
                     
                     <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                      If you have any questions or need assistance, please don't hesitate to contact us${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}.
+                      If you have any questions or need assistance, please don't hesitate to contact us${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}${storeInfo.email ? ` or email ${storeInfo.email}` : ""}.
                     </p>
                   </td>
                 </tr>
@@ -88,9 +88,15 @@ export function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): {
                     <p style="margin: 0 0 10px; font-size: 16px; color: #374151; font-weight: bold;">
                       Thank you for choosing us!
                     </p>
-                    <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                      This is an automated welcome message. Please do not reply to this email.
+                    <p style="margin: 0 0 10px; font-size: 12px; color: #9ca3af;">
+                      This is an automated welcome message from ${storeInfo.name}. Please do not reply to this email.
                     </p>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                      <p style="margin: 5px 0; font-size: 12px; color: #6b7280;"><strong>${storeInfo.name}</strong></p>
+                      ${storeInfo.address ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">${storeInfo.address}</p>` : ""}
+                      ${storeInfo.phone ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Phone: ${storeInfo.phone}</p>` : ""}
+                      ${storeInfo.email ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">Email: ${storeInfo.email}</p>` : ""}
+                    </div>
                   </td>
                 </tr>
               </table>
@@ -120,13 +126,13 @@ Your registered phone number: ${phone}
 
 We look forward to serving you and providing you with the best shopping experience possible.
 
-If you have any questions or need assistance, please don't hesitate to contact us${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}.
+If you have any questions or need assistance, please don't hesitate to contact us${storeInfo.phone ? ` at ${storeInfo.phone}` : ""}${storeInfo.email ? ` or email ${storeInfo.email}` : ""}.
 
 Thank you for choosing us!
 ${storeFooter}
 
 ---
-This is an automated welcome message. Please do not reply to this email.
+This is an automated welcome message from ${storeInfo.name}. Please do not reply to this email.
   `.trim();
 
 	return { html, text };

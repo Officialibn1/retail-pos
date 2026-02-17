@@ -76,9 +76,9 @@ export function generatePurchaseReceiptEmail(data: PurchaseEmailData): {
                 
                 <!-- Header -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+                  <td style="background: linear-gradient(135deg, ${storeInfo.colors.primary} 0%, ${storeInfo.colors.secondary} 100%); padding: 30px; text-align: center;">
                     <h1 style="margin: 0 0 10px; color: #ffffff; font-size: 28px;">Thank You for Your Purchase!</h1>
-                    <p style="margin: 0; color: #e0e7ff; font-size: 14px;">Receipt #${saleId}</p>
+                    <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">Receipt #${saleId}</p>
                   </td>
                 </tr>
                 
