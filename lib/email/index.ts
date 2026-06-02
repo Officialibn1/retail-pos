@@ -21,7 +21,7 @@ export async function sendUserStatusEmail(
 	data: UserStatusEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generateUserStatusEmail(data);
+		const { html, text } = await generateUserStatusEmail(data);
 
 		const statusTitles = {
 			ACTIVE: "Account Activated",
@@ -46,7 +46,7 @@ export async function sendUserCreationEmail(
 	data: UserCreationEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generateUserCreationEmail(data);
+		const { html, text } = await generateUserCreationEmail(data);
 
 		await sendEmail({
 			to,
@@ -65,7 +65,7 @@ export async function sendCustomerWelcomeEmail(
 	data: CustomerWelcomeEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generateCustomerWelcomeEmail(data);
+		const { html, text } = await generateCustomerWelcomeEmail(data);
 
 		await sendEmail({
 			to,
@@ -84,7 +84,7 @@ export async function sendPasswordResetEmail(
 	data: PasswordResetEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generatePasswordResetEmail(data);
+		const { html, text } = await generatePasswordResetEmail(data);
 
 		const subject =
 			data.type === "OTP"
@@ -108,7 +108,7 @@ export async function sendPurchaseReceiptEmail(
 	data: PurchaseEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generatePurchaseReceiptEmail(data);
+		const { html, text } = await generatePurchaseReceiptEmail(data);
 
 		await sendEmail({
 			to,
@@ -127,7 +127,7 @@ export async function sendCanceledOrdersEmail(
 	data: CanceledOrdersEmailData,
 ): Promise<void> {
 	try {
-		const { html, text } = generateCanceledOrdersEmail(data);
+		const { html, text } = await generateCanceledOrdersEmail(data);
 
 		await sendEmail({
 			to: recipients,

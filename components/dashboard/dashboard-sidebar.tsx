@@ -37,6 +37,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { UserRole } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
 import { canViewDashboardPage } from "@/lib/auth";
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 const navigationItems = [
 	{
@@ -115,11 +116,11 @@ const navigationItems = [
 	},
 ];
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
-
 export function DashboardSidebar() {
 	const { user, logout, loggingOut } = useAuth();
 	const pathname = usePathname();
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const storeName = storeData?.settings?.name;
 
 	if (!user) return null;
 

@@ -53,7 +53,34 @@ export const TAG_TYPES = [
 	"Categories",
 	"ActivityLogs",
 	"Analytics",
+	"StoreSettings",
 ] as const;
+
+export interface StoreSettings {
+	name: string;
+	address: string;
+	phone: string;
+	email: string;
+	taxRate: number;
+	primaryColor: string;
+	secondaryColor: string;
+	logoUrl: string;
+}
+
+export interface GetStoreSettingsResponse {
+	settings: StoreSettings;
+}
+
+export interface UpdateStoreSettingsRequest {
+	name?: string;
+	address?: string;
+	phone?: string;
+	email?: string;
+	taxRate?: number;
+	primaryColor?: string;
+	secondaryColor?: string;
+	logoUrl?: string;
+}
 
 export type TagType = (typeof TAG_TYPES)[number];
 
@@ -705,6 +732,23 @@ export const api = createApi({
 				return { data: result.data as Blob };
 			},
 		}),
+
+		getStoreSettings: builder.query<GetStoreSettingsResponse, void>({
+			query: () => "/api/settings/store",
+			providesTags: ["StoreSettings"],
+		}),
+
+		updateStoreSettings: builder.mutation<
+			GetStoreSettingsResponse,
+			UpdateStoreSettingsRequest
+		>({
+			query: (data) => ({
+				url: "/api/settings/store",
+				method: "PUT",
+				body: data,
+			}),
+			invalidatesTags: ["StoreSettings"],
+		}),
 	}),
 });
 
@@ -756,4 +800,7 @@ export const {
 	useGetCustomerTrendsQuery,
 	// Backup
 	useCreateBackupMutation,
+	// Store Settings
+	useGetStoreSettingsQuery,
+	useUpdateStoreSettingsMutation,
 } = api;

@@ -133,10 +133,10 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   token: 'token',
   userId: 'userId',
-  otp: 'otp',
-  type: 'type',
   expires: 'expires',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  otp: 'otp',
+  type: 'type'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -146,10 +146,10 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   password: 'password',
   roles: 'roles',
-  status: 'status',
   shift: 'shift',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  status: 'status'
 };
 
 exports.Prisma.ActivityLogScalarFieldEnum = {
@@ -201,20 +201,20 @@ exports.Prisma.StockMovementScalarFieldEnum = {
 
 exports.Prisma.SaleScalarFieldEnum = {
   id: 'id',
-  subTotal: 'subTotal',
   total: 'total',
   status: 'status',
   paymentMethod: 'paymentMethod',
   amountPaid: 'amountPaid',
   changeGiven: 'changeGiven',
-  taxAmount: 'taxAmount',
-  discountAmount: 'discountAmount',
   completedAt: 'completedAt',
   cancelledAt: 'cancelledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  customerId: 'customerId'
+  customerId: 'customerId',
+  discountAmount: 'discountAmount',
+  taxAmount: 'taxAmount',
+  subTotal: 'subTotal'
 };
 
 exports.Prisma.SaleItemScalarFieldEnum = {
@@ -223,6 +223,20 @@ exports.Prisma.SaleItemScalarFieldEnum = {
   price: 'price',
   saleId: 'saleId',
   inventoryItemId: 'inventoryItemId'
+};
+
+exports.Prisma.StoreInfoScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  email: 'email',
+  taxRate: 'taxRate',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  logoUrl: 'logoUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -244,16 +258,16 @@ exports.ResetType = exports.$Enums.ResetType = {
   OTP: 'OTP'
 };
 
-exports.UserStatus = exports.$Enums.UserStatus = {
-  ACTIVE: 'ACTIVE',
-  BLOCKED: 'BLOCKED',
-  SUSPENDED: 'SUSPENDED'
-};
-
 exports.Shift = exports.$Enums.Shift = {
   MORNING: 'MORNING',
   EVENING: 'EVENING',
   FULLTIME: 'FULLTIME'
+};
+
+exports.UserStatus = exports.$Enums.UserStatus = {
+  ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
+  SUSPENDED: 'SUSPENDED'
 };
 
 exports.UserRole = exports.$Enums.UserRole = {
@@ -286,7 +300,8 @@ exports.Prisma.ModelName = {
   InventoryItem: 'InventoryItem',
   StockMovement: 'StockMovement',
   Sale: 'Sale',
-  SaleItem: 'SaleItem'
+  SaleItem: 'SaleItem',
+  StoreInfo: 'StoreInfo'
 };
 
 /**

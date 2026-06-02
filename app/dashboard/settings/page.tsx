@@ -1,35 +1,280 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { useAuth } from "@/components/auth/auth-provider";
 import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
 import { BackupConfirmationDialog } from "@/components/settings/backup-confirmation-dialog";
 import { Store, Shield, DatabaseBackup, User2, Download } from "lucide-react";
+import {
+	useGetStoreSettingsQuery,
+	useUpdateStoreSettingsMutation,
+} from "@/lib/store/api";
+import { useToast } from "@/components/ui/use-toast";
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
-const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
-const taxRate = process.env.NEXT_PUBLIC_TAX_AMOUNT;
-const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
+// ─── Schema ───────────────────────────────────────────────────────────────────
+// All fields are strings at the form level; taxRate is converted on submit.
+
+const storeSettingsSchema = z.object({
+	name: z.string().min(1, "Store name is required"),
+	address: z.string(),
+	phone: z.string(),
+	// Allow empty string OR a valid email
+	email: z.string().refine((v) => v === "" || z.string().email().safeParse(v).success, {
+		message: "Invalid email address",
+	}),
+	taxRate: z.string().refine((v) => v !== "" && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100, {
+		message: "Must be a number between 0 and 100",
+	}),
+	logoUrl: z.string(),
+	primaryColor: z.string(),
+	secondaryColor: z.string(),
+});
+
+type StoreSettingsFormValues = z.infer<typeof storeSettingsSchema>;
+
+// ─── Inner form — only mounts once data is ready ──────────────────────────────
+
+function StoreSettingsForm({
+	defaultValues,
+	isSuperAdmin,
+}: {
+	defaultValues: StoreSettingsFormValues;
+	isSuperAdmin: boolean;
+}) {
+	const { toast } = useToast();
+	const [updateSettings, { isLoading: isSaving }] =
+		useUpdateStoreSettingsMutation();
+
+	const form = useForm<StoreSettingsFormValues>({
+		resolver: zodResolver(storeSettingsSchema),
+		defaultValues,
+	});
+
+	const onSubmit = async (values: StoreSettingsFormValues) => {
+		try {
+			await updateSettings({
+				name: values.name,
+				address: values.address,
+				phone: values.phone,
+				email: values.email,
+				taxRate: Number(values.taxRate) / 100,
+				logoUrl: values.logoUrl,
+				primaryColor: values.primaryColor,
+				secondaryColor: values.secondaryColor,
+			}).unwrap();
+			toast({ title: "Settings saved successfully" });
+		} catch {
+			toast({ title: "Failed to save settings", variant: "destructive" });
+		}
+	};
+
+	return (
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+				<FormField
+					control={form.control}
+					name='name'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Store Name</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name='phone'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Phone</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name='email'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Email</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name='address'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Address</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name='taxRate'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Tax Rate (%)</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									type='number'
+									step='0.01'
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name='logoUrl'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel className='text-brand-main-700'>Logo URL</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!isSuperAdmin}
+									className='border-brand-main-200 focus:border-brand-main-400'
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<div className='grid grid-cols-2 gap-4'>
+					<FormField
+						control={form.control}
+						name='primaryColor'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className='text-brand-main-700'>Primary Color</FormLabel>
+								<FormControl>
+									<Input
+										{...field}
+										type='color'
+										disabled={!isSuperAdmin}
+										className='h-10 border-brand-main-200'
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name='secondaryColor'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className='text-brand-main-700'>Secondary Color</FormLabel>
+								<FormControl>
+									<Input
+										{...field}
+										type='color'
+										disabled={!isSuperAdmin}
+										className='h-10 border-brand-main-200'
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
+				{isSuperAdmin && (
+					<Button
+						type='submit'
+						disabled={!form.formState.isDirty || isSaving}
+						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+						{isSaving ? "Saving…" : "Save Changes"}
+					</Button>
+				)}
+			</form>
+		</Form>
+	);
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
 	const { user, logout } = useAuth();
 	const router = useRouter();
-
 	const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 	const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
+	const isSuperAdmin = !!user?.roles.includes("SUPERADMIN");
+	const { data, isLoading } = useGetStoreSettingsQuery();
+
 	const handlePasswordChangeSuccess = async () => {
-		// Log out the user after successful password change
 		await logout();
 		router.push("/login");
 	};
 
 	if (!user) return null;
+
+	// Only build defaults once data has arrived — form mounts with correct
+	// values so no reset() race can cause stale validation errors.
+	const storeDefaults: StoreSettingsFormValues | null = data?.settings
+		? {
+				name: data.settings.name,
+				address: data.settings.address,
+				phone: data.settings.phone,
+				email: data.settings.email,
+				// taxRate stored as decimal (0.075), displayed as percent (7.5)
+				taxRate: String(data.settings.taxRate * 100),
+				logoUrl: data.settings.logoUrl,
+				primaryColor: data.settings.primaryColor,
+				secondaryColor: data.settings.secondaryColor,
+			}
+		: null;
 
 	return (
 		<div className='space-y-6 p-6'>
@@ -41,6 +286,7 @@ export default function SettingsPage() {
 			</div>
 
 			<div className='grid gap-6'>
+				{/* Store Information */}
 				<Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -48,63 +294,19 @@ export default function SettingsPage() {
 							Store Information
 						</CardTitle>
 					</CardHeader>
-					<CardContent className='space-y-4'>
-						<div className='grid gap-2'>
-							<Label
-								htmlFor='storeName'
-								className='text-brand-main-700'>
-								Store Name
-							</Label>
-							<Input
-								id='storeName'
-								value={storeName}
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
+					<CardContent>
+						{isLoading || !storeDefaults ? (
+							<p className='text-sm text-brand-main-500'>Loading…</p>
+						) : (
+							<StoreSettingsForm
+								defaultValues={storeDefaults}
+								isSuperAdmin={isSuperAdmin}
 							/>
-						</div>
-						<div className='grid gap-2'>
-							<Label
-								htmlFor='storeName'
-								className='text-brand-main-700'>
-								Store Phone
-							</Label>
-							<Input
-								id='storePhone'
-								value={storePhone}
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
-							/>
-						</div>
-						<div className='grid gap-2'>
-							<Label
-								htmlFor='storeAddress'
-								className='text-brand-main-700'>
-								Store Address
-							</Label>
-							<Input
-								id='storeAddress'
-								disabled
-								value={storeAddress}
-								className='border-brand-main-200 focus:border-brand-main-400'
-							/>
-						</div>
-						<div className='grid gap-2'>
-							<Label
-								htmlFor='taxRate'
-								className='text-brand-main-700'>
-								Tax Rate (%)
-							</Label>
-							<Input
-								id='taxRate'
-								type='number'
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
-								value={Number(taxRate || 0) * 100}
-							/>
-						</div>
+						)}
 					</CardContent>
 				</Card>
 
+				{/* Personal Information */}
 				<Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -114,62 +316,33 @@ export default function SettingsPage() {
 					</CardHeader>
 					<CardContent className='space-y-4'>
 						<div className='grid gap-2'>
-							<Label
-								htmlFor='userName'
-								className='text-brand-main-700'>
-								Name
-							</Label>
-							<Input
-								id='userName'
-								value={user.name}
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
-							/>
+							<Label className='text-brand-main-700'>Name</Label>
+							<Input value={user.name} disabled className='border-brand-main-200' />
 						</div>
 						<div className='grid gap-2'>
-							<Label
-								htmlFor='userName'
-								className='text-brand-main-700'>
-								Username
-							</Label>
-							<Input
-								id='userName'
-								value={user.username}
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
-							/>
+							<Label className='text-brand-main-700'>Username</Label>
+							<Input value={user.username} disabled className='border-brand-main-200' />
 						</div>
 						<div className='grid gap-2'>
-							<Label
-								htmlFor='storeName'
-								className='text-brand-main-700'>
-								Email
-							</Label>
-							<Input
-								id='storePhone'
-								value={user.email}
-								disabled
-								className='border-brand-main-200 focus:border-brand-main-400'
-							/>
+							<Label className='text-brand-main-700'>Email</Label>
+							<Input value={user.email} disabled className='border-brand-main-200' />
 						</div>
 						<div className='grid gap-2'>
-							<Label
-								htmlFor='storeAddress'
-								className='text-brand-main-700'>
-								Role
-							</Label>
+							<Label className='text-brand-main-700'>Role</Label>
 							<Input
-								id='storeAddress'
+								value={user.roles
+									.map((r, i) =>
+										i === user.roles.length - 1 ? `${r}.` : `${r}, `,
+									)
+									.join("")}
 								disabled
-								value={user.roles.map((role, i) =>
-									i === user.roles.length - 1 ? `${role}.` : `${role}, `,
-								)}
-								className='border-brand-main-200 focus:border-brand-main-400'
+								className='border-brand-main-200'
 							/>
 						</div>
 					</CardContent>
 				</Card>
 
+				{/* Security */}
 				<Card className='border-brand-main-200'>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -177,7 +350,7 @@ export default function SettingsPage() {
 							Security
 						</CardTitle>
 					</CardHeader>
-					<CardContent className='space-y-4'>
+					<CardContent>
 						<Button
 							variant='outline'
 							onClick={() => setChangePasswordOpen(true)}
@@ -187,7 +360,8 @@ export default function SettingsPage() {
 					</CardContent>
 				</Card>
 
-				{user.roles.includes("SUPERADMIN") && (
+				{/* Database Backup — SUPERADMIN only */}
+				{isSuperAdmin && (
 					<Card className='border-brand-main-200'>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
@@ -211,29 +385,6 @@ export default function SettingsPage() {
 						</CardContent>
 					</Card>
 				)}
-
-				{/* <Card className='border-brand-main-200'>
-					<CardHeader>
-						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
-							<Palette className='h-5 w-5' />
-							Appearance
-						</CardTitle>
-					</CardHeader>
-					<CardContent className='space-y-4'>
-						<div className='flex items-center justify-between'>
-							<div>
-								<Label className='text-brand-main-700'>Dark Mode</Label>
-								<p className='text-sm text-brand-main-600'>
-									Switch to dark theme
-								</p>
-							</div>
-							<Switch
-								checked={darkMode}
-								onCheckedChange={setDarkMode}
-							/>
-						</div>
-					</CardContent>
-				</Card> */}
 			</div>
 
 			<ChangePasswordDialog

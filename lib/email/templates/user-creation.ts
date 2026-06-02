@@ -7,12 +7,12 @@ import {
 	generateStoreFooterText,
 } from "../store-info";
 
-export function generateUserCreationEmail(data: UserCreationEmailData): {
+export async function generateUserCreationEmail(data: UserCreationEmailData): Promise<{
 	html: string;
 	text: string;
-} {
+}> {
 	const { userName, email, username, password, roles } = data;
-	const storeInfo = getStoreInfo();
+	const storeInfo = await getStoreInfo();
 	const storeHeader = generateStoreHeader(storeInfo);
 	const storeFooter = generateStoreFooterText(storeInfo);
 

@@ -19,8 +19,7 @@ import { Spinner } from "../ui/spinner";
 import { useAuth } from "./auth-provider";
 import { toast } from "sonner";
 import Link from "next/link";
-
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 export function LoginForm() {
 	const [email, setEmail] = useState("");
@@ -28,6 +27,8 @@ export function LoginForm() {
 	const [error, setError] = useState("");
 
 	const { login, loggingIn } = useAuth();
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const storeName = storeData?.settings?.name;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

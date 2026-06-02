@@ -17,8 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 export function ForgotPasswordForm() {
 	const [email, setEmail] = useState("");
@@ -28,6 +27,8 @@ export function ForgotPasswordForm() {
 	const [success, setSuccess] = useState("");
 	const [resetType, setResetType] = useState<"LINK" | "OTP">("LINK");
 	const [showOtpInput, setShowOtpInput] = useState(false);
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const storeName = storeData?.settings?.name;
 	const [verifiedToken, setVerifiedToken] = useState("");
 
 	const handleRequestReset = async (e: React.FormEvent) => {

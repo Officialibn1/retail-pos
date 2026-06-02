@@ -5,6 +5,7 @@ import {
 	CompleteSaleInput,
 } from "@/lib/validations/sale.schema";
 import { sendPurchaseReceiptEmail } from "@/lib/email";
+import { getStoreSettings } from "@/lib/services/store-settings.service";
 
 /**
  * Sale with items and customer information
@@ -33,10 +34,6 @@ export type SaleWithDetails = Sale & {
 	};
 };
 
-const taxRate = Number(
-	process.env.TAX_AMOUNT || process.env.NEXT_PUBLIC_TAX_AMOUNT || "0.1",
-);
-
 /**
  * Create a new sale with stock validation
  * @param data - Sale creation data
@@ -44,6 +41,8 @@ const taxRate = Number(
  * @throws Error if inventory is insufficient
  */
 export async function createSale(data: CreateSaleInput): Promise<Sale> {
+	const { taxRate } = await getStoreSettings();
+
 	// Use transaction to ensure atomicity with increased timeout
 	const result = await prisma.$transaction(
 		async (tx) => {

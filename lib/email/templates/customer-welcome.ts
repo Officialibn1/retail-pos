@@ -7,12 +7,12 @@ import {
 	generateStoreFooterText,
 } from "../store-info";
 
-export function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): {
+export async function generateCustomerWelcomeEmail(data: CustomerWelcomeEmailData): Promise<{
 	html: string;
 	text: string;
-} {
+}> {
 	const { customerName, phone } = data;
-	const storeInfo = getStoreInfo();
+	const storeInfo = await getStoreInfo();
 	const storeHeader = generateStoreHeader(storeInfo);
 	const storeFooter = generateStoreFooterText(storeInfo);
 

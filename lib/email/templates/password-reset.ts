@@ -1,11 +1,11 @@
 import { getStoreInfo } from "../store-info";
 import type { PasswordResetEmailData } from "../types";
 
-export function generatePasswordResetEmail(data: PasswordResetEmailData): {
+export async function generatePasswordResetEmail(data: PasswordResetEmailData): Promise<{
 	html: string;
 	text: string;
-} {
-	const store = getStoreInfo();
+}> {
+	const store = await getStoreInfo();
 	const { userName, resetLink, otp, type, expiryMinutes } = data;
 
 	const html = `

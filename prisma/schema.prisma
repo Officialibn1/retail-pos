@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -17,48 +14,41 @@ model Session {
   expires   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
+  id        String    @id @default(cuid())
+  token     String    @unique
   userId    String
+  expires   DateTime
+  createdAt DateTime  @default(now())
   otp       String?
   type      ResetType @default(LINK)
-  expires   DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([otp])
   @@map("password_reset_tokens")
 }
 
-enum ResetType {
-  LINK
-  OTP
-}
-
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  username  String     @unique
-  name      String
-  password  String
-  roles     UserRole[] @default([CASHIER])
-  status    UserStatus @default(ACTIVE)
-  shift     Shift      @default(MORNING)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  sessions            Session[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  username            String               @unique
+  name                String
+  password            String
+  roles               UserRole[]           @default([CASHIER])
+  shift               Shift                @default(MORNING)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  status              UserStatus           @default(ACTIVE)
+  activityLogs        ActivityLog[]
   passwordResetTokens PasswordResetToken[]
   sales               Sale[]
-  activityLogs        ActivityLog[]
+  sessions            Session[]
 
   @@map("users")
 }
@@ -71,8 +61,7 @@ model ActivityLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -83,12 +72,11 @@ model ActivityLog {
 model Customer {
   id        String   @id @default(cuid())
   name      String?
-  phone     String  @unique
-  email     String? @unique
+  phone     String   @unique
+  email     String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  sales Sale[]
+  sales     Sale[]
 
   @@index([phone, name])
   @@index([createdAt])
@@ -96,29 +84,27 @@ model Customer {
 }
 
 model InventoryItemCategory {
-  id   String @id @default(cuid())
-  name String @unique
-
+  id             String          @id @default(cuid())
+  name           String          @unique
   inventoryItems InventoryItem[]
 
   @@map("inventory_item_categories")
 }
 
 model InventoryItem {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal   @db.Decimal(10, 2)
-  stock       Int       @default(0)
-  sku         String    @unique
-  barcode     String?   @unique
-  categoryId  String
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  saleItems      SaleItem[]
+  id             String                @id @default(cuid())
+  name           String
+  description    String?
+  price          Decimal               @db.Decimal(10, 2)
+  stock          Int                   @default(0)
+  sku            String                @unique
+  barcode        String?               @unique
+  categoryId     String
+  deletedAt      DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
   category       InventoryItemCategory @relation(fields: [categoryId], references: [id])
+  saleItems      SaleItem[]
   stockMovements StockMovement[]
 
   @@index([categoryId])
@@ -131,14 +117,13 @@ model InventoryItem {
 }
 
 model StockMovement {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   inventoryItemId String
   quantity        Int
   reason          String
   notes           String?
-  createdAt       DateTime @default(now())
-
-  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  createdAt       DateTime      @default(now())
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
 
   @@index([inventoryItemId])
   @@index([createdAt])
@@ -147,26 +132,24 @@ model StockMovement {
 }
 
 model Sale {
-  id            String         @id @default(cuid())
-  subTotal         Decimal        @db.Decimal(10, 2)
-  total         Decimal        @db.Decimal(10, 2)
-  status        SaleStatus     @default(PENDING)
-  paymentMethod PaymentMethod?
-  amountPaid    Decimal?       @db.Decimal(10, 2)
-  changeGiven   Decimal?       @db.Decimal(10, 2)
-  taxAmount           Int?
-  discountAmount      Int?
-  completedAt   DateTime?
-  cancelledAt   DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  customerId String?
-  customer   Customer? @relation(fields: [customerId], references: [id])
-
-  items SaleItem[]
+  id             String         @id @default(cuid())
+  total          Decimal        @db.Decimal(10, 2)
+  status         SaleStatus     @default(PENDING)
+  paymentMethod  PaymentMethod?
+  amountPaid     Decimal?       @db.Decimal(10, 2)
+  changeGiven    Decimal?       @db.Decimal(10, 2)
+  completedAt    DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  userId         String
+  customerId     String?
+  discountAmount Int?
+  taxAmount      Int?
+  subTotal       Decimal        @db.Decimal(10, 2)
+  items          SaleItem[]
+  customer       Customer?      @relation(fields: [customerId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([customerId])
@@ -181,19 +164,38 @@ model Sale {
 }
 
 model SaleItem {
-  id       String  @id @default(cuid())
-  quantity Int
-  price    Decimal @db.Decimal(10, 2)
-
-  saleId String
-  sale   Sale   @relation(fields: [saleId], references: [id])
-
+  id              String        @id @default(cuid())
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  saleId          String
   inventoryItemId String
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  sale            Sale          @relation(fields: [saleId], references: [id])
 
   @@index([inventoryItemId, saleId])
   @@index([quantity, price])
   @@map("sale_items")
+}
+
+model StoreInfo {
+  id             String   @id @default("singleton")
+  name           String   @default("POS Store")
+  address        String   @default("")
+  phone          String   @default("")
+  email          String?
+  taxRate        Decimal  @default(0.1) @db.Decimal(5, 4)
+  primaryColor   String   @default("#7c3aed")
+  secondaryColor String   @default("#a78bfa")
+  logoUrl        String   @default("/pos_logo.png")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("store_info")
+}
+
+enum ResetType {
+  LINK
+  OTP
 }
 
 enum UserRole {

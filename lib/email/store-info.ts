@@ -1,4 +1,4 @@
-// Store information utility for email templates
+import { getStoreSettings } from "@/lib/services/store-settings.service";
 
 export interface StoreInfo {
 	name: string;
@@ -12,29 +12,18 @@ export interface StoreInfo {
 	};
 }
 
-/**
- * Get store information from environment variables
- * @returns Store information with defaults
- */
-export function getStoreInfo(): StoreInfo {
+export async function getStoreInfo(): Promise<StoreInfo> {
+	const s = await getStoreSettings();
 	return {
-		name: process.env.NEXT_PUBLIC_STORE_NAME || "POS Store",
-		address: process.env.NEXT_PUBLIC_STORE_ADDRESS || "",
-		phone: process.env.NEXT_PUBLIC_STORE_PHONE || "",
-		email: process.env.NEXT_PUBLIC_STORE_EMAIL || "",
-		logo: process.env.NEXT_PUBLIC_STORE_LOGO || "/pos_logo.png",
-		colors: {
-			primary: process.env.NEXT_PUBLIC_STORE_COLOR_PRIMARY || "#7c3aed",
-			secondary: process.env.NEXT_PUBLIC_STORE_COLOR_SECONDARY || "#a78bfa",
-		},
+		name: s.name,
+		address: s.address,
+		phone: s.phone,
+		email: s.email,
+		logo: s.logoUrl,
+		colors: { primary: s.primaryColor, secondary: s.secondaryColor },
 	};
 }
 
-/**
- * Generate store header HTML for email templates
- * @param storeInfo - Store information
- * @returns HTML string for store header
- */
 export function generateStoreHeader(storeInfo: StoreInfo): string {
 	return `
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
@@ -54,18 +43,9 @@ export function generateStoreHeader(storeInfo: StoreInfo): string {
   `;
 }
 
-/**
- * Generate store footer text for plain text emails
- * @param storeInfo - Store information
- * @returns Plain text string for store footer
- */
 export function generateStoreFooterText(storeInfo: StoreInfo): string {
 	let footer = `\n---\n${storeInfo.name}`;
-	if (storeInfo.address) {
-		footer += `\n${storeInfo.address}`;
-	}
-	if (storeInfo.phone) {
-		footer += `\nTel: ${storeInfo.phone}`;
-	}
+	if (storeInfo.address) footer += `\n${storeInfo.address}`;
+	if (storeInfo.phone) footer += `\nTel: ${storeInfo.phone}`;
 	return footer;
 }

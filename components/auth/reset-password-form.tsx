@@ -17,8 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 export function ResetPasswordForm() {
 	const router = useRouter();
@@ -32,6 +31,8 @@ export function ResetPasswordForm() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState(false);
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const storeName = storeData?.settings?.name;
 
 	useEffect(() => {
 		if (!token) {
