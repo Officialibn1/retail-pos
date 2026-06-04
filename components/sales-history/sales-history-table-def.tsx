@@ -1,13 +1,14 @@
 import { SaleWithDetails } from "@/lib/services/sale.service";
 import { dateTimeFormatter, formatNaira } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Eye, Printer, MoreVertical } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { Eye, Printer, MoreVertical, RotateCcw } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
@@ -15,6 +16,7 @@ interface TableProps {
 	canSeeAll: boolean;
 	handleViewSale: (sale: SaleWithDetails) => void;
 	handlePrintReceipt: (sale: SaleWithDetails) => void;
+	handleProcessReturn: (sale: SaleWithDetails) => void;
 }
 
 const getStatusBadge = (status: string) => {
@@ -50,6 +52,7 @@ export const salesHistoryTableDef = ({
 	canSeeAll,
 	handleViewSale,
 	handlePrintReceipt,
+	handleProcessReturn,
 }: TableProps) => {
 	const columnDef: ColumnDef<SaleWithDetails>[] = [
 		{
@@ -135,6 +138,46 @@ export const salesHistoryTableDef = ({
 			),
 		},
 		{
+			header: "Returned Qty",
+			id: "returnedQty",
+			cell: ({ row }) => {
+				const totalQty = row.original.returns?.reduce(
+					(sum, r) => sum + r.items.reduce((s, i) => s + i.quantity, 0),
+					0,
+				) ?? 0;
+				return (
+					<div className='text-end w-full flex justify-end'>
+						{totalQty > 0 ? (
+							<span className='text-amber-700 font-medium'>{totalQty}</span>
+						) : (
+							<span className='text-brand-main-400'>—</span>
+						)}
+					</div>
+				);
+			},
+		},
+		{
+			header: "Refunded",
+			id: "refundedAmount",
+			cell: ({ row }) => {
+				const totalRefund = row.original.returns?.reduce(
+					(sum, r) => sum + Number(r.refundAmount),
+					0,
+				) ?? 0;
+				return (
+					<div className='text-end w-full flex justify-end'>
+						{totalRefund > 0 ? (
+							<span className='text-amber-700 font-medium'>
+								-{formatNaira(totalRefund)}
+							</span>
+						) : (
+							<span className='text-brand-main-400'>—</span>
+						)}
+					</div>
+				);
+			},
+		},
+		{
 			header: "Status",
 			accessorKey: "status",
 			cell: ({ row }) => getStatusBadge(row.original.status),
@@ -161,6 +204,17 @@ export const salesHistoryTableDef = ({
 							<Printer className='h-4 w-4 mr-2' />
 							Print Receipt
 						</DropdownMenuItem>
+						{row.original.status === "COMPLETED" && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onClick={() => handleProcessReturn(row.original)}
+									className='text-amber-700 focus:text-amber-800 focus:bg-amber-50'>
+									<RotateCcw className='h-4 w-4 mr-2' />
+									Process Return
+								</DropdownMenuItem>
+							</>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			),

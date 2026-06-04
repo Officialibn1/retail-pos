@@ -12,14 +12,14 @@
 ### 1. Returns & Refunds 🔴
 **What:** Allow partial or full returns on completed sales, issue refund, and restock returned items.
 
-- [ ] Add `Return` model to schema (`saleId`, `items[]`, `refundAmount`, `reason`, `createdAt`)
-- [ ] Add `RETURN` status or keep returns as separate records linked to original sale
-- [ ] Add `POST /api/sales/[id]/return` API route
-- [ ] Update stock movements to record restocked quantities with reason `RETURN`
-- [ ] Add "Process Return" action on the sales history table
-- [ ] Build return dialog (item selection with quantities, refund method)
-- [ ] Add RTK mutation `useCreateReturnMutation`
-- [ ] Show return records in sales history and customer purchase history
+- [x] Add `Return` model to schema (`saleId`, `items[]`, `refundAmount`, `reason`, `createdAt`)
+- [x] Add `RETURN` status or keep returns as separate records linked to original sale
+- [x] Add `POST /api/sales/[id]/return` API route
+- [x] Update stock movements to record restocked quantities with reason `RETURN`
+- [x] Add "Process Return" action on the sales history table
+- [x] Build return dialog (item selection with quantities, refund method)
+- [x] Add RTK mutation `useCreateReturnMutation`
+- [x] Show return records in sales history and customer purchase history
 
 ---
 

@@ -3,12 +3,13 @@ import { Sale, SaleStatus, UserRole } from "@/generated/prisma/client";
 import {
 	CreateSaleInput,
 	CompleteSaleInput,
+	CreateReturnInput,
 } from "@/lib/validations/sale.schema";
 import { sendPurchaseReceiptEmail } from "@/lib/email";
 import { getStoreSettings } from "@/lib/services/store-settings.service";
 
 /**
- * Sale with items and customer information
+ * Sale with items, customer information, and returns
  */
 export type SaleWithDetails = Sale & {
 	items: Array<{
@@ -32,6 +33,27 @@ export type SaleWithDetails = Sale & {
 		name: string;
 		email: string;
 	};
+	returns: Array<{
+		id: string;
+		reason: string;
+		refundAmount: number;
+		refundMethod: string;
+		createdAt: Date;
+		processedBy: {
+			id: string;
+			name: string;
+		};
+		items: Array<{
+			id: string;
+			quantity: number;
+			price: number;
+			inventoryItem: {
+				id: string;
+				name: string;
+				sku: string;
+			};
+		}>;
+	}>;
 };
 
 /**
@@ -197,6 +219,21 @@ export async function getSaleById(
 					email: true,
 				},
 			},
+			returns: {
+				include: {
+					items: {
+						include: {
+							inventoryItem: {
+								select: { id: true, name: true, sku: true },
+							},
+						},
+					},
+					processedBy: {
+						select: { id: true, name: true },
+					},
+				},
+				orderBy: { createdAt: "desc" },
+			},
 		},
 	});
 
@@ -290,6 +327,21 @@ export async function completeSale(
 						email: true,
 						phone: true,
 					},
+				},
+				returns: {
+					include: {
+						items: {
+							include: {
+								inventoryItem: {
+									select: { id: true, name: true, sku: true },
+								},
+							},
+						},
+						processedBy: {
+							select: { id: true, name: true },
+						},
+					},
+					orderBy: { createdAt: "desc" },
 				},
 			},
 		});
@@ -406,6 +458,171 @@ export async function cancelSale(id: string): Promise<Sale> {
 	});
 
 	return result;
+}
+
+/**
+ * Sale return with items and processing user
+ */
+export type SaleReturnWithDetails = {
+	id: string;
+	saleId: string;
+	reason: string;
+	refundAmount: number;
+	refundMethod: string;
+	createdAt: Date;
+	processedById: string;
+	items: Array<{
+		id: string;
+		quantity: number;
+		price: number;
+		inventoryItem: {
+			id: string;
+			name: string;
+			sku: string;
+		};
+	}>;
+	processedBy: {
+		id: string;
+		name: string;
+		email: string;
+	};
+};
+
+/**
+ * Process a return for a completed sale
+ * Restocks returned items and creates a SaleReturn record
+ * @param saleId - Original sale ID
+ * @param data - Return data with items, reason, and refund method
+ * @param processedById - ID of the user processing the return
+ * @returns Created SaleReturn with details
+ * @throws Error if sale not found, not COMPLETED, or items invalid
+ */
+export async function createReturn(
+	saleId: string,
+	data: CreateReturnInput,
+	processedById: string,
+): Promise<SaleReturnWithDetails> {
+	const result = await prisma.$transaction(
+		async (tx) => {
+			// Fetch the original sale with its items
+			const sale = await tx.sale.findUnique({
+				where: { id: saleId },
+				include: {
+					items: {
+						include: {
+							inventoryItem: {
+								select: { id: true, name: true, sku: true },
+							},
+						},
+					},
+				},
+			});
+
+			if (!sale) {
+				throw new Error("Sale not found");
+			}
+
+			if (sale.status !== SaleStatus.COMPLETED) {
+				throw new Error(
+					`Cannot process return for a sale with status ${sale.status}. Only COMPLETED sales can be returned.`,
+				);
+			}
+
+			// Build a map of original sale items keyed by inventoryItemId
+			const saleItemMap = new Map(
+				sale.items.map((item) => [item.inventoryItemId, item]),
+			);
+
+			// Validate each return item
+			let refundAmount = 0;
+			for (const returnItem of data.items) {
+				const originalItem = saleItemMap.get(returnItem.inventoryItemId);
+
+				if (!originalItem) {
+					throw new Error(
+						`Item ${returnItem.inventoryItemId} was not part of the original sale`,
+					);
+				}
+
+				if (returnItem.quantity > originalItem.quantity) {
+					throw new Error(
+						`Cannot return ${returnItem.quantity} of "${originalItem.inventoryItem.name}" — only ${originalItem.quantity} was purchased`,
+					);
+				}
+
+				refundAmount += Number(originalItem.price) * returnItem.quantity;
+			}
+
+			// Restock items and create stock movement records
+			await Promise.all(
+				data.items.map(async (returnItem) => {
+					const originalItem = saleItemMap.get(returnItem.inventoryItemId)!;
+
+					await tx.inventoryItem.update({
+						where: { id: returnItem.inventoryItemId },
+						data: { stock: { increment: returnItem.quantity } },
+					});
+
+					await tx.stockMovement.create({
+						data: {
+							inventoryItemId: returnItem.inventoryItemId,
+							quantity: returnItem.quantity,
+							reason: "RETURN",
+							notes: `Return for Sale ID: ${saleId} — ${returnItem.quantity} x ${originalItem.inventoryItem.name}`,
+						},
+					});
+				}),
+			);
+
+			// Create the SaleReturn record with its items
+			const saleReturn = await tx.saleReturn.create({
+				data: {
+					saleId,
+					reason: data.reason,
+					refundAmount,
+					refundMethod: data.refundMethod,
+					processedById,
+					items: {
+						create: data.items.map((returnItem) => {
+							const originalItem = saleItemMap.get(returnItem.inventoryItemId)!;
+							return {
+								inventoryItemId: returnItem.inventoryItemId,
+								quantity: returnItem.quantity,
+								price: originalItem.price,
+							};
+						}),
+					},
+				},
+				include: {
+					items: {
+						include: {
+							inventoryItem: {
+								select: { id: true, name: true, sku: true },
+							},
+						},
+					},
+					processedBy: {
+						select: { id: true, name: true, email: true },
+					},
+				},
+			});
+
+			return saleReturn;
+		},
+		{
+			maxWait: 10000,
+			timeout: 15000,
+		},
+	);
+
+	return {
+		...result,
+		refundAmount: Number(result.refundAmount),
+		items: result.items.map((item) => ({
+			...item,
+			price: Number(item.price),
+		})),
+	};
 }
 
 /**
@@ -559,6 +776,21 @@ export async function listSales(
 					name: true,
 					email: true,
 				},
+			},
+			returns: {
+				include: {
+					items: {
+						include: {
+							inventoryItem: {
+								select: { id: true, name: true, sku: true },
+							},
+						},
+					},
+					processedBy: {
+						select: { id: true, name: true },
+					},
+				},
+				orderBy: { createdAt: "desc" },
 			},
 		},
 		orderBy: {

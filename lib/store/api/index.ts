@@ -48,6 +48,7 @@ export const TAG_TYPES = [
 	"Auth",
 	"Inventory",
 	"Sales",
+	"Returns",
 	"Users",
 	"Customers",
 	"Categories",
@@ -144,6 +145,48 @@ export interface SaleUser {
 // Cancel sale request (no body required, but keeping for consistency)
 export interface CancelSaleRequest {
 	reason?: string;
+}
+
+// Return item
+export interface ReturnItemRequest {
+	inventoryItemId: string;
+	quantity: number;
+}
+
+// Create return request
+export interface CreateReturnRequest {
+	items: ReturnItemRequest[];
+	reason: string;
+	refundMethod: string;
+}
+
+// Sale return item in response
+export interface SaleReturnItemResponse {
+	id: string;
+	quantity: number;
+	price: number;
+	inventoryItem: {
+		id: string;
+		name: string;
+		sku: string;
+	};
+}
+
+// Sale return response
+export interface CreateReturnResponse {
+	id: string;
+	saleId: string;
+	reason: string;
+	refundAmount: number;
+	refundMethod: string;
+	createdAt: string;
+	processedById: string;
+	items: SaleReturnItemResponse[];
+	processedBy: {
+		id: string;
+		name: string;
+		email: string;
+	};
 }
 
 // Customer search parameters
@@ -281,6 +324,38 @@ export interface ActivityLogSearchParams {
 	searchTerm?: string;
 	action?: string;
 	limit?: number;
+}
+
+// Returns list search parameters
+export interface ReturnSearchParams {
+	searchTerm?: string;
+	refundMethod?: string;
+	startDate?: string;
+	endDate?: string;
+}
+
+// Return list item (matches ReturnWithDetails from return.service)
+export interface ReturnWithDetails {
+	id: string;
+	saleId: string;
+	reason: string;
+	refundAmount: number;
+	refundMethod: string;
+	createdAt: string;
+	processedBy: {
+		id: string;
+		name: string;
+		email: string;
+	};
+	sale: {
+		id: string;
+		customer: {
+			id: string;
+			name: string | null;
+			phone: string;
+		} | null;
+	};
+	items: SaleReturnItemResponse[];
 }
 
 export const api = createApi({
@@ -424,6 +499,27 @@ export const api = createApi({
 				method: "POST",
 			}),
 			invalidatesTags: ["Sales", "Inventory"],
+		}),
+
+		createReturn: builder.mutation<
+			CreateReturnResponse,
+			{ id: string; data: CreateReturnRequest }
+		>({
+			query: ({ id, data }) => ({
+				url: `/api/sales/${id}/return`,
+				method: "POST",
+				body: data,
+			}),
+			invalidatesTags: ["Sales", "Inventory", "Returns"],
+		}),
+
+		getReturns: builder.query<ReturnWithDetails[], ReturnSearchParams | void>({
+			query: (params) => ({
+				url: "/api/returns",
+				method: "GET",
+				params: params || undefined,
+			}),
+			providesTags: ["Returns"],
 		}),
 
 		getUsers: builder.query<GetUsersResponse, UserSearchParams | void>({
@@ -767,6 +863,8 @@ export const {
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useCancelSaleMutation,
+	useCreateReturnMutation,
+	useGetReturnsQuery,
 	useGetUsersQuery,
 	useGetUserQuery,
 	useCreateUserMutation,

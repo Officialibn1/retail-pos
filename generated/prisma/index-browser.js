@@ -225,6 +225,24 @@ exports.Prisma.SaleItemScalarFieldEnum = {
   inventoryItemId: 'inventoryItemId'
 };
 
+exports.Prisma.SaleReturnScalarFieldEnum = {
+  id: 'id',
+  saleId: 'saleId',
+  reason: 'reason',
+  refundAmount: 'refundAmount',
+  refundMethod: 'refundMethod',
+  processedById: 'processedById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SaleReturnItemScalarFieldEnum = {
+  id: 'id',
+  returnId: 'returnId',
+  inventoryItemId: 'inventoryItemId',
+  quantity: 'quantity',
+  price: 'price'
+};
+
 exports.Prisma.StoreInfoScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -301,6 +319,8 @@ exports.Prisma.ModelName = {
   StockMovement: 'StockMovement',
   Sale: 'Sale',
   SaleItem: 'SaleItem',
+  SaleReturn: 'SaleReturn',
+  SaleReturnItem: 'SaleReturnItem',
   StoreInfo: 'StoreInfo'
 };
 

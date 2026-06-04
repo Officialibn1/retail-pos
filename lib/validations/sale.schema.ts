@@ -88,7 +88,30 @@ export const cancelSaleSchema = z.object({
 		.optional(),
 });
 
+const returnItemSchema = z.object({
+	inventoryItemId: z.string().cuid("Invalid inventory item ID"),
+	quantity: z
+		.number()
+		.int("Quantity must be an integer")
+		.positive("Quantity must be positive"),
+});
+
+export const createReturnSchema = z.object({
+	items: z
+		.array(returnItemSchema)
+		.min(1, "At least one item is required for a return"),
+	reason: z
+		.string()
+		.min(1, "Return reason is required")
+		.max(500, "Reason must not exceed 500 characters"),
+	refundMethod: z.nativeEnum(PaymentMethod, {
+		errorMap: () => ({ message: "Invalid refund method" }),
+	}),
+});
+
 export type CreateSaleInput = z.infer<typeof createSaleSchema>;
 export type CompleteSaleInput = z.infer<typeof completeSaleSchema>;
 export type CancelSaleInput = z.infer<typeof cancelSaleSchema>;
+export type CreateReturnInput = z.infer<typeof createReturnSchema>;
 export type SaleItemInput = z.infer<typeof saleItemSchema>;
+export type ReturnItemInput = z.infer<typeof returnItemSchema>;

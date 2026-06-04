@@ -34,6 +34,7 @@ enum UserRole {
 - ✅ Access dashboard and analytics
 - ✅ View activity logs
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds
 - ✅ Export database backups
 - ✅ Cannot be blocked or suspended (protected status)
 
@@ -48,6 +49,7 @@ enum UserRole {
 - ✅ Access dashboard and analytics
 - ✅ View activity logs
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds
 - ❌ Cannot manage users
 
 ### 3. ADMIN
@@ -59,6 +61,7 @@ enum UserRole {
 - ✅ Manage customers (create, read, update, delete)
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds (own sales only)
 - ❌ Cannot access analytics page
 - ❌ Cannot view all data
 - ❌ Cannot manage inventory
@@ -73,6 +76,8 @@ enum UserRole {
 - ✅ Create customers only
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
+- ✅ View returns they personally processed (scoped to `processedById`)
+- ❌ Cannot process sale returns (no refund capability)
 - ❌ Cannot access analytics page
 - ❌ Cannot update or delete customers
 - ❌ Cannot manage categories
@@ -169,6 +174,10 @@ enum UserStatus {
 | Create Sale                | ✅         | ✅      | ✅    | ✅      |
 | Complete Sale              | ✅         | ✅      | ✅    | ✅      |
 | Cancel Sale                | ✅         | ✅      | ✅    | ✅      |
+| **Sale Returns**           |
+| View All Returns           | ✅         | ✅      | ❌    | ❌      |
+| View Own Returns           | ✅         | ✅      | ✅    | ✅      |
+| Process Return (refund)    | ✅         | ✅      | ✅    | ❌      |
 | **Inventory**              |
 | View Inventory             | ✅         | ✅      | ✅    | ✅      |
 | Create Item                | ✅         | ✅      | ❌    | ❌      |
@@ -351,6 +360,25 @@ if (
 }
 ```
 
+### Sale Returns
+
+- **SUPERADMIN & MANAGER**: See all returns across all users
+- **ADMIN & CASHIER**: See only returns they personally processed (scoped by `processedById`)
+
+Implementation in services:
+
+```typescript
+// Only SUPERADMIN and MANAGER can see all returns
+if (
+	userId &&
+	userRoles &&
+	!userRoles.includes(UserRole.SUPERADMIN) &&
+	!userRoles.includes(UserRole.MANAGER)
+) {
+	whereClause.processedById = userId; // Filter to returns processed by this user
+}
+```
+
 ### Activity Logs
 
 - **SUPERADMIN & MANAGER**: See all activity logs
@@ -376,6 +404,7 @@ model User {
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   sales               Sale[]
+  saleReturns         SaleReturn[]
   activityLogs        ActivityLog[]
 
   @@map("users")
@@ -387,9 +416,47 @@ Key fields:
 - **roles**: Array of UserRole enums (supports multiple roles)
 - **status**: UserStatus enum (ACTIVE, BLOCKED, SUSPENDED)
 - **shift**: Shift enum (MORNING, EVENING, FULLTIME)
+- **saleReturns**: Returns processed by this user (via `processedById`)
 - Default role: CASHIER
 - Default status: ACTIVE
 - Default shift: MORNING
+
+### Sale Return Models
+
+```prisma
+model SaleReturn {
+  id            String           @id @default(cuid())
+  saleId        String
+  reason        String
+  refundAmount  Decimal          @db.Decimal(10, 2)
+  refundMethod  PaymentMethod
+  processedById String
+  createdAt     DateTime         @default(now())
+  items         SaleReturnItem[]
+  sale          Sale             @relation(fields: [saleId], references: [id])
+  processedBy   User             @relation(fields: [processedById], references: [id])
+
+  @@map("sale_returns")
+}
+
+model SaleReturnItem {
+  id              String        @id @default(cuid())
+  returnId        String
+  inventoryItemId String
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  saleReturn      SaleReturn    @relation(fields: [returnId], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@map("sale_return_items")
+}
+```
+
+Key fields:
+
+- **processedById**: The user who processed the return — used for role-based attribution and audit trail
+- **refundMethod**: Uses the existing `PaymentMethod` enum (CASH, CARD, MOBILE_MONEY, BANK_TRANSFER)
+- **reason**: Free-text explanation for the return
 
 ## API Route Protection
 
@@ -402,6 +469,12 @@ All API routes follow a consistent protection pattern using authentication, role
 - `GET /api/sales/:id` - All roles (filtered by role), ACTIVE or SUSPENDED users
 - `PUT /api/sales/:id/complete` - All roles (own sales), **ACTIVE users only** (mutation protected)
 - `PUT /api/sales/:id/cancel` - All roles (own sales), **ACTIVE users only** (mutation protected)
+
+### Sale Return Routes
+
+- `GET /api/returns` - All roles; SUPERADMIN & MANAGER see all returns, ADMIN sees returns they processed, CASHIER sees returns they processed (scoped by `processedById`); ACTIVE or SUSPENDED users
+- `POST /api/sales/:id/return` - SUPERADMIN, MANAGER, ADMIN, **ACTIVE users only** (mutation protected)
+- `GET /api/sales/:id/return` - SUPERADMIN, MANAGER (any return); ADMIN (own return only); ACTIVE or SUSPENDED users
 
 ### Inventory Routes
 
