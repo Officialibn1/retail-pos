@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "name": "Update Improvement Plan",
+  "description": "Marks tasks in IMPROVEMENT_PLAN.md as complete when their deliverable files are created or modified",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "prisma/schema.prisma",
+      "prisma/migrations/**",
+      "lib/services/*.service.ts",
+      "lib/store/api/index.ts",
+      "app/api/**",
+      "app/dashboard/**",
+      "components/sales/**",
+      "components/receipts/**",
+      "components/inventory/**",
+      "components/customers/**",
+      "components/analytics/**",
+      "components/settings/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A project file was just created or modified. Read IMPROVEMENT_PLAN.md and check whether the changed file corresponds to any task still marked `- [ ]`. If the change genuinely implements what a task describes, update its checkbox from `- [ ]` to `- [x]`. Only mark a task complete if the deliverable it describes is actually present in the file — do not speculatively tick items. Save the updated IMPROVEMENT_PLAN.md."
+  }
+}
