@@ -98,7 +98,7 @@ export function ActivityDetailsDialog({
 					{/* Details */}
 					<div className='space-y-2'>
 						<p className='text-sm font-medium text-brand-main-700'>Details</p>
-						<div className='rounded-md bg-brand-main-50 border border-brand-main-200 p-3'>
+						<div className='rounded-md bg-brand-main-50 border   p-3'>
 							<p className='text-sm text-brand-main-800 whitespace-pre-wrap break-words'>
 								{activity.details}
 							</p>
@@ -136,7 +136,7 @@ export function ActivityDetailsDialog({
 					)}
 
 					{/* Activity ID */}
-					<div className='pt-2 border-t border-brand-main-200'>
+					<div className='pt-2 border-t  '>
 						<p className='text-xs text-brand-main-500'>
 							Activity ID: {activity.id}
 						</p>

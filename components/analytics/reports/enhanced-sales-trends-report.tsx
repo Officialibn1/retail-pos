@@ -78,7 +78,7 @@ export function EnhancedSalesTrendsReport({
 	if (isLoading) {
 		return (
 			<div className='space-y-6'>
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader>
 						<div className='flex items-center justify-between'>
 							<div>
@@ -103,7 +103,7 @@ export function EnhancedSalesTrendsReport({
 				</Card>
 
 				{canSeeAll && (
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader>
 							<div className='flex items-center justify-between'>
 								<div>

@@ -70,7 +70,7 @@ export function CustomerAnalyticsReport({
 
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<div className='flex items-center justify-between'>
 						<div>

@@ -127,21 +127,21 @@ export function DashboardSidebar() {
 	return (
 		<Sidebar
 			variant='inset'
-			className='bg-brand-main-50/5 border-brand-main-200 border-r'
+			className='bg-muted border-r'
 			collapsible='icon'>
 			<SidebarHeader className='w-full pb-4'>
 				<SidebarMenu className='flex items-center gap-3'>
 					<SidebarMenuItem className='w-full group-data-[collapsible=icon]:hidden'>
-						<SidebarMenuButton size='lg'>
-							<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-600'>
+						<SidebarMenuButton size='lg' className="bg-border hover:bg-border">
+							<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-900'>
 								<Store className='size-4 text-white' />
 							</div>
 
 							<div className='flex flex-col'>
-								<span className='text-sm font-semibold text-brand-main-800'>
+								<span className='text-sm font-semibold text-brand-main-900'>
 									{storeName}
 								</span>
-								<span className='text-xs text-brand-main-600'>
+								<span className='text-xs text-brand-main-700'>
 									Point of Sale System
 								</span>
 							</div>
@@ -149,7 +149,7 @@ export function DashboardSidebar() {
 					</SidebarMenuItem>
 
 					<SidebarMenuItem className='w-full hidden group-data-[collapsible=icon]:block'>
-						<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-600'>
+						<div className='size-8 aspect-square grid place-items-center rounded-lg bg-brand-main-900'>
 							<Store className='size-4 text-white' />
 						</div>
 					</SidebarMenuItem>
@@ -172,7 +172,7 @@ export function DashboardSidebar() {
 											asChild
 											tooltip={item.title}
 											isActive={pathname === item.url}
-											className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-600 data-[active=true]:text-white'>
+											className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
 											<Link href={item.url}>
 												<item.icon className='h-4 w-4' />
 												<span>{item.title}</span>
@@ -185,7 +185,7 @@ export function DashboardSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				<SidebarSeparator className='bg-brand-main-200 max-w-[90%]' />
+				<SidebarSeparator className='bg-border max-w-[90%]' />
 
 				<SidebarGroup>
 					<SidebarGroupLabel className='text-brand-main-700'>
@@ -198,7 +198,7 @@ export function DashboardSidebar() {
 									tooltip={"Settings"}
 									isActive={pathname === "/dashboard/settings"}
 									asChild
-									className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-600 data-[active=true]:text-white'>
+									className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
 									<Link href='/dashboard/settings'>
 										<Settings className='h-4 w-4' />
 										<span>Settings</span>
@@ -210,11 +210,11 @@ export function DashboardSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 
-			<SidebarFooter className='border-t border-brand-main-200 pt-4'>
+			<SidebarFooter className='border-t   pt-4'>
 				<SidebarMenu>
 					<SidebarMenuItem className='hidden group-data-[collapsible=icon]:block'>
 						<Avatar className='h-8 w-8'>
-							<AvatarFallback className='bg-brand-main-600 text-white text-xs'>
+							<AvatarFallback className='bg-brand-main-900 text-white text-xs'>
 								{user.name
 									.split(" ")
 									.map((n) => n[0])
@@ -225,7 +225,7 @@ export function DashboardSidebar() {
 
 					<SidebarMenuItem className='flex items-center gap-3 px-2 mb-3 group-data-[collapsible=icon]:hidden'>
 						<Avatar className='h-8 w-8'>
-							<AvatarFallback className='bg-brand-main-600 text-white text-xs'>
+							<AvatarFallback className='bg-brand-main-900 text-white text-xs'>
 								{user.name
 									.split(" ")
 									.map((n) => n[0])

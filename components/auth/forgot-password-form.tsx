@@ -172,7 +172,7 @@ export function ForgotPasswordForm() {
 
 									<Button
 										type='submit'
-										className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+										className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 										disabled={isLoading}>
 										{isLoading ? <Spinner /> : "Send Reset Link"}
 									</Button>
@@ -215,7 +215,7 @@ export function ForgotPasswordForm() {
 
 									<Button
 										type='submit'
-										className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+										className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 										disabled={isLoading}>
 										{isLoading ? <Spinner /> : "Send OTP"}
 									</Button>
@@ -252,7 +252,7 @@ export function ForgotPasswordForm() {
 
 							<Button
 								type='submit'
-								className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+								className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 								disabled={isLoading || otp.length !== 6}>
 								{isLoading ? <Spinner /> : "Verify OTP"}
 							</Button>

@@ -259,7 +259,7 @@ export default function CustomersPage() {
 					<Button
 						ref={addButtonRef}
 						onClick={() => setShowAddDialog(true)}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white'
 						aria-label='Add new customer'>
 						<Plus
 							className='h-4 w-4 mr-2'
@@ -273,7 +273,7 @@ export default function CustomersPage() {
 				<section
 					aria-label='Customer statistics'
 					className='grid gap-4 md:grid-cols-2'>
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Total Customers
@@ -298,7 +298,7 @@ export default function CustomersPage() {
 
 				{/* Customers Table - Will be implemented in Task 8 */}
 				{customers.length === 0 ? (
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800'>
 								No Customers Found
@@ -309,7 +309,7 @@ export default function CustomersPage() {
 						</CardHeader>
 					</Card>
 				) : (
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardContent>
 							<div className='space-y-4'>
 								<div className='flex gap-4'>
@@ -336,7 +336,7 @@ export default function CustomersPage() {
 											placeholder='Search customers...'
 											value={searchTerm}
 											onChange={(e) => setSearchTerm(e.target.value)}
-											className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+											className='pl-8   focus:border-brand-main-400'
 											aria-label='Search customers'
 										/>
 									</div>
@@ -403,7 +403,7 @@ export default function CustomersPage() {
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
-							<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+							<AlertDialogCancel className='  text-brand-main-700 hover:bg-brand-main-50'>
 								Cancel
 							</AlertDialogCancel>
 							<AlertDialogAction

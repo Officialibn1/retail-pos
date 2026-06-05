@@ -40,7 +40,7 @@ export function TopProductsReport({
 
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<div className='flex items-center justify-between'>
 						<div>
@@ -105,7 +105,7 @@ export function TopProductsReport({
 	}
 
 	return (
-		<Card className='border-brand-main-200'>
+		<Card className=' '>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
 					<div>

@@ -80,7 +80,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 
 	return (
 		<>
-			<Card className='border-brand-main-200 h-fit'>
+			<Card className='  h-fit'>
 				<CardHeader className=''>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<User className='h-5 w-5' />
@@ -142,7 +142,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
 									disabled={disabled}
-									className='pl-8 border-brand-main-200 focus:border-brand-main-400 disabled:opacity-50 disabled:cursor-not-allowed'
+									className='pl-8   focus:border-brand-main-400 disabled:opacity-50 disabled:cursor-not-allowed'
 								/>
 							</div>
 
@@ -175,7 +175,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 													customer.name || "Anonymous"
 												}`}
 												aria-disabled={disabled}
-												className={`py-1 px-3 border border-brand-main-200 rounded-lg transition-colors ${
+												className={`py-1 px-3 border   rounded-lg transition-colors ${
 													disabled
 														? "opacity-50 cursor-not-allowed"
 														: "cursor-pointer hover:bg-brand-main-50 hover:border-brand-main-300 focus:bg-brand-main-50 focus:border-brand-main-400 focus:outline-none"
@@ -208,7 +208,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 								variant='outline'
 								onClick={() => !disabled && setShowAddDialog(true)}
 								disabled={disabled}
-								className='w-full border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 disabled:opacity-50 disabled:cursor-not-allowed'>
+								className='w-full   text-brand-main-700 hover:bg-brand-main-50 disabled:opacity-50 disabled:cursor-not-allowed'>
 								<Plus className='h-4 w-4 mr-2' />
 								Add New Customer
 							</Button>

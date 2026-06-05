@@ -200,7 +200,7 @@ export function ReturnDialog({
 													)
 												}
 												disabled={isProcessing}
-												className='w-16 h-8 text-sm border-brand-main-200'
+												className='w-16 h-8 text-sm  '
 												aria-label={`Return quantity for ${item.name}`}
 											/>
 										</div>
@@ -243,7 +243,7 @@ export function ReturnDialog({
 							value={reason}
 							onChange={(e) => setReason(e.target.value)}
 							disabled={isProcessing}
-							className='border-brand-main-200 focus:border-brand-main-400 resize-none'
+							className='  focus:border-brand-main-400 resize-none'
 							rows={3}
 							maxLength={500}
 							aria-required='true'
@@ -319,13 +319,13 @@ export function ReturnDialog({
 						variant='outline'
 						onClick={() => onOpenChange(false)}
 						disabled={isProcessing}
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'>
+						className='  text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'>
 						Cancel
 					</Button>
 					<Button
 						onClick={handleSubmit}
 						disabled={!canSubmit}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white w-full sm:w-auto'>
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white w-full sm:w-auto'>
 						{isProcessing ? (
 							<>
 								<Spinner

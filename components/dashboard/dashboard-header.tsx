@@ -51,11 +51,11 @@ export function DashboardHeader() {
 	const breadcrumbs = getBreadcrumbs();
 
 	return (
-		<header className='flex h-16 shrink-0 items-center gap-2 border-b border-brand-main-200 px-4'>
-			<SidebarTrigger className='text-brand-main-700 hover:bg-brand-main-100' />
+		<header className='flex h-16 shrink-0 items-center gap-2 border-b bg-muted px-4'>
+			<SidebarTrigger className='text-brand-main-900 hover:bg-brand-main-100' />
 			<Separator
 				orientation='vertical'
-				className='mr-2 h-4 bg-brand-main-200'
+				className='mr-2 h-4 bg-border'
 			/>
 
 			<Breadcrumb>
@@ -72,13 +72,13 @@ export function DashboardHeader() {
 								) : (
 									<BreadcrumbLink
 										asChild
-										className='text-brand-main-600 hover:text-brand-main-800'>
+										className='text-brand-main-800/90 hover:text-brand-main-800'>
 										<Link href={crumb.href}>{crumb.label}</Link>
 									</BreadcrumbLink>
 								)}
 							</BreadcrumbItem>
 							{index < breadcrumbs.length - 1 && (
-								<BreadcrumbSeparator className='text-brand-main-400' />
+								<BreadcrumbSeparator className='text-brand-main-800/60' />
 							)}
 						</div>
 					))}

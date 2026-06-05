@@ -43,7 +43,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				{Array.from({ length: 4 }).map((_, i) => (
 					<Card
 						key={i}
-						className='border-brand-main-200'>
+						className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<Skeleton className='h-4 w-24' />
 							<Skeleton className='h-4 w-4 rounded' />
@@ -99,7 +99,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 
 	return (
 		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 					<CardTitle className='text-sm font-medium text-brand-main-700'>
 						Total Revenue
@@ -117,7 +117,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardContent>
 			</Card>
 
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 					<CardTitle className='text-sm font-medium text-brand-main-700'>
 						Total Sales
@@ -135,7 +135,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardContent>
 			</Card>
 
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 					<CardTitle className='text-sm font-medium text-brand-main-700'>
 						Avg Order Value
@@ -153,7 +153,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardContent>
 			</Card>
 
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 					<CardTitle className='text-sm font-medium text-brand-main-700'>
 						Low Stock Items

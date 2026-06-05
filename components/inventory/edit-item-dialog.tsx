@@ -124,7 +124,7 @@ export function EditItemDialog({
 											<Input
 												{...field}
 												disabled={isUpdating || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -141,7 +141,7 @@ export function EditItemDialog({
 											<Input
 												{...field}
 												disabled={isUpdating || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -163,7 +163,7 @@ export function EditItemDialog({
 											{...field}
 											value={field.value || ""}
 											disabled={isUpdating || categoriesLoading}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											rows={3}
 										/>
 									</FormControl>
@@ -186,7 +186,7 @@ export function EditItemDialog({
 											onValueChange={field.onChange}
 											disabled={isUpdating || categoriesLoading}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select category' />
 												</SelectTrigger>
 											</FormControl>
@@ -217,7 +217,7 @@ export function EditItemDialog({
 												{...field}
 												value={field.value || ""}
 												disabled={isUpdating || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -240,7 +240,7 @@ export function EditItemDialog({
 											type='number'
 											step='0.01'
 											disabled={isUpdating || categoriesLoading}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											onChange={(e) =>
 												field.onChange(
 													e.target.value ? Number(e.target.value) : "",
@@ -267,13 +267,13 @@ export function EditItemDialog({
 								disabled={isUpdating || categoriesLoading}
 								variant='outline'
 								onClick={() => onOpenChange(false)}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isUpdating || categoriesLoading}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isUpdating ? <Spinner /> : "Save Changes"}
 							</Button>
 						</DialogFooter>

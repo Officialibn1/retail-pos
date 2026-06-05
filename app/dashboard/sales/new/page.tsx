@@ -338,7 +338,7 @@ export default function NewSalePage() {
 				<Button
 					onClick={handleClearCart}
 					variant='outline'
-					className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'
+					className='  text-brand-main-700 hover:bg-brand-main-50 bg-transparent'
 					disabled={cartItems.length === 0 || completingSale || creatingSale}>
 					<RefreshCw className='h-4 w-4 mr-2' />
 					Clear Cart
@@ -368,7 +368,7 @@ export default function NewSalePage() {
 			<div className='grid gap-6 xl:grid-cols-3 '>
 				<div className='xl:col-span-2 space-y-6'>
 					{/* Product Search */}
-					<Card className='border-brand-main-200 h-fit'>
+					<Card className='  h-fit'>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800'>
 								Select Products

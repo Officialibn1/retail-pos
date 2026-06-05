@@ -255,7 +255,7 @@ export function ResetPasswordForm() {
 
 						<Button
 							type='submit'
-							className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+							className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 							disabled={
 								isLoading ||
 								!passwordValidation.isValid ||

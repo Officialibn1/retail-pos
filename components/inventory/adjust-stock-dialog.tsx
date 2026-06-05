@@ -116,7 +116,7 @@ export function AdjustStockDialog({
 											{...field}
 											type='number'
 											disabled={isAdjusting}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='Enter positive or negative number'
 											onChange={(e) =>
 												field.onChange(
@@ -161,7 +161,7 @@ export function AdjustStockDialog({
 										onValueChange={field.onChange}
 										disabled={isAdjusting}>
 										<FormControl>
-											<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+											<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 												<SelectValue placeholder='Select reason' />
 											</SelectTrigger>
 										</FormControl>
@@ -191,7 +191,7 @@ export function AdjustStockDialog({
 											{...field}
 											value={field.value || ""}
 											disabled={isAdjusting}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											rows={3}
 											placeholder='Compulsary notes about this adjustment'
 										/>
@@ -207,13 +207,13 @@ export function AdjustStockDialog({
 								disabled={isAdjusting}
 								variant='outline'
 								onClick={() => onOpenChange(false)}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isAdjusting || quantity === 0}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isAdjusting ? <Spinner /> : "Adjust Stock"}
 							</Button>
 						</DialogFooter>

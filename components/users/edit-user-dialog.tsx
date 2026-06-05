@@ -114,7 +114,7 @@ export function EditUserDialog({
 										<Input
 											{...field}
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., John Doe'
 										/>
 									</FormControl>
@@ -135,7 +135,7 @@ export function EditUserDialog({
 										<Input
 											{...field}
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., johndoe'
 										/>
 									</FormControl>
@@ -157,7 +157,7 @@ export function EditUserDialog({
 											{...field}
 											type='email'
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., john@example.com'
 										/>
 									</FormControl>
@@ -180,7 +180,7 @@ export function EditUserDialog({
 											value={field.value?.[0]}
 											disabled={isUpdating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
+												<SelectTrigger className='  focus:border-brand-main-400'>
 													<SelectValue placeholder='Select role' />
 												</SelectTrigger>
 											</FormControl>
@@ -210,7 +210,7 @@ export function EditUserDialog({
 											value={field.value}
 											disabled={isUpdating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400'>
+												<SelectTrigger className='  focus:border-brand-main-400'>
 													<SelectValue placeholder='Select shift' />
 												</SelectTrigger>
 											</FormControl>
@@ -234,13 +234,13 @@ export function EditUserDialog({
 								disabled={isUpdating}
 								variant='outline'
 								onClick={() => onOpenChange(false)}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isUpdating}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isUpdating ? <Spinner /> : "Save Changes"}
 							</Button>
 						</DialogFooter>

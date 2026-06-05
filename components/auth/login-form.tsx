@@ -54,13 +54,13 @@ export function LoginForm() {
 	};
 
 	return (
-		<div className='min-h-screen flex items-center justify-center bg-brand-main-50 p-4'>
+		<div className='min-h-screen flex items-center justify-center bg-brand-main-50/50 p-4'>
 			<Card className='w-full max-w-md'>
-				<div className='self-center rounded-xl shadow-lg bg-brand-main-100 text-brand-main-800 p-2'>
+				<div className='self-center rounded-xl shadow-lg bg-brand-main-100 text-brand-main-900 p-2'>
 					<Store className='size-16' />
 				</div>
 				<CardHeader className='text-center'>
-					<CardTitle className='text-2xl font-bold text-brand-main-800'>
+					<CardTitle className='text-2xl font-bold text-brand-main-900'>
 						{storeName}
 					</CardTitle>
 					<CardDescription>Sign in to access your dashboard</CardDescription>
@@ -86,7 +86,7 @@ export function LoginForm() {
 								<Label htmlFor='password'>Password</Label>
 								<Link
 									href='/forgot-password'
-									className='text-xs text-brand-main-600 hover:text-brand-main-700'>
+									className='text-xs text-brand-main-800 hover:text-brand-main-700'>
 									Forgot Password?
 								</Link>
 							</div>
@@ -107,7 +107,7 @@ export function LoginForm() {
 						)}
 						<Button
 							type='submit'
-							className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+							className='w-full'
 							disabled={loggingIn}>
 							{loggingIn ? <Spinner /> : "Sign In"}
 						</Button>

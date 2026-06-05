@@ -253,7 +253,7 @@ export default function SalesHistoryPage() {
 				<Button
 					variant='outline'
 					className={cn(
-						"w-64 justify-start text-left border-brand-main-200 hover:bg-brand-main-50 bg-white",
+						"w-64 justify-start text-left   hover:bg-brand-main-50 bg-white",
 						!value && "text-muted-foreground",
 					)}
 					disabled={disabled}>
@@ -303,7 +303,7 @@ export default function SalesHistoryPage() {
 				</div>
 				<Button
 					asChild
-					className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+					className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 					<Link href='/dashboard/sales/new'>
 						<Plus className='h-4 w-4 mr-2' />
 						New Sale
@@ -335,7 +335,7 @@ export default function SalesHistoryPage() {
 				<TabsContent value='sales' className='space-y-6 pt-6'>
 					{/* Stats */}
 					<div className='grid gap-4 md:grid-cols-3'>
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Total Sales
@@ -352,7 +352,7 @@ export default function SalesHistoryPage() {
 							</CardContent>
 						</Card>
 
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Total Revenue
@@ -369,7 +369,7 @@ export default function SalesHistoryPage() {
 							</CardContent>
 						</Card>
 
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Avg Order Value
@@ -386,7 +386,7 @@ export default function SalesHistoryPage() {
 					</div>
 
 					{/* Filters + table */}
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader>
 							<div className='space-y-4'>
 								<div className='flex gap-4'>
@@ -400,14 +400,14 @@ export default function SalesHistoryPage() {
 											placeholder='Search by ID, customer, cashier...'
 											value={salesSearch}
 											onChange={(e) => setSalesSearch(e.target.value)}
-											className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+											className='pl-8   focus:border-brand-main-400'
 										/>
 									</div>
 									<Button
 										onClick={handleExportSales}
 										disabled={salesLoading || salesFetching || sales.length === 0}
 										variant='outline'
-										className='border-brand-main-200 hover:bg-brand-main-50'>
+										className='  hover:bg-brand-main-50'>
 										<Download className='h-4 w-4 mr-2' />
 										Export CSV
 									</Button>
@@ -418,7 +418,7 @@ export default function SalesHistoryPage() {
 										value={statusFilter}
 										onValueChange={setStatusFilter}
 										disabled={salesFetching}>
-										<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+										<SelectTrigger className='w-48   focus:border-brand-main-400'>
 											<SelectValue placeholder='All Status' />
 										</SelectTrigger>
 										<SelectContent>
@@ -433,7 +433,7 @@ export default function SalesHistoryPage() {
 										value={paymentMethodFilter}
 										onValueChange={setPaymentMethodFilter}
 										disabled={salesFetching}>
-										<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+										<SelectTrigger className='w-48   focus:border-brand-main-400'>
 											<SelectValue placeholder='All Payment Methods' />
 										</SelectTrigger>
 										<SelectContent>
@@ -486,7 +486,7 @@ export default function SalesHistoryPage() {
 				<TabsContent value='returns' className='space-y-6 pt-6'>
 					{/* Stats */}
 					<div className='grid gap-4 md:grid-cols-3'>
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Total Returns
@@ -503,7 +503,7 @@ export default function SalesHistoryPage() {
 							</CardContent>
 						</Card>
 
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Items Returned
@@ -520,7 +520,7 @@ export default function SalesHistoryPage() {
 							</CardContent>
 						</Card>
 
-						<Card className='border-brand-main-200'>
+						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 								<CardTitle className='text-sm font-medium text-brand-main-700'>
 									Total Refunded
@@ -539,7 +539,7 @@ export default function SalesHistoryPage() {
 					</div>
 
 					{/* Filters + table */}
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader>
 							<div className='space-y-4'>
 								<div className='flex gap-4'>
@@ -553,7 +553,7 @@ export default function SalesHistoryPage() {
 											placeholder='Search by return ID, sale ID, customer, cashier...'
 											value={returnsSearch}
 											onChange={(e) => setReturnsSearch(e.target.value)}
-											className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+											className='pl-8   focus:border-brand-main-400'
 										/>
 									</div>
 								</div>
@@ -563,7 +563,7 @@ export default function SalesHistoryPage() {
 										value={refundMethodFilter}
 										onValueChange={setRefundMethodFilter}
 										disabled={returnsFetching}>
-										<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+										<SelectTrigger className='w-48   focus:border-brand-main-400'>
 											<SelectValue placeholder='All Refund Methods' />
 										</SelectTrigger>
 										<SelectContent>

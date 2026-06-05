@@ -42,7 +42,7 @@ export function RevenueTrendReport({
 
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200 w-full flex flex-col h-[450px] lg:h-[550px]'>
+			<Card className='  w-full flex flex-col h-[450px] lg:h-[550px]'>
 				<CardHeader>
 					<div className='flex items-center justify-between'>
 						<div>
@@ -95,7 +95,7 @@ export function RevenueTrendReport({
 	}
 
 	return (
-		<Card className='border-brand-main-200 w-full flex flex-col h-fit'>
+		<Card className='  w-full flex flex-col h-fit'>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
 					<div>

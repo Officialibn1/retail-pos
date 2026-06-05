@@ -27,7 +27,7 @@ export function PendingOrderCard({
 	const truncatedId = sale.id.slice(0, 8);
 
 	return (
-		<Card className='border-brand-main-200 hover:border-brand-main-300 transition-colors'>
+		<Card className='  hover:border-brand-main-300 transition-colors'>
 			<CardContent className=''>
 				<div className='space-y-3'>
 					{/* Header with Order ID and Time */}
@@ -83,7 +83,7 @@ export function PendingOrderCard({
 						<Button
 							onClick={() => onComplete(sale.id)}
 							disabled={isProcessing}
-							className='flex-1 bg-brand-main-600 hover:bg-brand-main-700 text-white'
+							className='flex-1 bg-brand-main-900 hover:bg-brand-main-700 text-white'
 							size='sm'>
 							<CheckCircle className='h-4 w-4 mr-1' />
 							Complete

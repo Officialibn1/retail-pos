@@ -242,7 +242,7 @@ export default function InventoryPage() {
 					</div>
 					<Button
 						onClick={() => setShowAddDialog(true)}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 						<Plus className='h-4 w-4 mr-2' />
 						Add Item
 					</Button>
@@ -250,7 +250,7 @@ export default function InventoryPage() {
 
 				{/* Summary Cards */}
 				<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Total Items
@@ -265,7 +265,7 @@ export default function InventoryPage() {
 						</CardContent>
 					</Card>
 
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Low Stock
@@ -282,7 +282,7 @@ export default function InventoryPage() {
 						</CardContent>
 					</Card>
 
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Out of Stock
@@ -299,7 +299,7 @@ export default function InventoryPage() {
 						</CardContent>
 					</Card>
 
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 							<CardTitle className='text-sm font-medium text-brand-main-700'>
 								Total Value
@@ -331,7 +331,7 @@ export default function InventoryPage() {
 					</Card>
 				)}
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader>
 						<div className='flex gap-4 mt-4'>
 							<div className='relative flex-1'>
@@ -345,13 +345,13 @@ export default function InventoryPage() {
 									placeholder='Search items...'
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+									className='pl-8   focus:border-brand-main-400'
 								/>
 							</div>
 							<Select
 								value={categoryFilter}
 								onValueChange={setCategoryFilter}>
-								<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+								<SelectTrigger className='w-48   focus:border-brand-main-400'>
 									<SelectValue placeholder='All Categories' />
 								</SelectTrigger>
 								<SelectContent>
@@ -417,7 +417,7 @@ export default function InventoryPage() {
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
-							<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+							<AlertDialogCancel className='  text-brand-main-700 hover:bg-brand-main-50'>
 								Cancel
 							</AlertDialogCancel>
 							<AlertDialogAction

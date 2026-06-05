@@ -25,7 +25,7 @@ const getRefundMethodBadge = (method: string) => {
 	return (
 		<Badge
 			variant='outline'
-			className='border-brand-main-200 text-brand-main-700 capitalize text-xs'>
+			className='  text-brand-main-700 capitalize text-xs'>
 			{label}
 		</Badge>
 	);

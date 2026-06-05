@@ -97,7 +97,7 @@ function StoreSettingsForm({
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -114,7 +114,7 @@ function StoreSettingsForm({
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -131,7 +131,7 @@ function StoreSettingsForm({
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -148,7 +148,7 @@ function StoreSettingsForm({
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -167,7 +167,7 @@ function StoreSettingsForm({
 									type='number'
 									step='0.01'
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -184,7 +184,7 @@ function StoreSettingsForm({
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='border-brand-main-200 focus:border-brand-main-400'
+									className='  focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -203,7 +203,7 @@ function StoreSettingsForm({
 										{...field}
 										type='color'
 										disabled={!isSuperAdmin}
-										className='h-10 border-brand-main-200'
+										className='h-10  '
 									/>
 								</FormControl>
 								<FormMessage />
@@ -221,7 +221,7 @@ function StoreSettingsForm({
 										{...field}
 										type='color'
 										disabled={!isSuperAdmin}
-										className='h-10 border-brand-main-200'
+										className='h-10  '
 									/>
 								</FormControl>
 								<FormMessage />
@@ -233,7 +233,7 @@ function StoreSettingsForm({
 					<Button
 						type='submit'
 						disabled={!form.formState.isDirty || isSaving}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 						{isSaving ? "Saving…" : "Save Changes"}
 					</Button>
 				)}
@@ -287,7 +287,7 @@ export default function SettingsPage() {
 
 			<div className='grid gap-6'>
 				{/* Store Information */}
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Store className='h-5 w-5' />
@@ -307,7 +307,7 @@ export default function SettingsPage() {
 				</Card>
 
 				{/* Personal Information */}
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<User2 className='h-5 w-5' />
@@ -317,15 +317,15 @@ export default function SettingsPage() {
 					<CardContent className='space-y-4'>
 						<div className='grid gap-2'>
 							<Label className='text-brand-main-700'>Name</Label>
-							<Input value={user.name} disabled className='border-brand-main-200' />
+							<Input value={user.name} disabled className=' ' />
 						</div>
 						<div className='grid gap-2'>
 							<Label className='text-brand-main-700'>Username</Label>
-							<Input value={user.username} disabled className='border-brand-main-200' />
+							<Input value={user.username} disabled className=' ' />
 						</div>
 						<div className='grid gap-2'>
 							<Label className='text-brand-main-700'>Email</Label>
-							<Input value={user.email} disabled className='border-brand-main-200' />
+							<Input value={user.email} disabled className=' ' />
 						</div>
 						<div className='grid gap-2'>
 							<Label className='text-brand-main-700'>Role</Label>
@@ -336,14 +336,14 @@ export default function SettingsPage() {
 									)
 									.join("")}
 								disabled
-								className='border-brand-main-200'
+								className=' '
 							/>
 						</div>
 					</CardContent>
 				</Card>
 
 				{/* Security */}
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Shield className='h-5 w-5' />
@@ -354,7 +354,7 @@ export default function SettingsPage() {
 						<Button
 							variant='outline'
 							onClick={() => setChangePasswordOpen(true)}
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
+							className='  text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
 							Change Password
 						</Button>
 					</CardContent>
@@ -362,7 +362,7 @@ export default function SettingsPage() {
 
 				{/* Database Backup — SUPERADMIN only */}
 				{isSuperAdmin && (
-					<Card className='border-brand-main-200'>
+					<Card className=' '>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 								<DatabaseBackup className='h-5 w-5' />
@@ -377,7 +377,7 @@ export default function SettingsPage() {
 								</p>
 								<Button
 									onClick={() => setBackupDialogOpen(true)}
-									className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+									className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 									<Download className='h-4 w-4 mr-2' />
 									Create Backup
 								</Button>

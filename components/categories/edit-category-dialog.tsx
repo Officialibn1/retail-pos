@@ -100,7 +100,7 @@ export function EditCategoryDialog({
 										<Input
 											{...field}
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., Electronics, Clothing, Food'
 										/>
 									</FormControl>
@@ -115,13 +115,13 @@ export function EditCategoryDialog({
 								disabled={isUpdating}
 								variant='outline'
 								onClick={() => onOpenChange(false)}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isUpdating}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isUpdating ? <Spinner /> : "Save Changes"}
 							</Button>
 						</DialogFooter>

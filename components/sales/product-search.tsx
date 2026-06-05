@@ -73,7 +73,7 @@ export function ProductSearch({
 						placeholder='Search products by name, SKU, or barcode...'
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+						className='pl-8   focus:border-brand-main-400'
 						disabled={completingSale || creatingSale}
 					/>
 					<Button
@@ -81,7 +81,7 @@ export function ProductSearch({
 						variant='outline'
 						onClick={() => setIsScanning(!isScanning)}
 						disabled={completingSale || creatingSale}
-						className='absolute right-2.5 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'
+						className='absolute right-2.5 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0   text-brand-main-700 hover:bg-brand-main-50'
 						aria-label='Scan Barcode'>
 						<Camera className='h-4 w-4' />
 					</Button>
@@ -90,7 +90,7 @@ export function ProductSearch({
 					value={selectedCategory}
 					disabled={completingSale || creatingSale}
 					onChange={(e) => setSelectedCategory(e.target.value)}
-					className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
+					className='px-3 py-2 border   rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
 					<option value='all'>All Categories</option>
 					{categories.map((category) => (
 						<option
@@ -103,7 +103,7 @@ export function ProductSearch({
 			</div>
 
 			{isScanning && (
-				<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
+				<div className='relative w-full h-64 border   rounded-lg overflow-hidden'>
 					<BarcodeScanner
 						ref={scannerRef}
 						onCapture={handleScan}
@@ -122,10 +122,10 @@ export function ProductSearch({
 				</div>
 			)}
 
-			<div className='border border-brand-main-200 rounded-lg h-full max-h-[415px] overflow-y-auto'>
+			<div className='border   rounded-lg h-full max-h-[415px] overflow-y-auto'>
 				<Table>
 					<TableHeader>
-						<TableRow className='border-brand-main-200'>
+						<TableRow className=' '>
 							<TableHead className='text-brand-main-700'>Product</TableHead>
 							<TableHead className='text-brand-main-700'>SKU</TableHead>
 							<TableHead className='text-brand-main-700'>Price</TableHead>
@@ -179,7 +179,7 @@ export function ProductSearch({
 										<Button
 											size='sm'
 											onClick={() => onAddToCart(product, 1)}
-											className='bg-brand-main-600 hover:bg-brand-main-700 text-white'
+											className='bg-brand-main-900 hover:bg-brand-main-700 text-white'
 											disabled={
 												product.stock === 0 || completingSale || creatingSale
 											}>

@@ -53,7 +53,7 @@ export function ShoppingCart({
 	};
 
 	return (
-		<Card className='border-brand-main-200 h-fit'>
+		<Card className='  h-fit'>
 			<CardHeader>
 				<CardTitle className='text-brand-main-800'>
 					Shopping Cart ({items.length} items)
@@ -90,7 +90,7 @@ export function ShoppingCart({
 													Math.max(1, item.quantity - 1),
 												)
 											}
-											className='h-6 w-6 p-0 border-brand-main-200'>
+											className='h-6 w-6 p-0  '>
 											<Minus className='h-3 w-3' />
 										</Button>
 										<span className='text-sm font-medium text-brand-main-800 w-8 text-center'>
@@ -102,7 +102,7 @@ export function ShoppingCart({
 											onClick={() =>
 												onUpdateQuantity(item.id, item.quantity + 1)
 											}
-											className='h-6 w-6 p-0 border-brand-main-200'
+											className='h-6 w-6 p-0  '
 											disabled={
 												item.quantity >= item.product.stock || isProcessing
 											}>
@@ -141,7 +141,7 @@ export function ShoppingCart({
 									value={discount}
 									disabled={isProcessing}
 									onChange={(e) => onApplyDiscount(Number(e.target.value) || 0)}
-									className='w-20 h-8 border-brand-main-200 focus:border-brand-main-400'
+									className='w-20 h-8   focus:border-brand-main-400'
 								/>
 							</div>
 
@@ -171,7 +171,7 @@ export function ShoppingCart({
 								onClick={handleCheckOut}
 								variant={"depth-soft"}
 								disabled={items.length === 0 || isProcessing}
-								className='w-full bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+								className='w-full bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 								{isProcessing ? <Spinner /> : "Proceed to Checkout"}
 							</Button>
 						</div>

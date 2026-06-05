@@ -85,7 +85,7 @@ export function PendingOrdersList({
 	// Loading state
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />
@@ -124,7 +124,7 @@ export function PendingOrdersList({
 	// Empty state
 	if (pendingSales.length === 0) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />
@@ -145,7 +145,7 @@ export function PendingOrdersList({
 
 	return (
 		<>
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />

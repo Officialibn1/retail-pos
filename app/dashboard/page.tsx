@@ -38,7 +38,7 @@ export default function DashboardPage() {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center h-64'>
-				<Loader2 className='h-8 w-8 animate-spin text-brand-main-600' />
+				<Loader2 className='h-8 w-8 animate-spin text-brand-main-700' />
 			</div>
 		);
 	}
@@ -53,7 +53,7 @@ export default function DashboardPage() {
 			<div className='space-y-6 p-6'>
 				<Card className='border-red-200 bg-red-50'>
 					<CardHeader>
-						<CardTitle className='text-red-800'>
+						<CardTitle className='text-red-700'>
 							Error Loading Dashboard
 						</CardTitle>
 						<CardDescription className='text-red-700'>
@@ -77,10 +77,10 @@ export default function DashboardPage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-800'>
+					<h1 className='text-3xl font-bold text-brand-main-950'>
 						Welcome back, {user.name}
 					</h1>
-					<p className='text-brand-main-600 mt-1'>
+					<p className='text-brand-main-800 mt-1'>
 						{canSeeAllData
 							? "Here's an overview of your store performance"
 							: "Here's your personal dashboard"}
@@ -89,14 +89,14 @@ export default function DashboardPage() {
 				<div className='flex items-center gap-2'>
 					<Badge
 						variant='secondary'
-						className='bg-brand-main-100 text-brand-main-800'>
+						className='bg-brand-main-100 text-brand-main-900'>
 						{user.roles}
 					</Badge>
 					{canAccessAnalytics && (
 						<Button
 							asChild
 							variant='outline'
-							className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
+							className='hover:bg-brand-main-50 bg-transparent'>
 							<Link href='/dashboard/analytics'>
 								<BarChart3 className='h-4 w-4 mr-2' />
 								View Analytics
@@ -107,7 +107,7 @@ export default function DashboardPage() {
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Revenue
@@ -120,19 +120,19 @@ export default function DashboardPage() {
 							strokeLinecap='round'
 							strokeLinejoin='round'
 							strokeWidth='2'
-							className='h-4 w-4 text-brand-main-600'>
+							className='h-4 w-4 text-brand-main-700'>
 							<path d='M12 2v20m9-9H3' />
 						</svg>
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
+						<div className='text-2xl font-bold text-brand-main-900'>
 							{formatNaira(stats.totalRevenue)}
 						</div>
-						<p className='text-xs text-brand-main-600'>Total sales revenue</p>
+						<p className='text-xs text-brand-main-700'>Total sales revenue</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Orders
@@ -145,7 +145,7 @@ export default function DashboardPage() {
 							strokeLinecap='round'
 							strokeLinejoin='round'
 							strokeWidth='2'
-							className='h-4 w-4 text-brand-main-600'>
+							className='h-4 w-4 text-brand-main-700'>
 							<rect
 								width='20'
 								height='14'
@@ -157,14 +157,14 @@ export default function DashboardPage() {
 						</svg>
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
+						<div className='text-2xl font-bold text-brand-main-900'>
 							{stats.totalSales}
 						</div>
-						<p className='text-xs text-brand-main-600'>Total completed sales</p>
+						<p className='text-xs text-brand-main-700'>Total completed sales</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Avg Order Value
@@ -177,7 +177,7 @@ export default function DashboardPage() {
 							strokeLinecap='round'
 							strokeLinejoin='round'
 							strokeWidth='2'
-							className='h-4 w-4 text-brand-main-600'>
+							className='h-4 w-4 text-brand-main-700'>
 							<path d='m7.5 4.27 9 5.15' />
 							<path d='M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z' />
 							<path d='m3.3 7 8.7 5 8.7-5' />
@@ -185,14 +185,14 @@ export default function DashboardPage() {
 						</svg>
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
+						<div className='text-2xl font-bold text-brand-main-900'>
 							{formatNaira(stats.averageOrderValue)}
 						</div>
-						<p className='text-xs text-brand-main-600'>Per transaction</p>
+						<p className='text-xs text-brand-main-700'>Per transaction</p>
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Recent Activity
@@ -205,7 +205,7 @@ export default function DashboardPage() {
 							strokeLinecap='round'
 							strokeLinejoin='round'
 							strokeWidth='2'
-							className='h-4 w-4 text-brand-main-600'>
+							className='h-4 w-4 text-brand-main-700'>
 							<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' />
 							<circle
 								cx='9'
@@ -216,21 +216,21 @@ export default function DashboardPage() {
 						</svg>
 					</CardHeader>
 					<CardContent>
-						<div className='text-2xl font-bold text-brand-main-800'>
+						<div className='text-2xl font-bold text-brand-main-900'>
 							{stats.recentSales.length}
 						</div>
-						<p className='text-xs text-brand-main-600'>Recent transactions</p>
+						<p className='text-xs text-brand-main-700'>Recent transactions</p>
 					</CardContent>
 				</Card>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
-				<Card className='col-span-4 border-brand-main-200'>
+				<Card className='col-span-4  '>
 					<CardHeader>
-						<CardTitle className='text-brand-main-800'>
+						<CardTitle className='text-brand-main-900'>
 							Sales Overview
 						</CardTitle>
-						<CardDescription className='text-brand-main-600'>
+						<CardDescription className='text-brand-main-700'>
 							{canSeeAllData
 								? "Daily sales count for the last 7 days"
 								: "Your sales count for the last 7 days"}
@@ -240,10 +240,10 @@ export default function DashboardPage() {
 						<SalesChart data={stats.dailySales} />
 					</CardContent>
 				</Card>
-				<Card className='col-span-3 border-brand-main-200'>
+				<Card className='col-span-3  '>
 					<CardHeader>
-						<CardTitle className='text-brand-main-800'>Recent Sales</CardTitle>
-						<CardDescription className='text-brand-main-600'>
+						<CardTitle className='text-brand-main-900'>Recent Sales</CardTitle>
+						<CardDescription className='text-brand-main-700'>
 							{canSeeAllData
 								? "Latest store transactions"
 								: "Your recent sales"}
@@ -257,21 +257,21 @@ export default function DashboardPage() {
 										key={sale.id}
 										className='flex items-center'>
 										<div className='ml-4 space-y-1'>
-											<p className='text-sm font-medium leading-none text-brand-main-800'>
+											<p className='text-sm font-medium leading-none text-brand-main-900'>
 												{sale.id.slice(0, 8)}
 											</p>
-											<p className='text-sm text-brand-main-600'>
+											<p className='text-sm text-brand-main-700'>
 												{new Date(sale.createdAt).toLocaleDateString()} •{" "}
 												{sale.customerName || "Walk-in"}
 											</p>
 										</div>
-										<div className='ml-auto font-medium text-brand-main-800'>
+										<div className='ml-auto font-medium text-brand-main-900'>
 											{formatNaira(Number(sale.total))}
 										</div>
 									</div>
 								))
 							) : (
-								<p className='text-sm text-brand-main-600'>No recent sales</p>
+								<p className='text-sm text-brand-main-700'>No recent sales</p>
 							)}
 						</div>
 					</CardContent>

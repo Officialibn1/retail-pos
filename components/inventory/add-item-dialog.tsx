@@ -124,7 +124,7 @@ export function AddItemDialog({
 											<Input
 												{...field}
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -141,7 +141,7 @@ export function AddItemDialog({
 											<Input
 												{...field}
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -163,7 +163,7 @@ export function AddItemDialog({
 											{...field}
 											value={field.value || ""}
 											disabled={isCreatingItem || categoriesLoading}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											rows={3}
 										/>
 									</FormControl>
@@ -186,7 +186,7 @@ export function AddItemDialog({
 											onValueChange={field.onChange}
 											disabled={isCreatingItem || categoriesLoading}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select category' />
 												</SelectTrigger>
 											</FormControl>
@@ -220,7 +220,7 @@ export function AddItemDialog({
 													disabled={
 														isCreatingItem || categoriesLoading || isScanning
 													}
-													className='border-brand-main-200 focus:border-brand-main-400 flex-grow'
+													className='  focus:border-brand-main-400 flex-grow'
 												/>
 											</FormControl>
 											<Button
@@ -230,7 +230,7 @@ export function AddItemDialog({
 													isCreatingItem || categoriesLoading || isScanning
 												}
 												onClick={() => setIsScanning(!isScanning)}
-												className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
+												className='  text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
 												aria-label='Scan Barcode'>
 												<Camera className='h-4 w-4' />
 											</Button>
@@ -242,7 +242,7 @@ export function AddItemDialog({
 						</div>
 
 						{isScanning && (
-							<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
+							<div className='relative w-full h-64 border   rounded-lg overflow-hidden'>
 								<BarcodeScanner
 									ref={scannerRef}
 									onCapture={handleScan}
@@ -276,7 +276,7 @@ export function AddItemDialog({
 												type='number'
 												step='0.01'
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 												onChange={(e) =>
 													field.onChange(
 														e.target.value ? Number(e.target.value) : "",
@@ -301,7 +301,7 @@ export function AddItemDialog({
 												{...field}
 												type='number'
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 												onChange={(e) =>
 													field.onChange(
 														e.target.value ? Number(e.target.value) : "",
@@ -324,13 +324,13 @@ export function AddItemDialog({
 									onOpenChange(false);
 									setIsScanning(false);
 								}}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isCreatingItem || categoriesLoading}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isCreatingItem ? <Spinner /> : "Add Item"}
 							</Button>
 						</DialogFooter>

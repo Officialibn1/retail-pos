@@ -312,7 +312,7 @@ export function PaymentDialog({
 								variant='outline'
 								onClick={handleQuickFill}
 								disabled={isProcessing}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'
+								className='  text-brand-main-700 hover:bg-brand-main-50'
 								data-testid='quick-fill-button'
 								aria-label='Fill exact amount'>
 								Exact
@@ -365,7 +365,7 @@ export function PaymentDialog({
 						variant='outline'
 						onClick={() => onOpenChange(false)}
 						disabled={isProcessing}
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'
+						className='  text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'
 						data-testid='cancel-button'
 						aria-label='Cancel payment and return'>
 						Cancel
@@ -373,7 +373,7 @@ export function PaymentDialog({
 					<Button
 						onClick={handleSubmit}
 						disabled={isProcessing || amountPaid < total}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white w-full sm:w-auto'
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white w-full sm:w-auto'
 						data-testid='complete-sale-button'
 						aria-label='Complete sale and process payment'>
 						{isProcessing ? (

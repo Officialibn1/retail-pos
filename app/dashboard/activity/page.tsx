@@ -114,7 +114,7 @@ export default function ActivityLogsPage() {
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Activities
@@ -129,7 +129,7 @@ export default function ActivityLogsPage() {
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Today's Activities
@@ -144,7 +144,7 @@ export default function ActivityLogsPage() {
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Active Users
@@ -160,7 +160,7 @@ export default function ActivityLogsPage() {
 				</Card>
 			</div>
 
-			<Card className='border-brand-main-200 max-w-full'>
+			<Card className='  max-w-full'>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800'>Activity Logs</CardTitle>
 					<div className='flex gap-4 mt-4'>
@@ -175,14 +175,14 @@ export default function ActivityLogsPage() {
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 								disabled={loading || isFetching}
-								className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+								className='pl-8   focus:border-brand-main-400'
 							/>
 						</div>
 						<Select
 							value={actionFilter}
 							onValueChange={setActionFilter}
 							disabled={loading || isFetching}>
-							<SelectTrigger className='w-48 border-brand-main-200 focus:border-brand-main-400'>
+							<SelectTrigger className='w-48   focus:border-brand-main-400'>
 								<SelectValue placeholder='All Actions' />
 							</SelectTrigger>
 							<SelectContent>

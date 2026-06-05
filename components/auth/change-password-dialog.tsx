@@ -126,7 +126,7 @@ export function ChangePasswordDialog({
 												{...field}
 												type={showCurrentPassword ? "text" : "password"}
 												placeholder='Enter your current password'
-												className='border-brand-main-200 focus:border-brand-main-400 pr-10'
+												className='  focus:border-brand-main-400 pr-10'
 												disabled={isLoading}
 											/>
 											<Button
@@ -165,7 +165,7 @@ export function ChangePasswordDialog({
 												{...field}
 												type={showNewPassword ? "text" : "password"}
 												placeholder='Enter your new password'
-												className='border-brand-main-200 focus:border-brand-main-400 pr-10'
+												className='  focus:border-brand-main-400 pr-10'
 												disabled={isLoading}
 											/>
 											<Button
@@ -202,7 +202,7 @@ export function ChangePasswordDialog({
 												{...field}
 												type={showConfirmPassword ? "text" : "password"}
 												placeholder='Confirm your new password'
-												className='border-brand-main-200 focus:border-brand-main-400 pr-10'
+												className='  focus:border-brand-main-400 pr-10'
 												disabled={isLoading}
 											/>
 											<Button
@@ -233,13 +233,13 @@ export function ChangePasswordDialog({
 								variant='outline'
 								onClick={handleCancel}
 								disabled={isLoading}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+								className='  text-brand-main-700 hover:bg-brand-main-50'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isLoading}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 								{isLoading && <Spinner className='mr-2 h-4 w-4' />}
 								Change Password
 							</Button>

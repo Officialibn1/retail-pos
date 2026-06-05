@@ -250,14 +250,14 @@ export default function UsersPage() {
 				</div>
 				<Button
 					onClick={() => setShowAddDialog(true)}
-					className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+					className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 					<Plus className='h-4 w-4 mr-2' />
 					Add User
 				</Button>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Total Users
@@ -272,7 +272,7 @@ export default function UsersPage() {
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Morning Shift
@@ -289,7 +289,7 @@ export default function UsersPage() {
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
 						<CardTitle className='text-sm font-medium text-brand-main-700'>
 							Evening Shift
@@ -307,7 +307,7 @@ export default function UsersPage() {
 				</Card>
 			</div>
 
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800'>Users</CardTitle>
 					<div className='flex gap-4 mt-4 w-full'>
@@ -335,7 +335,7 @@ export default function UsersPage() {
 									placeholder='Search users...'
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+									className='pl-8   focus:border-brand-main-400'
 									aria-label='Search customers'
 								/>
 							</div>
@@ -344,7 +344,7 @@ export default function UsersPage() {
 						<Select
 							value={roleFilter}
 							onValueChange={(value) => setRoleFilter(value)}>
-							<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-40'>
+							<SelectTrigger className='  focus:border-brand-main-400 w-40'>
 								<SelectValue placeholder='Select role' />
 							</SelectTrigger>
 							<SelectContent>
@@ -409,7 +409,7 @@ export default function UsersPage() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+						<AlertDialogCancel className='  text-brand-main-700 hover:bg-brand-main-50'>
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction

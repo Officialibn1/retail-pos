@@ -5,57 +5,19 @@
 
 :root {
 	/* Brand color palette - UPDATE THESE TO CHANGE YOUR ENTIRE THEME */
-	/*--color-brand-main-50: #f3f7f8;
-    --color-brand-main-100: #e0e9ed;
-    --color-brand-main-200: #c5d5dc;
-    --color-brand-main-300: #9cb7c4;
-    --color-brand-main-400: #6d91a3;
-    --color-brand-main-500: #517689;
-    --color-brand-main-600: #466274;
-    --color-brand-main-700: #3c505e;
-    --color-brand-main-800: #384752;
-    --color-brand-main-900: #323d47;
-    --color-brand-main-950: #1e262e;*/
+	--color-brand-main-50: #f3fcf1;
+	--color-brand-main-100: #e0fbdd;
+	--color-brand-main-200: #c3f5bd;
+	--color-brand-main-300: #93eb8a;
+	--color-brand-main-400: #5dd850;
+	--color-brand-main-500: #36be29;
+	--color-brand-main-600: #29a51d;
+	--color-brand-main-700: #217c19;
+	--color-brand-main-800: #1f6219;
+	--color-brand-main-900: #1a5017;
+	--color-brand-main-950: #092c07;
 
-	/*Apple Green*/
-	/* --color-brand-main-50: #f3f8ed;
-	--color-brand-main-100: #e2f0d7;
-	--color-brand-main-200: #c8e2b4;
-	--color-brand-main-300: #a5ce88;
-	--color-brand-main-400: #85b962;
-	--color-brand-main-500: #6ba547;
-	--color-brand-main-600: #4e7d33;
-	--color-brand-main-700: #3d602b;
-	--color-brand-main-800: #334e26;
-	--color-brand-main-900: #2e4324;
-	--color-brand-main-950: #15240f; */
-
-	/*Calypso blue*/
-	/* --color-brand-main-50: #f1f8fa;
-    --color-brand-main-100: #dcedf1;
-    --color-brand-main-200: #bedbe3;
-    --color-brand-main-300: #90c1d0;
-    --color-brand-main-400: #5c9fb4;
-    --color-brand-main-500: #40839a;
-    --color-brand-main-600: #396d84;
-    --color-brand-main-700: #33596b;
-    --color-brand-main-800: #304b5a;
-    --color-brand-main-900: #2c404d;
-    --color-brand-main-950: #192933; */
-
-	/* --color-brand-main-50: #f9f5ed;
-	--color-brand-main-100: #f1e6d0;
-	--color-brand-main-200: #e4cca4;
-	--color-brand-main-300: #d4ac70;
-	--color-brand-main-400: #c8914c;
-	--color-brand-main-500: #b77b3b;
-	--color-brand-main-600: #9e5f30;
-	--color-brand-main-700: #7f4729;
-	--color-brand-main-800: #6a3b29;
-	--color-brand-main-900: #5c3327;
-	--color-brand-main-950: #351a13; */
-
-	--color-brand-main-50: #fafaf9;
+	/* --color-brand-main-50: #fafaf9;
 	--color-brand-main-100: #f5f5f4;
 	--color-brand-main-200: #e8e6e3;
 	--color-brand-main-300: #d8d5cf;
@@ -65,27 +27,27 @@
 	--color-brand-main-700: #474439;
 	--color-brand-main-800: #2b2622;
 	--color-brand-main-900: #1e1b15;
-	--color-brand-main-950: #0d0b08;
+	--color-brand-main-950: #0d0b08; */
 
 	/* Light theme - References brand main variables */
-	--background: var(--color-brand-main-50);
+	--background: #f4f4f5;
 	--foreground: var(--color-brand-main-950);
 	--card: #ffffff;
 	--card-foreground: var(--color-brand-main-950);
 	--popover: #ffffff;
 	--popover-foreground: var(--color-brand-main-950);
-	--primary: var(--color-brand-main-600);
-	--primary-foreground: var(--color-brand-main-50);
+	--primary: var(--color-brand-main-900);
+	--primary-foreground: #e7e6e6;
 	--secondary: var(--color-brand-main-100);
 	--secondary-foreground: var(--color-brand-main-900);
-	--muted: var(--color-brand-main-100);
-	--muted-foreground: var(--color-brand-main-500);
+	--muted: #fafafa;
+	--muted-foreground: #2d2d30;
 	--accent: var(--color-brand-main-200);
 	--accent-foreground: var(--color-brand-main-900);
 	--destructive: #dc2626;
 	--destructive-foreground: #ffffff;
-	--border: var(--color-brand-main-200);
-	--input: var(--color-brand-main-200);
+	--border: #e7e6e6;
+	--input: #e7e6e6;
 	--ring: var(--color-brand-main-600);
 	--chart-1: var(--color-brand-main-600);
 	--chart-2: var(--color-brand-main-500);
@@ -124,8 +86,8 @@
 	--accent-foreground: var(--color-brand-main-100);
 	--destructive: #ef4444;
 	--destructive-foreground: #ffffff;
-	--border: var(--color-brand-main-800);
-	--input: var(--color-brand-main-800);
+	--border: #e7e6e6;
+	--input: #e7e6e6;
 	--ring: var(--color-brand-main-400);
 	--chart-1: var(--color-brand-main-400);
 	--chart-2: var(--color-brand-main-500);
