@@ -32,6 +32,7 @@ export async function createInventoryItem(
 			description: data.description,
 			price: data.price,
 			stock: data.stock ?? 0,
+			reorderLevel: data.reorderLevel ?? 10,
 			sku: data.sku,
 			barcode: data.barcode,
 			categoryId: data.categoryId,
@@ -104,6 +105,7 @@ export async function updateInventoryItem(
 			sku: data.sku,
 			barcode: data.barcode,
 			categoryId: data.categoryId,
+			reorderLevel: data.reorderLevel,
 		},
 	});
 

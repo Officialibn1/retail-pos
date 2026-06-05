@@ -62,7 +62,7 @@ export const inventoryTableDef = ({
 			accessorKey: "stock",
 			cell: ({ row }) => (
 				<div className='flex items-center gap-2 justify-end'>
-					{row.original.stock < 10 && (
+					{row.original.stock <= row.original.reorderLevel && (
 						<AlertTriangle className='h-4 w-4 text-amber-500 mr-auto' />
 					)}
 					{row.original.stock}
@@ -73,7 +73,7 @@ export const inventoryTableDef = ({
 			header: "Status",
 			accessorKey: "stock",
 			cell: ({ row }) => {
-				const stockStatus = getStockStatus(row.original.stock);
+				const stockStatus = getStockStatus(row.original.stock, row.original.reorderLevel);
 
 				return (
 					<Badge

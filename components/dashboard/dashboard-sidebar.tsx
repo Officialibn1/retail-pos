@@ -30,14 +30,15 @@ import {
 import { useAuth } from "@/components/auth/auth-provider";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { UserRole } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
-import { canViewDashboardPage } from "@/lib/auth";
-import { useGetStoreSettingsQuery } from "@/lib/store/api";
+import { canViewDashboardPage, canManageInventory } from "@/lib/auth";
+import { useGetStoreSettingsQuery, useGetLowStockNotificationsQuery } from "@/lib/store/api";
 
 const navigationItems = [
 	{
@@ -122,6 +123,13 @@ export function DashboardSidebar() {
 	const { data: storeData } = useGetStoreSettingsQuery();
 	const storeName = storeData?.settings?.name;
 
+	const isManager = user ? canManageInventory(user.roles) : false;
+	const { data: lowStockData } = useGetLowStockNotificationsQuery(undefined, {
+		skip: !isManager,
+		pollingInterval: 120000,
+	});
+	const lowStockCount = lowStockData?.count ?? 0;
+
 	if (!user) return null;
 
 	return (
@@ -176,6 +184,11 @@ export function DashboardSidebar() {
 											<Link href={item.url}>
 												<item.icon className='h-4 w-4' />
 												<span>{item.title}</span>
+												{item.title === "Inventory" && isManager && lowStockCount > 0 && (
+													<Badge className='ml-auto h-4 min-w-4 px-1 text-[10px] bg-amber-500 hover:bg-amber-500 text-white border-0'>
+														{lowStockCount > 99 ? "99+" : lowStockCount}
+													</Badge>
+												)}
 											</Link>
 										</SidebarMenuButton>
 									</SidebarMenuItem>

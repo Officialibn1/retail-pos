@@ -51,12 +51,12 @@
 ### 4. Cash Drawer Management (Shift Open/Close) 🔴
 **What:** Cashiers declare opening float; system reconciles expected cash vs declared at shift end.
 
-- [ ] Add `CashDrawerSession` model (`userId`, `openingFloat`, `declaredClose`, `expectedClose`, `variance`, `openedAt`, `closedAt`)
-- [ ] Add `POST /api/cash-drawer/open` and `POST /api/cash-drawer/close` routes
-- [ ] Build "Open Shift" dialog shown to CASHIER on first login of the day
-- [ ] Build "Close Shift" dialog with cash count entry and variance display
-- [ ] Show shift status in dashboard sidebar/header
-- [ ] Add cash drawer sessions to activity log
+- [x] Add `CashDrawerSession` model (`userId`, `openingFloat`, `declaredClose`, `expectedClose`, `variance`, `openedAt`, `closedAt`)
+- [x] Add `POST /api/cash-drawer/open` and `POST /api/cash-drawer/close` routes
+- [x] Build "Open Shift" dialog shown to CASHIER on first login of the day
+- [x] Build "Close Shift" dialog with cash count entry and variance display
+- [x] Show shift status in dashboard sidebar/header
+- [x] Add cash drawer sessions to activity log
 
 ---
 

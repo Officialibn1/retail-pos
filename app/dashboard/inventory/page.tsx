@@ -102,7 +102,7 @@ export default function InventoryPage() {
 		useAdjustStockMutation();
 
 	const totalItems = inventory.length;
-	const lowStockItems = inventory.filter((item) => item.stock < 10).length;
+	const lowStockItems = inventory.filter((item) => item.stock > 0 && item.stock <= item.reorderLevel).length;
 	const outOfStockItems = inventory.filter((item) => item.stock === 0).length;
 	const totalValue = inventory.reduce(
 		(sum, item) => sum + item.price * item.stock,

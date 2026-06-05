@@ -27,6 +27,12 @@ export const createInventoryItemSchema = z.object({
 		.min(0, "Stock cannot be negative")
 		.optional()
 		.default(0),
+	reorderLevel: z
+		.number()
+		.int("Reorder level must be an integer")
+		.min(0, "Reorder level cannot be negative")
+		.optional()
+		.default(10),
 	sku: z
 		.string()
 		.min(1, "SKU is required")
@@ -89,6 +95,11 @@ export const updateInventoryItemSchema = z.object({
 		.or(z.literal(""))
 		.optional()
 		.nullable(),
+	reorderLevel: z
+		.number()
+		.int("Reorder level must be an integer")
+		.min(0, "Reorder level cannot be negative")
+		.optional(),
 	categoryId: z.string().cuid("Invalid category ID").optional(),
 });
 

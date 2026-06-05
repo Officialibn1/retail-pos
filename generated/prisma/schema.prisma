@@ -46,6 +46,7 @@ model User {
   updatedAt           DateTime             @updatedAt
   status              UserStatus           @default(ACTIVE)
   activityLogs        ActivityLog[]
+  cashDrawerSessions  CashDrawerSession[]
   passwordResetTokens PasswordResetToken[]
   sales               Sale[]
   saleReturns         SaleReturn[]
@@ -98,6 +99,7 @@ model InventoryItem {
   description     String?
   price           Decimal               @db.Decimal(10, 2)
   stock           Int                   @default(0)
+  reorderLevel    Int                   @default(10)
   sku             String                @unique
   barcode         String?               @unique
   categoryId      String
@@ -210,6 +212,24 @@ model SaleReturnItem {
   @@index([returnId])
   @@index([inventoryItemId])
   @@map("sale_return_items")
+}
+
+model CashDrawerSession {
+  id            String    @id @default(cuid())
+  userId        String
+  openingFloat  Decimal   @db.Decimal(10, 2)
+  declaredClose Decimal?  @db.Decimal(10, 2)
+  expectedClose Decimal?  @db.Decimal(10, 2)
+  variance      Decimal?  @db.Decimal(10, 2)
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+  notes         String?
+  user          User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([openedAt])
+  @@index([closedAt])
+  @@map("cash_drawer_sessions")
 }
 
 model StoreInfo {

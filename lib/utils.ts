@@ -115,9 +115,9 @@ export const downloadComponentAsPDF = async (
 	}
 };
 
-export const getStockStatus = (stock: number) => {
+export const getStockStatus = (stock: number, reorderLevel: number = 10) => {
 	if (stock === 0)
 		return { label: "Out of Stock", variant: "destructive" as const };
-	if (stock < 10) return { label: "Low Stock", variant: "secondary" as const };
+	if (stock <= reorderLevel) return { label: "Low Stock", variant: "secondary" as const };
 	return { label: "In Stock", variant: "default" as const };
 };

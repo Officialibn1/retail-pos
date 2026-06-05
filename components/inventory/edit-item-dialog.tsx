@@ -61,6 +61,7 @@ export function EditItemDialog({
 			price: 0,
 			categoryId: "",
 			barcode: "",
+			reorderLevel: 10,
 		},
 	});
 
@@ -79,6 +80,7 @@ export function EditItemDialog({
 				price: Number(item.price),
 				categoryId: item.categoryId,
 				barcode: item.barcode || "",
+				reorderLevel: item.reorderLevel ?? 10,
 			});
 		}
 	}, [open, item, form]);
@@ -248,6 +250,36 @@ export function EditItemDialog({
 											}
 										/>
 									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name='reorderLevel'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>
+										Reorder Level
+									</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											type='number'
+											min={0}
+											disabled={isUpdating || categoriesLoading}
+											className='  focus:border-brand-main-400'
+											onChange={(e) =>
+												field.onChange(
+													e.target.value ? Number(e.target.value) : 0,
+												)
+											}
+										/>
+									</FormControl>
+									<p className='text-xs text-brand-main-500'>
+										Alert threshold — you'll be notified when stock hits this level
+									</p>
 									<FormMessage />
 								</FormItem>
 							)}

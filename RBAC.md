@@ -36,6 +36,7 @@ enum UserRole {
 - ✅ Process sales and checkout
 - ✅ Process sale returns and refunds
 - ✅ Export database backups
+- ✅ View all cash drawer sessions across all users
 - ✅ Cannot be blocked or suspended (protected status)
 
 ### 2. MANAGER
@@ -50,6 +51,7 @@ enum UserRole {
 - ✅ View activity logs
 - ✅ Process sales and checkout
 - ✅ Process sale returns and refunds
+- ✅ View all cash drawer sessions across all users
 - ❌ Cannot manage users
 
 ### 3. ADMIN
@@ -62,11 +64,14 @@ enum UserRole {
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
 - ✅ Process sale returns and refunds (own sales only)
+- ✅ Open and close own cash drawer sessions
+- ✅ View own cash drawer sessions
 - ❌ Cannot access analytics page
 - ❌ Cannot view all data
 - ❌ Cannot manage inventory
 - ❌ Cannot manage users
 - ❌ Cannot view activity logs
+- ❌ Cannot view other users' cash drawer sessions
 
 ### 4. CASHIER
 
@@ -77,6 +82,8 @@ enum UserRole {
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
 - ✅ View returns they personally processed (scoped to `processedById`)
+- ✅ Open and close own cash drawer sessions
+- ✅ View own cash drawer sessions
 - ❌ Cannot process sale returns (no refund capability)
 - ❌ Cannot access analytics page
 - ❌ Cannot update or delete customers
@@ -85,6 +92,7 @@ enum UserRole {
 - ❌ Cannot manage users
 - ❌ Cannot view all data
 - ❌ Cannot view activity logs
+- ❌ Cannot view other users' cash drawer sessions
 
 ## User Shifts
 
@@ -202,6 +210,11 @@ enum UserStatus {
 | Change User Status         | ✅         | ❌      | ❌    | ❌      |
 | **Backup**                 |
 | Export Database Backup     | ✅         | ❌      | ❌    | ❌      |
+| **Cash Drawer**            |
+| View All Sessions          | ✅         | ✅      | ❌    | ❌      |
+| View Own Sessions          | ✅         | ✅      | ✅    | ✅      |
+| Open Drawer Session        | ✅         | ✅      | ✅    | ✅      |
+| Close Drawer Session       | ✅         | ✅      | ✅    | ✅      |
 | **Analytics**              |
 | Access Dashboard Page      | ✅         | ✅      | ✅    | ✅      |
 | View Dashboard Stats (Own) | ✅         | ✅      | ✅    | ✅      |
@@ -401,11 +414,12 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  sessions            Session[]
-  passwordResetTokens PasswordResetToken[]
-  sales               Sale[]
-  saleReturns         SaleReturn[]
-  activityLogs        ActivityLog[]
+  sessions              Session[]
+  passwordResetTokens   PasswordResetToken[]
+  sales                 Sale[]
+  saleReturns           SaleReturn[]
+  activityLogs          ActivityLog[]
+  cashDrawerSessions    CashDrawerSession[]
 
   @@map("users")
 }
@@ -417,6 +431,7 @@ Key fields:
 - **status**: UserStatus enum (ACTIVE, BLOCKED, SUSPENDED)
 - **shift**: Shift enum (MORNING, EVENING, FULLTIME)
 - **saleReturns**: Returns processed by this user (via `processedById`)
+- **cashDrawerSessions**: Drawer sessions opened by this user
 - Default role: CASHIER
 - Default status: ACTIVE
 - Default shift: MORNING
@@ -457,6 +472,40 @@ Key fields:
 - **processedById**: The user who processed the return — used for role-based attribution and audit trail
 - **refundMethod**: Uses the existing `PaymentMethod` enum (CASH, CARD, MOBILE_MONEY, BANK_TRANSFER)
 - **reason**: Free-text explanation for the return
+
+### Cash Drawer Session Model
+
+```prisma
+model CashDrawerSession {
+  id             String    @id @default(cuid())
+  userId         String
+  openingFloat   Decimal   @db.Decimal(10, 2)
+  declaredClose  Decimal?  @db.Decimal(10, 2)
+  expectedClose  Decimal?  @db.Decimal(10, 2)
+  variance       Decimal?  @db.Decimal(10, 2)
+  openedAt       DateTime  @default(now())
+  closedAt       DateTime?
+  notes          String?
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([openedAt])
+  @@index([closedAt])
+  @@map("cash_drawer_sessions")
+}
+```
+
+Key fields:
+
+- **userId**: The user who owns this drawer session — used for role-based scoping
+- **openingFloat**: Cash amount placed in the drawer when the session opens
+- **declaredClose**: Cash amount the user declares at session close
+- **expectedClose**: System-calculated expected closing balance (openingFloat + cash sales)
+- **variance**: Difference between `declaredClose` and `expectedClose` — used for reconciliation
+- **openedAt / closedAt**: Session timestamps; `closedAt` is null for active sessions
+- **notes**: Optional free-text for discrepancy explanations
+
+> **Note**: The `User` model must include a `cashDrawerSessions CashDrawerSession[]` relation field for this model to pass Prisma validation.
 
 ## API Route Protection
 
@@ -521,6 +570,13 @@ All API routes follow a consistent protection pattern using authentication, role
 - `POST /api/backup` - SUPERADMIN only, ACTIVE or SUSPENDED users (read-only operation that exports database to Excel)
   - Uses standard middleware pattern: `requireAuth()` followed by `requireSuperAdmin()`
   - Exports all database tables to Excel workbook format
+
+### Cash Drawer Routes
+
+- `GET /api/cash-drawer` - All roles; SUPERADMIN & MANAGER see all sessions, ADMIN & CASHIER see own sessions only; ACTIVE or SUSPENDED users
+- `POST /api/cash-drawer` - All roles (open a new session), **ACTIVE users only** (mutation protected)
+- `GET /api/cash-drawer/:id` - All roles (own session); SUPERADMIN & MANAGER (any session); ACTIVE or SUSPENDED users
+- `PATCH /api/cash-drawer/:id/close` - All roles (own session only), **ACTIVE users only** (mutation protected)
 
 ### Protection Pattern
 

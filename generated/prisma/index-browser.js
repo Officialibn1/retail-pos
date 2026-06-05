@@ -182,6 +182,7 @@ exports.Prisma.InventoryItemScalarFieldEnum = {
   description: 'description',
   price: 'price',
   stock: 'stock',
+  reorderLevel: 'reorderLevel',
   sku: 'sku',
   barcode: 'barcode',
   categoryId: 'categoryId',
@@ -241,6 +242,18 @@ exports.Prisma.SaleReturnItemScalarFieldEnum = {
   inventoryItemId: 'inventoryItemId',
   quantity: 'quantity',
   price: 'price'
+};
+
+exports.Prisma.CashDrawerSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  openingFloat: 'openingFloat',
+  declaredClose: 'declaredClose',
+  expectedClose: 'expectedClose',
+  variance: 'variance',
+  openedAt: 'openedAt',
+  closedAt: 'closedAt',
+  notes: 'notes'
 };
 
 exports.Prisma.StoreInfoScalarFieldEnum = {
@@ -321,6 +334,7 @@ exports.Prisma.ModelName = {
   SaleItem: 'SaleItem',
   SaleReturn: 'SaleReturn',
   SaleReturnItem: 'SaleReturnItem',
+  CashDrawerSession: 'CashDrawerSession',
   StoreInfo: 'StoreInfo'
 };
 

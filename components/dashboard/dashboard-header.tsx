@@ -11,9 +11,10 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
-import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ShiftStatusIndicator } from "@/components/cash-drawer/shift-status-indicator";
+import { LowStockBell } from "@/components/notifications/low-stock-bell";
 
 export function DashboardHeader() {
 	const pathname = usePathname();
@@ -86,12 +87,8 @@ export function DashboardHeader() {
 			</Breadcrumb>
 
 			<div className='ml-auto flex items-center gap-2'>
-				<Button
-					variant='ghost'
-					size='icon'
-					className='text-brand-main-600 hover:bg-brand-main-100'>
-					<Bell className='h-4 w-4' />
-				</Button>
+				<ShiftStatusIndicator />
+				<LowStockBell />
 			</div>
 		</header>
 	);

@@ -55,6 +55,8 @@ export const TAG_TYPES = [
 	"ActivityLogs",
 	"Analytics",
 	"StoreSettings",
+	"CashDrawer",
+	"Notifications",
 ] as const;
 
 export interface StoreSettings {
@@ -358,7 +360,68 @@ export interface ReturnWithDetails {
 	items: SaleReturnItemResponse[];
 }
 
-export const api = createApi({
+// Low-stock notification types
+export interface LowStockItem {
+	id: string;
+	name: string;
+	sku: string;
+	stock: number;
+	reorderLevel: number;
+	category: string;
+}
+
+export interface LowStockNotificationsResponse {
+	items: LowStockItem[];
+	count: number;
+}
+
+// Cash Drawer / Shift Session types
+export interface CashDrawerSessionUser {
+	id: string;
+	name: string;
+	email: string;
+}
+
+export interface CashDrawerSession {
+	id: string;
+	userId: string;
+	openingFloat: number;
+	declaredClose: number | null;
+	expectedClose: number | null;
+	variance: number | null;
+	openedAt: string;
+	closedAt: string | null;
+	notes: string | null;
+	user: CashDrawerSessionUser;
+}
+
+export interface OpenShiftRequest {
+	openingFloat: number;
+	notes?: string;
+}
+
+export interface CloseShiftRequest {
+	declaredClose: number;
+	notes?: string;
+}
+
+export interface OpenShiftResponse {
+	message: string;
+	session: CashDrawerSession;
+}
+
+export interface CloseShiftResponse {
+	message: string;
+	session: CashDrawerSession;
+}
+
+export interface GetActiveSessionResponse {
+	session: CashDrawerSession | null;
+}
+
+export interface GetSessionsResponse {
+	sessions: CashDrawerSession[];
+}export const api = createApi({
 	reducerPath: "api",
 	baseQuery: fetchBaseQuery({
 		baseUrl: "/",
@@ -423,7 +486,7 @@ export const api = createApi({
 				method: "POST",
 				body: data,
 			}),
-			invalidatesTags: ["Inventory"],
+			invalidatesTags: ["Inventory", "Notifications"],
 		}),
 
 		updateInventoryItem: builder.mutation<
@@ -435,7 +498,7 @@ export const api = createApi({
 				method: "PUT",
 				body: data,
 			}),
-			invalidatesTags: ["Inventory"],
+			invalidatesTags: ["Inventory", "Notifications"],
 		}),
 
 		deleteInventoryItem: builder.mutation<DeleteInventoryItemResponse, string>({
@@ -443,7 +506,7 @@ export const api = createApi({
 				url: `/api/inventory/${id}`,
 				method: "DELETE",
 			}),
-			invalidatesTags: ["Inventory"],
+			invalidatesTags: ["Inventory", "Notifications"],
 		}),
 
 		adjustStock: builder.mutation<
@@ -455,7 +518,7 @@ export const api = createApi({
 				method: "POST",
 				body: data,
 			}),
-			invalidatesTags: ["Inventory"],
+			invalidatesTags: ["Inventory", "Notifications"],
 		}),
 
 		getSales: builder.query<SaleWithDetails[], SaleSearchParams | void>({
@@ -490,7 +553,7 @@ export const api = createApi({
 				method: "POST",
 				body: data,
 			}),
-			invalidatesTags: ["Sales", "Inventory"],
+			invalidatesTags: ["Sales", "Inventory", "Notifications"],
 		}),
 
 		cancelSale: builder.mutation<Sale, string>({
@@ -812,6 +875,44 @@ export const api = createApi({
 			],
 		}),
 
+		// Low-stock notifications
+		getLowStockNotifications: builder.query<LowStockNotificationsResponse, void>({
+			query: () => "/api/notifications/low-stock",
+			providesTags: ["Notifications"],
+		}),
+
+		// Cash Drawer / Shift endpoints
+		getActiveSession: builder.query<GetActiveSessionResponse, void>({
+			query: () => "/api/cash-drawer/active",
+			providesTags: ["CashDrawer"],
+		}),
+
+		getCashDrawerSessions: builder.query<GetSessionsResponse, { userId?: string; limit?: number } | void>({
+			query: (params) => ({
+				url: "/api/cash-drawer",
+				params: params || undefined,
+			}),
+			providesTags: ["CashDrawer"],
+		}),
+
+		openShift: builder.mutation<OpenShiftResponse, OpenShiftRequest>({
+			query: (data) => ({
+				url: "/api/cash-drawer",
+				method: "POST",
+				body: data,
+			}),
+			invalidatesTags: ["CashDrawer"],
+		}),
+
+		closeShift: builder.mutation<CloseShiftResponse, { id: string; data: CloseShiftRequest }>({
+			query: ({ id, data }) => ({
+				url: `/api/cash-drawer/${id}/close`,
+				method: "POST",
+				body: data,
+			}),
+			invalidatesTags: ["CashDrawer"],
+		}),
+
 		// Database backup mutation - returns a file blob
 		createBackup: builder.mutation<Blob, void>({
 			queryFn: async (_arg, _queryApi, _extraOptions, fetchWithBQ) => {
@@ -901,4 +1002,11 @@ export const {
 	// Store Settings
 	useGetStoreSettingsQuery,
 	useUpdateStoreSettingsMutation,
+	// Cash Drawer
+	useGetActiveSessionQuery,
+	useGetCashDrawerSessionsQuery,
+	useOpenShiftMutation,
+	useCloseShiftMutation,
+	// Notifications
+	useGetLowStockNotificationsQuery,
 } = api;
