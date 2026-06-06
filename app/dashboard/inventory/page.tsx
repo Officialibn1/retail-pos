@@ -50,12 +50,10 @@ import {
 	useDeleteInventoryItemMutation,
 	useAdjustStockMutation,
 } from "@/lib/store/api";
-import { CreateInventoryItemInput } from "@/lib/validations/inventory.schema";
-import { AdjustStockInput } from "@/lib/validations/inventory.schema";
+import { CreateInventoryItemInput, UpdateInventoryItemInput, AdjustStockInput } from "@/lib/validations/inventory.schema";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
-import { InventoryItem } from "@/generated/prisma";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import DataTable from "@/components/dashboard/data-table";
@@ -130,12 +128,7 @@ export default function InventoryPage() {
 		setShowEditDialog(true);
 	};
 
-	const handleSaveEdit = async (
-		updatedData: Omit<
-			InventoryItem,
-			"id" | "createdAt" | "updatedAt" | "deletedAt"
-		>,
-	) => {
+	const handleSaveEdit = async (updatedData: UpdateInventoryItemInput) => {
 		if (!selectedItem) return;
 
 		try {
@@ -233,10 +226,10 @@ export default function InventoryPage() {
 			<div className='space-y-6 p-6'>
 				<div className='flex items-center justify-between'>
 					<div>
-						<h1 className='text-3xl font-bold text-brand-main-800'>
+						<h1 className='text-3xl font-bold text-brand-main-950'>
 							Inventory Management
 						</h1>
-						<p className='text-brand-main-600 mt-1'>
+						<p className='text-brand-main-800 mt-1'>
 							Manage your store's product inventory
 						</p>
 					</div>
@@ -252,7 +245,7 @@ export default function InventoryPage() {
 				<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle className='text-sm font-medium text-slate-600'>
 								Total Items
 							</CardTitle>
 							<Package className='h-4 w-4 text-brand-main-600' />
@@ -261,13 +254,13 @@ export default function InventoryPage() {
 							<div className='text-2xl font-bold text-brand-main-800'>
 								{totalItems}
 							</div>
-							<p className='text-xs text-brand-main-600'>Active products</p>
+							<p className='text-xs text-slate-500'>Active products</p>
 						</CardContent>
 					</Card>
 
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle className='text-sm font-medium text-slate-600'>
 								Low Stock
 							</CardTitle>
 							<AlertTriangle className='h-4 w-4 text-amber-500' />
@@ -276,7 +269,7 @@ export default function InventoryPage() {
 							<div className='text-2xl font-bold text-brand-main-800'>
 								{lowStockItems}
 							</div>
-							<p className='text-xs text-brand-main-600'>
+							<p className='text-xs text-slate-500'>
 								Items below 10 units
 							</p>
 						</CardContent>
@@ -284,7 +277,7 @@ export default function InventoryPage() {
 
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle className='text-sm font-medium text-slate-600'>
 								Out of Stock
 							</CardTitle>
 							<AlertTriangle className='h-4 w-4 text-red-500' />
@@ -293,7 +286,7 @@ export default function InventoryPage() {
 							<div className='text-2xl font-bold text-brand-main-800'>
 								{outOfStockItems}
 							</div>
-							<p className='text-xs text-brand-main-600'>
+							<p className='text-xs text-slate-500'>
 								Items with 0 quantity
 							</p>
 						</CardContent>
@@ -301,7 +294,7 @@ export default function InventoryPage() {
 
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle className='text-sm font-medium text-slate-600'>
 								Total Value
 							</CardTitle>
 							<DollarSign className='h-4 w-4 text-brand-main-600' />
@@ -310,7 +303,7 @@ export default function InventoryPage() {
 							<div className='text-2xl font-bold text-brand-main-800'>
 								{formatNaira(totalValue)}
 							</div>
-							<p className='text-xs text-brand-main-600'>Inventory worth</p>
+							<p className='text-xs text-slate-500'>Inventory worth</p>
 						</CardContent>
 					</Card>
 				</div>
@@ -336,9 +329,9 @@ export default function InventoryPage() {
 						<div className='flex gap-4 mt-4'>
 							<div className='relative flex-1'>
 								{isFetching ? (
-									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 								) : (
-									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 								)}
 
 								<Input

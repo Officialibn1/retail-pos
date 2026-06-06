@@ -133,8 +133,8 @@ export function PendingOrdersList({
 				</CardHeader>
 				<CardContent>
 					<div className='text-center py-8'>
-						<Package className='h-12 w-12 mx-auto text-brand-main-300 mb-3' />
-						<p className='text-brand-main-600 text-sm'>
+						<Package className='h-12 w-12 mx-auto text-brand-main-800 mb-3' />
+						<p className='text-slate-600 text-sm'>
 							No pending orders at the moment
 						</p>
 					</div>

@@ -292,10 +292,10 @@ export default function SalesHistoryPage() {
 			{/* Page header */}
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-800'>
+					<h1 className='text-3xl font-bold text-brand-main-950'>
 						Sales History
 					</h1>
-					<p className='text-brand-main-600 mt-1'>
+					<p className='text-brand-main-800 mt-1'>
 						{canSeeAll
 							? "View all store sales transactions and returns"
 							: "View your sales transactions and returns"}
@@ -337,7 +337,7 @@ export default function SalesHistoryPage() {
 					<div className='grid gap-4 md:grid-cols-3'>
 						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-								<CardTitle className='text-sm font-medium text-brand-main-700'>
+								<CardTitle className='text-sm font-medium text-slate-600'>
 									Total Sales
 								</CardTitle>
 								<Receipt className='h-4 w-4 text-brand-main-600' />
@@ -346,7 +346,7 @@ export default function SalesHistoryPage() {
 								<div className='text-2xl font-bold text-brand-main-800'>
 									{sales.length}
 								</div>
-								<p className='text-xs text-brand-main-600'>
+								<p className='text-xs text-slate-500'>
 									{completedSales} completed
 								</p>
 							</CardContent>
@@ -354,7 +354,7 @@ export default function SalesHistoryPage() {
 
 						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-								<CardTitle className='text-sm font-medium text-brand-main-700'>
+								<CardTitle className='text-sm font-medium text-slate-600'>
 									Total Revenue
 								</CardTitle>
 								<Receipt className='h-4 w-4 text-brand-main-600' />
@@ -363,7 +363,7 @@ export default function SalesHistoryPage() {
 								<div className='text-2xl font-bold text-brand-main-800'>
 									{formatNaira(totalRevenue)}
 								</div>
-								<p className='text-xs text-brand-main-600'>
+								<p className='text-xs text-slate-500'>
 									From {canSeeAll ? "all sales" : "your sales"}
 								</p>
 							</CardContent>
@@ -371,7 +371,7 @@ export default function SalesHistoryPage() {
 
 						<Card className=' '>
 							<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-								<CardTitle className='text-sm font-medium text-brand-main-700'>
+								<CardTitle className='text-sm font-medium text-slate-600'>
 									Avg Order Value
 								</CardTitle>
 								<Receipt className='h-4 w-4 text-brand-main-600' />
@@ -380,7 +380,7 @@ export default function SalesHistoryPage() {
 								<div className='text-2xl font-bold text-brand-main-800'>
 									{formatNaira(averageOrderValue)}
 								</div>
-								<p className='text-xs text-brand-main-600'>Per transaction</p>
+								<p className='text-xs text-slate-500'>Per transaction</p>
 							</CardContent>
 						</Card>
 					</div>
@@ -392,9 +392,9 @@ export default function SalesHistoryPage() {
 								<div className='flex gap-4'>
 									<div className='relative flex-1'>
 										{salesFetching ? (
-											<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-brand-main-500' />
+											<Loader2 className='absolute left-2.5 top-2.5 h-4 w-4 animate-spin text-muted-foreground' />
 										) : (
-											<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+											<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 										)}
 										<Input
 											placeholder='Search by ID, customer, cashier...'

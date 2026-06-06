@@ -73,10 +73,10 @@ export function AddCustomerDialog({
 			onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[500px]'>
 				<DialogHeader>
-					<DialogTitle className='text-brand-main-800'>
+					<DialogTitle className='text-brand-main-950'>
 						Add New Customer
 					</DialogTitle>
-					<DialogDescription className='text-brand-main-600'>
+					<DialogDescription className='text-slate-600'>
 						Create a new customer record. Phone number is required.
 					</DialogDescription>
 				</DialogHeader>
@@ -90,7 +90,7 @@ export function AddCustomerDialog({
 							name='name'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Customer Name
 									</FormLabel>
 									<FormControl>
@@ -112,7 +112,7 @@ export function AddCustomerDialog({
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Email Address
 									</FormLabel>
 									<FormControl>
@@ -135,7 +135,7 @@ export function AddCustomerDialog({
 							name='phone'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Phone Number *
 									</FormLabel>
 									<FormControl>
@@ -159,7 +159,7 @@ export function AddCustomerDialog({
 								disabled={isCreating}
 								variant='outline'
 								onClick={handleCancel}
-								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button

@@ -61,7 +61,7 @@ export function ShoppingCart({
 			</CardHeader>
 			<CardContent className='space-y-4 pb-4'>
 				{items.length === 0 ? (
-					<div className='text-center py-8 text-brand-main-600'>
+					<div className='text-center py-8 text-muted-foreground'>
 						Your cart is empty
 					</div>
 				) : (

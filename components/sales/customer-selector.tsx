@@ -133,9 +133,9 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 						<div className='space-y-3'>
 							<div className='relative'>
 								{isFetching ? (
-									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+									<Spinner className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 								) : (
-									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+									<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 								)}
 								<Input
 									placeholder='Filter customers by name or phone...'
@@ -181,7 +181,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 														: "cursor-pointer hover:bg-brand-main-50 hover:border-brand-main-300 focus:bg-brand-main-50 focus:border-brand-main-400 focus:outline-none"
 												}`}>
 												<div className='flex flex-col'>
-													<span className='font-medium text-brand-main-800'>
+													<span className='font-medium text-brand-main-900'>
 														{customer.name || "Anonymous Customer"}
 													</span>
 													<span className='text-xs text-muted-foreground'>
@@ -208,7 +208,7 @@ export function CustomerSelector({ disabled = false }: CustomerSelectorProps) {
 								variant='outline'
 								onClick={() => !disabled && setShowAddDialog(true)}
 								disabled={disabled}
-								className='w-full   text-brand-main-700 hover:bg-brand-main-50 disabled:opacity-50 disabled:cursor-not-allowed'>
+								className='w-full hover:bg-brand-main-50 disabled:opacity-50 disabled:cursor-not-allowed'>
 								<Plus className='h-4 w-4 mr-2' />
 								Add New Customer
 							</Button>

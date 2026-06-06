@@ -99,10 +99,10 @@ export function AddItemDialog({
 			onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[600px]'>
 				<DialogHeader>
-					<DialogTitle className='text-brand-main-800'>
+					<DialogTitle className='text-brand-main-950'>
 						Add New Item
 					</DialogTitle>
-					<DialogDescription className='text-brand-main-600'>
+					<DialogDescription className='text-brand-main-800'>
 						Add a new item to your inventory. Fill in all the required
 						information.
 					</DialogDescription>
@@ -118,7 +118,7 @@ export function AddItemDialog({
 								name='name'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Product Name *
 										</FormLabel>
 										<FormControl>
@@ -137,7 +137,7 @@ export function AddItemDialog({
 								name='sku'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>SKU *</FormLabel>
+										<FormLabel>SKU *</FormLabel>
 										<FormControl>
 											<Input
 												{...field}
@@ -156,7 +156,7 @@ export function AddItemDialog({
 							name='description'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Description
 									</FormLabel>
 									<FormControl>
@@ -179,7 +179,7 @@ export function AddItemDialog({
 								name='categoryId'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Category *
 										</FormLabel>
 										<Select
@@ -210,7 +210,7 @@ export function AddItemDialog({
 								name='barcode'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Barcode
 										</FormLabel>
 										<div className='flex items-center gap-2'>
@@ -268,7 +268,7 @@ export function AddItemDialog({
 								name='price'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Selling Price *
 										</FormLabel>
 										<FormControl>
@@ -294,7 +294,7 @@ export function AddItemDialog({
 								name='stock'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Quantity *
 										</FormLabel>
 										<FormControl>
@@ -320,7 +320,7 @@ export function AddItemDialog({
 							name='reorderLevel'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Reorder Level
 									</FormLabel>
 									<FormControl>
@@ -337,7 +337,7 @@ export function AddItemDialog({
 											}
 										/>
 									</FormControl>
-									<p className='text-xs text-brand-main-500'>
+									<p className='text-xs text-slate-500'>
 										Alert threshold — you'll be notified when stock hits this level
 									</p>
 									<FormMessage />
@@ -354,7 +354,7 @@ export function AddItemDialog({
 									onOpenChange(false);
 									setIsScanning(false);
 								}}
-								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className=' hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button

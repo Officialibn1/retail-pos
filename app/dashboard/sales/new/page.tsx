@@ -46,7 +46,6 @@ export default function NewSalePage() {
 	const { user } = useAuth();
 	const dispatch = useAppDispatch();
 
-	// RTK Query hooks for data fetching
 	const {
 		data: inventory = [],
 		isLoading: loading,
@@ -330,8 +329,8 @@ export default function NewSalePage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-800'>New Sale</h1>
-					<p className='text-brand-main-600 mt-1'>
+					<h1 className='text-3xl font-bold text-brand-main-950'>New Sale</h1>
+					<p className='text-brand-main-800 mt-1'>
 						Create a new sales transaction
 					</p>
 				</div>
