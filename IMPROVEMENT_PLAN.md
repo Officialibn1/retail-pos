@@ -63,11 +63,11 @@
 ### 5. Low-Stock Alerts 🟡
 **What:** Proactively notify relevant roles when stock drops below a defined threshold.
 
-- [ ] Add `lowStockThreshold` field to `InventoryItem` (default: 10, currently `reorderLevel` could serve this purpose — evaluate reuse)
-- [ ] Add in-app notification bell in dashboard header
-- [ ] Add `Notification` model or use a server-sent event / polling approach
-- [ ] Send email notification to MANAGER + SUPERADMIN when stock hits threshold after a sale
-- [ ] Add "Low Stock" badge/count to Inventory sidebar link
+- [x] Add `lowStockThreshold` field to `InventoryItem` (default: 10, currently `reorderLevel` could serve this purpose — evaluate reuse)
+- [x] Add in-app notification bell in dashboard header
+- [x] Add `Notification` model or use a server-sent event / polling approach
+- [x] Send email notification to MANAGER + SUPERADMIN when stock hits threshold after a sale
+- [x] Add "Low Stock" badge/count to Inventory sidebar link
 
 ---
 
