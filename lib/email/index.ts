@@ -7,6 +7,7 @@ import { generateCanceledOrdersEmail } from "./templates/canceled-orders";
 import { generateUserCreationEmail } from "./templates/user-creation";
 import { generateCustomerWelcomeEmail } from "./templates/customer-welcome";
 import { generatePasswordResetEmail } from "./templates/password-reset";
+import { generateLowStockAlertEmail } from "./templates/low-stock-alert";
 import type {
 	UserStatusEmailData,
 	PurchaseEmailData,
@@ -14,6 +15,7 @@ import type {
 	UserCreationEmailData,
 	CustomerWelcomeEmailData,
 	PasswordResetEmailData,
+	LowStockAlertEmailData,
 } from "./types";
 
 export async function sendUserStatusEmail(
@@ -138,6 +140,31 @@ export async function sendCanceledOrdersEmail(
 	} catch (error) {
 		console.error("Failed to send canceled orders email:", error);
 		throw error;
+	}
+}
+
+export async function sendLowStockAlertEmail(
+	recipients: string[],
+	data: LowStockAlertEmailData,
+): Promise<void> {
+	try {
+		const { html, text } = await generateLowStockAlertEmail(data);
+
+		const outOfStockCount = data.items.filter((i) => i.stock === 0).length;
+		const subject =
+			outOfStockCount > 0
+				? `🔴 Stock Alert: ${outOfStockCount} item${outOfStockCount !== 1 ? "s" : ""} out of stock — action required`
+				: `⚠️ Low Stock Alert: ${data.items.length} item${data.items.length !== 1 ? "s" : ""} need restocking`;
+
+		await sendEmail({
+			to: recipients,
+			subject,
+			html,
+			text,
+		});
+	} catch (error) {
+		console.error("Failed to send low stock alert email:", error);
+		// Don't rethrow — email failure should never block a sale
 	}
 }
 

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, requireManager } from "@/lib/middleware/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 
 /**
  * GET /api/notifications/low-stock
  * Returns inventory items whose stock is at or below their individual reorder level.
+ * Fetches all non-deleted items then filters in JS to avoid a column-to-column
+ * comparison that Prisma ORM does not support natively.
  * Requires MANAGER+ role.
  */
 export async function GET(request: NextRequest) {
@@ -20,40 +21,38 @@ export async function GET(request: NextRequest) {
 	if (roleCheck) return roleCheck;
 
 	try {
-		// Use raw query to compare stock <= reorderLevel column-to-column
-		const items = await prisma.$queryRaw<
-			Array<{
-				id: string;
-				name: string;
-				sku: string;
-				stock: number;
-				reorder_level: number;
-				category_name: string | null;
-			}>
-		>(
-			Prisma.sql`
-				SELECT
-					i.id,
-					i.name,
-					i.sku,
-					i.stock,
-					i.reorder_level,
-					c.name AS category_name
-				FROM inventory_items i
-				LEFT JOIN inventory_item_categories c ON c.id = i.category_id
-				WHERE i.deleted_at IS NULL
-					AND i.stock <= i.reorder_level
-				ORDER BY i.stock ASC
-			`,
+		// Fetch only items that are candidates: stock is reasonably low.
+		// We use stock <= 100 as a broad pre-filter to avoid a full table scan
+		// returning thousands of rows; the precise per-item threshold is then
+		// applied in JS below.
+		const candidates = await prisma.inventoryItem.findMany({
+			where: {
+				deletedAt: null,
+				stock: { lte: 100 },
+			},
+			select: {
+				id: true,
+				name: true,
+				sku: true,
+				stock: true,
+				reorderLevel: true,
+				category: { select: { name: true } },
+			},
+			orderBy: { stock: "asc" },
+		});
+
+		// Keep only items whose stock is at or below their own reorder level
+		const alertItems = candidates.filter(
+			(item) => item.stock <= item.reorderLevel,
 		);
 
-		const formatted = items.map((item) => ({
+		const formatted = alertItems.map((item) => ({
 			id: item.id,
 			name: item.name,
 			sku: item.sku,
 			stock: item.stock,
-			reorderLevel: item.reorder_level,
-			category: item.category_name ?? "Uncategorised",
+			reorderLevel: item.reorderLevel,
+			category: item.category.name,
 		}));
 
 		return NextResponse.json(

@@ -80,3 +80,14 @@ export interface PasswordResetEmailData {
 	type: "LINK" | "OTP";
 	expiryMinutes: number;
 }
+
+export interface LowStockAlertEmailData {
+	items: Array<{
+		id: string;
+		name: string;
+		sku: string;
+		stock: number;
+		reorderLevel: number;
+		category: string;
+	}>;
+}

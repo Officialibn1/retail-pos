@@ -53,7 +53,7 @@ export function LowStockBell() {
 					<Bell className="h-4 w-4" />
 					{!isLoading && count > 0 && (
 						<Badge
-							className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-red-500 hover:bg-red-500 text-white border-0 rounded-full">
+							className="absolute -top-1 -right-1 h-fit w-fit aspect-square p-1.5 flex items-center justify-center text-[10px] bg-brand-main-800 hover:bg-brand-main-800 text-white border-0 rounded-full">
 							{count > 99 ? "99+" : count}
 						</Badge>
 					)}
@@ -69,7 +69,7 @@ export function LowStockBell() {
 						</span>
 					</div>
 					{count > 0 && (
-						<Badge variant="destructive" className="text-xs">
+						<Badge  className="text-xs">
 							{count} alert{count !== 1 ? "s" : ""}
 						</Badge>
 					)}
@@ -82,7 +82,7 @@ export function LowStockBell() {
 					</div>
 				) : (
 					<>
-						<ScrollArea className="max-h-72">
+						<ScrollArea className="max-h-72 overflow-y-auto">
 							{outOfStock.length > 0 && (
 								<div>
 									<div className="px-4 py-2 bg-red-50 border-b">

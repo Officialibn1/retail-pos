@@ -5,7 +5,7 @@ import {
 	CompleteSaleInput,
 	CreateReturnInput,
 } from "@/lib/validations/sale.schema";
-import { sendPurchaseReceiptEmail } from "@/lib/email";
+import { sendPurchaseReceiptEmail, sendLowStockAlertEmail } from "@/lib/email";
 import { getStoreSettings } from "@/lib/services/store-settings.service";
 
 /**
@@ -372,6 +372,62 @@ export async function completeSale(
 			console.error("Failed to send purchase receipt email:", emailError);
 			// Don't fail the sale completion if email fails
 		}
+	}
+
+	// Check if any sold items are now at or below their reorder level
+	// and send a low-stock alert to all SUPERADMIN and MANAGER users
+	try {
+		const soldItemIds = result.items.map((i) => i.inventoryItem.id);
+
+		const lowStockItems = await prisma.inventoryItem.findMany({
+			where: {
+				id: { in: soldItemIds },
+				deletedAt: null,
+				// stock <= reorderLevel — Prisma doesn't support column comparison,
+				// so we fetch all and filter in JS (small set, sold items only)
+			},
+			select: {
+				id: true,
+				name: true,
+				sku: true,
+				stock: true,
+				reorderLevel: true,
+				category: { select: { name: true } },
+			},
+		});
+
+		const alertItems = lowStockItems.filter(
+			(item) => item.stock <= item.reorderLevel,
+		);
+
+		if (alertItems.length > 0) {
+			// Fetch all SUPERADMIN and MANAGER emails
+			const managers = await prisma.user.findMany({
+				where: {
+					roles: { hasSome: [UserRole.SUPERADMIN, UserRole.MANAGER] },
+					status: "ACTIVE",
+				},
+				select: { email: true },
+			});
+
+			const recipients = managers.map((m) => m.email);
+
+			if (recipients.length > 0) {
+				await sendLowStockAlertEmail(recipients, {
+					items: alertItems.map((item) => ({
+						id: item.id,
+						name: item.name,
+						sku: item.sku,
+						stock: item.stock,
+						reorderLevel: item.reorderLevel,
+						category: item.category.name,
+					})),
+				});
+			}
+		}
+	} catch (alertError) {
+		console.error("Failed to send low-stock alert email:", alertError);
+		// Never block sale completion due to alert failure
 	}
 
 	return result;

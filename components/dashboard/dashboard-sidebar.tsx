@@ -37,7 +37,7 @@ import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { UserRole } from "@/lib/types";
 import { Spinner } from "../ui/spinner";
-import { canViewDashboardPage, canManageInventory } from "@/lib/auth";
+import { canManageInventory } from "@/lib/auth";
 import { useGetStoreSettingsQuery, useGetLowStockNotificationsQuery } from "@/lib/store/api";
 
 const navigationItems = [
@@ -166,7 +166,7 @@ export function DashboardSidebar() {
 
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-brand-main-700'>
+					<SidebarGroupLabel className='text-brand-main-900 font-semibold'>
 						Navigation
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -180,12 +180,12 @@ export function DashboardSidebar() {
 											asChild
 											tooltip={item.title}
 											isActive={pathname === item.url}
-											className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
+											className='text-slate-600 hover:bg-slate-100 hover:text-slate-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
 											<Link href={item.url}>
 												<item.icon className='h-4 w-4' />
 												<span>{item.title}</span>
 												{item.title === "Inventory" && isManager && lowStockCount > 0 && (
-													<Badge className='ml-auto h-4 min-w-4 px-1 text-[10px] bg-amber-500 hover:bg-amber-500 text-white border-0'>
+													<Badge data-active={pathname === item.url} className='ml-auto h-5 min-w-5 flex items-center justify-center rounded-full text-[10px] font-bold font-mono bg-white hover:bg-white text-brand-main-900 border-0 data-[active=false]:bg-brand-main-900 data-[active=false]:text-white'>
 														{lowStockCount > 99 ? "99+" : lowStockCount}
 													</Badge>
 												)}
@@ -201,7 +201,7 @@ export function DashboardSidebar() {
 				<SidebarSeparator className='bg-border max-w-[90%]' />
 
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-brand-main-700'>
+					<SidebarGroupLabel className='text-brand-main-900 font-semibold'>
 						Settings
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -211,7 +211,7 @@ export function DashboardSidebar() {
 									tooltip={"Settings"}
 									isActive={pathname === "/dashboard/settings"}
 									asChild
-									className='text-brand-main-700 hover:bg-brand-main-100 hover:text-brand-main-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
+									className='text-slate-600 hover:bg-slate-100 hover:text-slate-800 data-[active=true]:bg-brand-main-900 data-[active=true]:text-white'>
 									<Link href='/dashboard/settings'>
 										<Settings className='h-4 w-4' />
 										<span>Settings</span>
@@ -223,7 +223,7 @@ export function DashboardSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 
-			<SidebarFooter className='border-t   pt-4'>
+			<SidebarFooter className='border-t pt-4'>
 				<SidebarMenu>
 					<SidebarMenuItem className='hidden group-data-[collapsible=icon]:block'>
 						<Avatar className='h-8 w-8'>
@@ -263,7 +263,7 @@ export function DashboardSidebar() {
 									asChild
 									onClick={logout}
 									disabled={loggingOut}
-									className='w-full justify-start text-brand-main-700'>
+									className='w-full justify-start text-slate-600 hover:bg-slate-100 hover:text-slate-800'>
 									<TooltipTrigger>
 										{loggingOut ? (
 											<Spinner className='h-4 w-4 mr-2' />
