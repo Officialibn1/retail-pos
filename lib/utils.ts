@@ -121,3 +121,6 @@ export const getStockStatus = (stock: number, reorderLevel: number = 10) => {
 	if (stock <= reorderLevel) return { label: "Low Stock", variant: "secondary" as const };
 	return { label: "In Stock", variant: "default" as const };
 };
+
+// Re-export spending tier helpers from their dedicated module
+export { getSpendingTier, type SpendingTier, type TierInfo } from "@/lib/spending-tier";

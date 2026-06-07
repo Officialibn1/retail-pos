@@ -138,8 +138,8 @@
 ---
 
 ### Customers 🟢
-- [ ] **Enforce name on registration:** Make `name` required when creating a customer through the UI (it's optional in the DB for walk-ins, but the form should require it)
-- [ ] **Spending tier / loyalty indicator:** Compute total spend from existing sale data and display a tier badge (e.g. Bronze < ₦50k, Silver < ₦200k, Gold ≥ ₦200k) on the customer detail view — no schema change needed
+- [x] **Enforce name on registration:** Make `name` required when creating a customer through the UI (it's optional in the DB for walk-ins, but the form should require it)
+- [x] **Spending tier / loyalty indicator:** Compute total spend from existing sale data and display a tier badge (e.g. Bronze < ₦50k, Silver < ₦200k, Gold ≥ ₦200k) on the customer detail view — no schema change needed
 
 ---
 

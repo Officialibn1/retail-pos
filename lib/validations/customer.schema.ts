@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Customer validation schema (used for both create and update operations)
+// Customer validation schema used for UPDATE operations (name optional)
 export const customerSchema = z.object({
 	name: z
 		.union([
@@ -24,6 +24,19 @@ export const customerSchema = z.object({
 		])
 		.transform((val) => val.trim()),
 });
+
+// Schema used for CREATE — name is required through the UI
+export const createCustomerUISchema = customerSchema.superRefine(
+	(data, ctx) => {
+		if (!data.name || data.name.trim() === "") {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Customer name is required",
+				path: ["name"],
+			});
+		}
+	},
+);
 
 export type CustomerInput = z.infer<typeof customerSchema>;
 

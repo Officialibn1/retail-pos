@@ -39,6 +39,7 @@ import { customersTableDef } from "@/components/customers/customers-table-def";
 import DataTable from "@/components/dashboard/data-table";
 import { CustomerWithSales } from "@/lib/services/customer.service";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 export default function CustomersPage() {
 	const { user } = useAuth();
@@ -50,6 +51,7 @@ export default function CustomersPage() {
 
 	const [searchTerm, setSearchTerm] = useState("");
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
+	const c = useCurrencySymbol();
 
 	// Refs for focus restoration (Requirement 10.5)
 	const addButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -347,6 +349,7 @@ export default function CustomersPage() {
 										onDelete: handleDeleteCustomer,
 										onEdit: handleEditCustomer,
 										canModify,
+										currencySymbol: c,
 									})}
 									data={customers}
 								/>

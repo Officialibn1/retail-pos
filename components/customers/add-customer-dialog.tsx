@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import {
+	createCustomerUISchema,
 	customerSchema,
 	type CustomerInput,
 } from "@/lib/validations/customer.schema";
@@ -41,7 +42,7 @@ export function AddCustomerDialog({
 	isCreating,
 }: AddCustomerDialogProps) {
 	const form = useForm<CustomerInput>({
-		resolver: zodResolver(customerSchema),
+		resolver: zodResolver(createCustomerUISchema),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -91,14 +92,14 @@ export function AddCustomerDialog({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>
-										Customer Name
+										Customer Name <span className='text-red-500'>*</span>
 									</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
 											value={field.value || ""}
 											disabled={isCreating}
-											className='  focus:border-brand-main-400'
+											className='focus:border-brand-main-400'
 											placeholder='e.g., John Doe'
 										/>
 									</FormControl>
