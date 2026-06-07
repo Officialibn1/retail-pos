@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Receipt } from "lucide-react";
 import { formatNaira, cn } from "@/lib/utils";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface RecentSalesReportProps {
 	onSaleClick?: (saleId: string) => void;
@@ -23,6 +24,7 @@ export function RecentSalesReport({
 	onSaleClick,
 	onRefresh,
 }: RecentSalesReportProps) {
+	const c = useCurrencySymbol();
 	const {
 		data: dashboardStats,
 		isLoading,
@@ -156,7 +158,7 @@ export function RecentSalesReport({
 									</p>
 								</div>
 								<div className='text-sm font-medium text-brand-main-800'>
-									{formatNaira(sale.total)}
+									{formatNaira(sale.total, c)}
 								</div>
 							</div>
 						))

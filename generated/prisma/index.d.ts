@@ -12729,6 +12729,7 @@ export namespace Prisma {
     id: string | null
     quantity: number | null
     price: Decimal | null
+    note: string | null
     saleId: string | null
     inventoryItemId: string | null
   }
@@ -12737,6 +12738,7 @@ export namespace Prisma {
     id: string | null
     quantity: number | null
     price: Decimal | null
+    note: string | null
     saleId: string | null
     inventoryItemId: string | null
   }
@@ -12745,6 +12747,7 @@ export namespace Prisma {
     id: number
     quantity: number
     price: number
+    note: number
     saleId: number
     inventoryItemId: number
     _all: number
@@ -12765,6 +12768,7 @@ export namespace Prisma {
     id?: true
     quantity?: true
     price?: true
+    note?: true
     saleId?: true
     inventoryItemId?: true
   }
@@ -12773,6 +12777,7 @@ export namespace Prisma {
     id?: true
     quantity?: true
     price?: true
+    note?: true
     saleId?: true
     inventoryItemId?: true
   }
@@ -12781,6 +12786,7 @@ export namespace Prisma {
     id?: true
     quantity?: true
     price?: true
+    note?: true
     saleId?: true
     inventoryItemId?: true
     _all?: true
@@ -12876,6 +12882,7 @@ export namespace Prisma {
     id: string
     quantity: number
     price: Decimal
+    note: string | null
     saleId: string
     inventoryItemId: string
     _count: SaleItemCountAggregateOutputType | null
@@ -12903,6 +12910,7 @@ export namespace Prisma {
     id?: boolean
     quantity?: boolean
     price?: boolean
+    note?: boolean
     saleId?: boolean
     inventoryItemId?: boolean
     inventoryItem?: boolean | InventoryItemDefaultArgs<ExtArgs>
@@ -12913,6 +12921,7 @@ export namespace Prisma {
     id?: boolean
     quantity?: boolean
     price?: boolean
+    note?: boolean
     saleId?: boolean
     inventoryItemId?: boolean
     inventoryItem?: boolean | InventoryItemDefaultArgs<ExtArgs>
@@ -12923,6 +12932,7 @@ export namespace Prisma {
     id?: boolean
     quantity?: boolean
     price?: boolean
+    note?: boolean
     saleId?: boolean
     inventoryItemId?: boolean
     inventoryItem?: boolean | InventoryItemDefaultArgs<ExtArgs>
@@ -12933,11 +12943,12 @@ export namespace Prisma {
     id?: boolean
     quantity?: boolean
     price?: boolean
+    note?: boolean
     saleId?: boolean
     inventoryItemId?: boolean
   }
 
-  export type SaleItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "quantity" | "price" | "saleId" | "inventoryItemId", ExtArgs["result"]["saleItem"]>
+  export type SaleItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "quantity" | "price" | "note" | "saleId" | "inventoryItemId", ExtArgs["result"]["saleItem"]>
   export type SaleItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inventoryItem?: boolean | InventoryItemDefaultArgs<ExtArgs>
     sale?: boolean | SaleDefaultArgs<ExtArgs>
@@ -12961,6 +12972,7 @@ export namespace Prisma {
       id: string
       quantity: number
       price: Prisma.Decimal
+      note: string | null
       saleId: string
       inventoryItemId: string
     }, ExtArgs["result"]["saleItem"]>
@@ -13391,6 +13403,7 @@ export namespace Prisma {
     readonly id: FieldRef<"SaleItem", 'String'>
     readonly quantity: FieldRef<"SaleItem", 'Int'>
     readonly price: FieldRef<"SaleItem", 'Decimal'>
+    readonly note: FieldRef<"SaleItem", 'String'>
     readonly saleId: FieldRef<"SaleItem", 'String'>
     readonly inventoryItemId: FieldRef<"SaleItem", 'String'>
   }
@@ -17253,6 +17266,7 @@ export namespace Prisma {
     primaryColor: string | null
     secondaryColor: string | null
     logoUrl: string | null
+    currencySymbol: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17267,6 +17281,7 @@ export namespace Prisma {
     primaryColor: string | null
     secondaryColor: string | null
     logoUrl: string | null
+    currencySymbol: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17281,6 +17296,7 @@ export namespace Prisma {
     primaryColor: number
     secondaryColor: number
     logoUrl: number
+    currencySymbol: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -17305,6 +17321,7 @@ export namespace Prisma {
     primaryColor?: true
     secondaryColor?: true
     logoUrl?: true
+    currencySymbol?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17319,6 +17336,7 @@ export namespace Prisma {
     primaryColor?: true
     secondaryColor?: true
     logoUrl?: true
+    currencySymbol?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17333,6 +17351,7 @@ export namespace Prisma {
     primaryColor?: true
     secondaryColor?: true
     logoUrl?: true
+    currencySymbol?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -17434,6 +17453,7 @@ export namespace Prisma {
     primaryColor: string
     secondaryColor: string
     logoUrl: string
+    currencySymbol: string
     createdAt: Date
     updatedAt: Date
     _count: StoreInfoCountAggregateOutputType | null
@@ -17467,6 +17487,7 @@ export namespace Prisma {
     primaryColor?: boolean
     secondaryColor?: boolean
     logoUrl?: boolean
+    currencySymbol?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["storeInfo"]>
@@ -17481,6 +17502,7 @@ export namespace Prisma {
     primaryColor?: boolean
     secondaryColor?: boolean
     logoUrl?: boolean
+    currencySymbol?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["storeInfo"]>
@@ -17495,6 +17517,7 @@ export namespace Prisma {
     primaryColor?: boolean
     secondaryColor?: boolean
     logoUrl?: boolean
+    currencySymbol?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["storeInfo"]>
@@ -17509,11 +17532,12 @@ export namespace Prisma {
     primaryColor?: boolean
     secondaryColor?: boolean
     logoUrl?: boolean
+    currencySymbol?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StoreInfoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "address" | "phone" | "email" | "taxRate" | "primaryColor" | "secondaryColor" | "logoUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["storeInfo"]>
+  export type StoreInfoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "address" | "phone" | "email" | "taxRate" | "primaryColor" | "secondaryColor" | "logoUrl" | "currencySymbol" | "createdAt" | "updatedAt", ExtArgs["result"]["storeInfo"]>
 
   export type $StoreInfoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "StoreInfo"
@@ -17528,6 +17552,7 @@ export namespace Prisma {
       primaryColor: string
       secondaryColor: string
       logoUrl: string
+      currencySymbol: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["storeInfo"]>
@@ -17962,6 +17987,7 @@ export namespace Prisma {
     readonly primaryColor: FieldRef<"StoreInfo", 'String'>
     readonly secondaryColor: FieldRef<"StoreInfo", 'String'>
     readonly logoUrl: FieldRef<"StoreInfo", 'String'>
+    readonly currencySymbol: FieldRef<"StoreInfo", 'String'>
     readonly createdAt: FieldRef<"StoreInfo", 'DateTime'>
     readonly updatedAt: FieldRef<"StoreInfo", 'DateTime'>
   }
@@ -18473,6 +18499,7 @@ export namespace Prisma {
     id: 'id',
     quantity: 'quantity',
     price: 'price',
+    note: 'note',
     saleId: 'saleId',
     inventoryItemId: 'inventoryItemId'
   };
@@ -18529,6 +18556,7 @@ export namespace Prisma {
     primaryColor: 'primaryColor',
     secondaryColor: 'secondaryColor',
     logoUrl: 'logoUrl',
+    currencySymbol: 'currencySymbol',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -19393,6 +19421,7 @@ export namespace Prisma {
     id?: StringFilter<"SaleItem"> | string
     quantity?: IntFilter<"SaleItem"> | number
     price?: DecimalFilter<"SaleItem"> | Decimal | DecimalJsLike | number | string
+    note?: StringNullableFilter<"SaleItem"> | string | null
     saleId?: StringFilter<"SaleItem"> | string
     inventoryItemId?: StringFilter<"SaleItem"> | string
     inventoryItem?: XOR<InventoryItemScalarRelationFilter, InventoryItemWhereInput>
@@ -19403,6 +19432,7 @@ export namespace Prisma {
     id?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    note?: SortOrderInput | SortOrder
     saleId?: SortOrder
     inventoryItemId?: SortOrder
     inventoryItem?: InventoryItemOrderByWithRelationInput
@@ -19416,6 +19446,7 @@ export namespace Prisma {
     NOT?: SaleItemWhereInput | SaleItemWhereInput[]
     quantity?: IntFilter<"SaleItem"> | number
     price?: DecimalFilter<"SaleItem"> | Decimal | DecimalJsLike | number | string
+    note?: StringNullableFilter<"SaleItem"> | string | null
     saleId?: StringFilter<"SaleItem"> | string
     inventoryItemId?: StringFilter<"SaleItem"> | string
     inventoryItem?: XOR<InventoryItemScalarRelationFilter, InventoryItemWhereInput>
@@ -19426,6 +19457,7 @@ export namespace Prisma {
     id?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    note?: SortOrderInput | SortOrder
     saleId?: SortOrder
     inventoryItemId?: SortOrder
     _count?: SaleItemCountOrderByAggregateInput
@@ -19442,6 +19474,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"SaleItem"> | string
     quantity?: IntWithAggregatesFilter<"SaleItem"> | number
     price?: DecimalWithAggregatesFilter<"SaleItem"> | Decimal | DecimalJsLike | number | string
+    note?: StringNullableWithAggregatesFilter<"SaleItem"> | string | null
     saleId?: StringWithAggregatesFilter<"SaleItem"> | string
     inventoryItemId?: StringWithAggregatesFilter<"SaleItem"> | string
   }
@@ -19669,6 +19702,7 @@ export namespace Prisma {
     primaryColor?: StringFilter<"StoreInfo"> | string
     secondaryColor?: StringFilter<"StoreInfo"> | string
     logoUrl?: StringFilter<"StoreInfo"> | string
+    currencySymbol?: StringFilter<"StoreInfo"> | string
     createdAt?: DateTimeFilter<"StoreInfo"> | Date | string
     updatedAt?: DateTimeFilter<"StoreInfo"> | Date | string
   }
@@ -19683,6 +19717,7 @@ export namespace Prisma {
     primaryColor?: SortOrder
     secondaryColor?: SortOrder
     logoUrl?: SortOrder
+    currencySymbol?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19700,6 +19735,7 @@ export namespace Prisma {
     primaryColor?: StringFilter<"StoreInfo"> | string
     secondaryColor?: StringFilter<"StoreInfo"> | string
     logoUrl?: StringFilter<"StoreInfo"> | string
+    currencySymbol?: StringFilter<"StoreInfo"> | string
     createdAt?: DateTimeFilter<"StoreInfo"> | Date | string
     updatedAt?: DateTimeFilter<"StoreInfo"> | Date | string
   }, "id">
@@ -19714,6 +19750,7 @@ export namespace Prisma {
     primaryColor?: SortOrder
     secondaryColor?: SortOrder
     logoUrl?: SortOrder
+    currencySymbol?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StoreInfoCountOrderByAggregateInput
@@ -19736,6 +19773,7 @@ export namespace Prisma {
     primaryColor?: StringWithAggregatesFilter<"StoreInfo"> | string
     secondaryColor?: StringWithAggregatesFilter<"StoreInfo"> | string
     logoUrl?: StringWithAggregatesFilter<"StoreInfo"> | string
+    currencySymbol?: StringWithAggregatesFilter<"StoreInfo"> | string
     createdAt?: DateTimeWithAggregatesFilter<"StoreInfo"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"StoreInfo"> | Date | string
   }
@@ -20475,6 +20513,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     inventoryItem: InventoryItemCreateNestedOneWithoutSaleItemsInput
     sale: SaleCreateNestedOneWithoutItemsInput
   }
@@ -20483,6 +20522,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     saleId: string
     inventoryItemId: string
   }
@@ -20491,6 +20531,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     inventoryItem?: InventoryItemUpdateOneRequiredWithoutSaleItemsNestedInput
     sale?: SaleUpdateOneRequiredWithoutItemsNestedInput
   }
@@ -20499,6 +20540,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     saleId?: StringFieldUpdateOperationsInput | string
     inventoryItemId?: StringFieldUpdateOperationsInput | string
   }
@@ -20507,6 +20549,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     saleId: string
     inventoryItemId: string
   }
@@ -20515,12 +20558,14 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SaleItemUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     saleId?: StringFieldUpdateOperationsInput | string
     inventoryItemId?: StringFieldUpdateOperationsInput | string
   }
@@ -20744,6 +20789,7 @@ export namespace Prisma {
     primaryColor?: string
     secondaryColor?: string
     logoUrl?: string
+    currencySymbol?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20758,6 +20804,7 @@ export namespace Prisma {
     primaryColor?: string
     secondaryColor?: string
     logoUrl?: string
+    currencySymbol?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20772,6 +20819,7 @@ export namespace Prisma {
     primaryColor?: StringFieldUpdateOperationsInput | string
     secondaryColor?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
+    currencySymbol?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20786,6 +20834,7 @@ export namespace Prisma {
     primaryColor?: StringFieldUpdateOperationsInput | string
     secondaryColor?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
+    currencySymbol?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20800,6 +20849,7 @@ export namespace Prisma {
     primaryColor?: string
     secondaryColor?: string
     logoUrl?: string
+    currencySymbol?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20814,6 +20864,7 @@ export namespace Prisma {
     primaryColor?: StringFieldUpdateOperationsInput | string
     secondaryColor?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
+    currencySymbol?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20828,6 +20879,7 @@ export namespace Prisma {
     primaryColor?: StringFieldUpdateOperationsInput | string
     secondaryColor?: StringFieldUpdateOperationsInput | string
     logoUrl?: StringFieldUpdateOperationsInput | string
+    currencySymbol?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21613,6 +21665,7 @@ export namespace Prisma {
     id?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    note?: SortOrder
     saleId?: SortOrder
     inventoryItemId?: SortOrder
   }
@@ -21626,6 +21679,7 @@ export namespace Prisma {
     id?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    note?: SortOrder
     saleId?: SortOrder
     inventoryItemId?: SortOrder
   }
@@ -21634,6 +21688,7 @@ export namespace Prisma {
     id?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
+    note?: SortOrder
     saleId?: SortOrder
     inventoryItemId?: SortOrder
   }
@@ -21797,6 +21852,7 @@ export namespace Prisma {
     primaryColor?: SortOrder
     secondaryColor?: SortOrder
     logoUrl?: SortOrder
+    currencySymbol?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21815,6 +21871,7 @@ export namespace Prisma {
     primaryColor?: SortOrder
     secondaryColor?: SortOrder
     logoUrl?: SortOrder
+    currencySymbol?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21829,6 +21886,7 @@ export namespace Prisma {
     primaryColor?: SortOrder
     secondaryColor?: SortOrder
     logoUrl?: SortOrder
+    currencySymbol?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23848,6 +23906,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     sale: SaleCreateNestedOneWithoutItemsInput
   }
 
@@ -23855,6 +23914,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     saleId: string
   }
 
@@ -23962,6 +24022,7 @@ export namespace Prisma {
     id?: StringFilter<"SaleItem"> | string
     quantity?: IntFilter<"SaleItem"> | number
     price?: DecimalFilter<"SaleItem"> | Decimal | DecimalJsLike | number | string
+    note?: StringNullableFilter<"SaleItem"> | string | null
     saleId?: StringFilter<"SaleItem"> | string
     inventoryItemId?: StringFilter<"SaleItem"> | string
   }
@@ -24109,6 +24170,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     inventoryItem: InventoryItemCreateNestedOneWithoutSaleItemsInput
   }
 
@@ -24116,6 +24178,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     inventoryItemId: string
   }
 
@@ -25351,6 +25414,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     saleId: string
   }
 
@@ -25373,6 +25437,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     sale?: SaleUpdateOneRequiredWithoutItemsNestedInput
   }
 
@@ -25380,6 +25445,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     saleId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -25387,6 +25453,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     saleId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -25439,6 +25506,7 @@ export namespace Prisma {
     id?: string
     quantity: number
     price: Decimal | DecimalJsLike | number | string
+    note?: string | null
     inventoryItemId: string
   }
 
@@ -25455,6 +25523,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     inventoryItem?: InventoryItemUpdateOneRequiredWithoutSaleItemsNestedInput
   }
 
@@ -25462,6 +25531,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     inventoryItemId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -25469,6 +25539,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     inventoryItemId?: StringFieldUpdateOperationsInput | string
   }
 

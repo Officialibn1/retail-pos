@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useOpenShiftMutation } from "@/lib/store/api";
 import { useToast } from "@/components/ui/use-toast";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { Banknote } from "lucide-react";
 
 interface OpenShiftDialogProps {
@@ -38,6 +39,7 @@ export function OpenShiftDialog({
 	onSuccess,
 }: OpenShiftDialogProps) {
 	const { toast } = useToast();
+	const c = useCurrencySymbol();
 	const [openShift, { isLoading }] = useOpenShiftMutation();
 
 	const form = useForm<OpenShiftInput>({
@@ -53,7 +55,7 @@ export function OpenShiftDialog({
 			await openShift(values).unwrap();
 			toast({
 				title: "Shift opened",
-				description: `Opening float of ₦${values.openingFloat.toLocaleString()} recorded.`,
+				description: `Opening float of ${c}${values.openingFloat.toLocaleString()} recorded.`,
 			});
 			form.reset();
 			onOpenChange(false);
@@ -90,7 +92,7 @@ export function OpenShiftDialog({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-brand-main-700">
-										Opening Float (₦)
+										Opening Float ({c})
 									</FormLabel>
 									<FormControl>
 										<Input

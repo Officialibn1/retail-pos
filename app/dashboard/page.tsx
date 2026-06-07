@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, Loader2 } from "lucide-react";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 export default function DashboardPage() {
 	const { user } = useAuth();
@@ -34,6 +35,7 @@ export default function DashboardPage() {
 	const canSeeAllData = canViewAllData(user.roles);
 	const canAccessAnalytics =
 		user.roles.includes("SUPERADMIN") || user.roles.includes("MANAGER");
+	const c = useCurrencySymbol();
 
 	if (loading) {
 		return (
@@ -77,7 +79,7 @@ export default function DashboardPage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-950'>
+					<h1 className='text-3xl font-bold text-brand-main-900'>
 						Welcome back, {user.name}
 					</h1>
 					<p className='text-brand-main-800 mt-1'>
@@ -126,7 +128,7 @@ export default function DashboardPage() {
 					</CardHeader>
 					<CardContent>
 						<div className='text-2xl font-bold text-brand-main-900'>
-							{formatNaira(stats.totalRevenue)}
+							{formatNaira(stats.totalRevenue, c)}
 						</div>
 						<p className='text-xs text-brand-main-700'>Total sales revenue</p>
 					</CardContent>
@@ -186,7 +188,7 @@ export default function DashboardPage() {
 					</CardHeader>
 					<CardContent>
 						<div className='text-2xl font-bold text-brand-main-900'>
-							{formatNaira(stats.averageOrderValue)}
+							{formatNaira(stats.averageOrderValue, c)}
 						</div>
 						<p className='text-xs text-brand-main-700'>Per transaction</p>
 					</CardContent>
@@ -266,7 +268,7 @@ export default function DashboardPage() {
 											</p>
 										</div>
 										<div className='ml-auto font-medium text-brand-main-900'>
-											{formatNaira(Number(sale.total))}
+											{formatNaira(Number(sale.total), c)}
 										</div>
 									</div>
 								))

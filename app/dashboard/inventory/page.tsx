@@ -58,6 +58,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import DataTable from "@/components/dashboard/data-table";
 import { inventoryTableDef } from "@/components/inventory/inventory-table-def";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 export default function InventoryPage() {
 	const { user } = useAuth();
@@ -100,6 +101,7 @@ export default function InventoryPage() {
 		useAdjustStockMutation();
 
 	const totalItems = inventory.length;
+	const c = useCurrencySymbol();
 	const lowStockItems = inventory.filter((item) => item.stock > 0 && item.stock <= item.reorderLevel).length;
 	const outOfStockItems = inventory.filter((item) => item.stock === 0).length;
 	const totalValue = inventory.reduce(
@@ -301,7 +303,7 @@ export default function InventoryPage() {
 						</CardHeader>
 						<CardContent>
 							<div className='text-2xl font-bold text-brand-main-800'>
-								{formatNaira(totalValue)}
+								{formatNaira(totalValue, c)}
 							</div>
 							<p className='text-xs text-slate-500'>Inventory worth</p>
 						</CardContent>
@@ -366,6 +368,7 @@ export default function InventoryPage() {
 								handleDeleteItem,
 								handleEditItem,
 								handleAdjustStock,
+								currencySymbol: c,
 							})}
 							data={inventory}
 						/>

@@ -20,6 +20,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { CategoryRevenueResult } from "@/lib/types";
 import {
 	PieChart as PieChartIcon,
@@ -42,7 +43,7 @@ type SortDirection = "asc" | "desc";
 
 const chartConfig = {
 	revenue: {
-		label: "Revenue (₦)",
+		label: "Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 } satisfies ChartConfig;
@@ -65,6 +66,7 @@ export function CategoryRevenueChart({
 	data,
 	onCategoryClick,
 }: CategoryRevenueChartProps) {
+	const c = useCurrencySymbol();
 	const [viewMode, setViewMode] = useState<ViewMode>("chart");
 	const [sortField, setSortField] = useState<SortField>("totalRevenue");
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -113,7 +115,7 @@ export function CategoryRevenueChart({
 					<p className='font-semibold text-sm mb-2'>{data.name}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
-							<span className='font-medium'>Revenue:</span> ₦
+							<span className='font-medium'>Revenue:</span> {c}
 							{formatCurrency(data.value)}
 						</p>
 						<p className='text-sm'>
@@ -197,7 +199,7 @@ export function CategoryRevenueChart({
 							{data.categories.length} categories
 						</Badge>
 					</div>
-					<span>Total Revenue: ₦{formatCurrency(data.totalRevenue)}</span>
+					<span>Total Revenue: {c}{formatCurrency(data.totalRevenue)}</span>
 					{data.categories.length > 0 && (
 						<span>
 							Top Category:{" "}
@@ -275,7 +277,7 @@ export function CategoryRevenueChart({
 										</div>
 										<div className='text-right'>
 											<p className='font-medium text-sm'>
-												₦{formatCurrency(category.value)}
+												{c}{formatCurrency(category.value)}
 											</p>
 											<p className='text-xs text-gray-600'>
 												{category.percentage.toFixed(1)}%
@@ -328,7 +330,7 @@ export function CategoryRevenueChart({
 											</div>
 										</TableCell>
 										<TableCell className='text-right font-medium'>
-											₦{formatCurrency(category.totalRevenue)}
+											{c}{formatCurrency(category.totalRevenue)}
 										</TableCell>
 										<TableCell className='text-right'>
 											<Badge variant='secondary'>

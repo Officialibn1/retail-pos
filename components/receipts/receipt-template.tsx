@@ -3,33 +3,31 @@
 import { format } from "date-fns";
 import { formatNaira } from "@/lib/utils";
 import { SaleWithDetails } from "@/lib/services/sale.service";
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 interface ReceiptTemplateProps {
 	sale: SaleWithDetails;
-	storeName?: string;
-	storeAddress?: string;
-	storePhone?: string;
 }
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
-const storeAddress = process.env.NEXT_PUBLIC_STORE_ADDRESS;
-const storePhone = process.env.NEXT_PUBLIC_STORE_PHONE;
-
 export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const store = storeData?.settings;
+
 	return (
 		<div className='receipt-template bg-white text-black p-6 max-w-sm mx-auto font-mono text-sm'>
 			{/* Store Header */}
 			<div className='text-center border-b border-gray-300 pb-4 mb-4'>
-				<h1 className='font-bold text-lg'>{storeName}</h1>
-				<p className='text-xs'>{storeAddress}</p>
-				<p className='text-xs'>{storePhone}</p>
+				<h1 className='font-bold text-lg'>{store?.name}</h1>
+				<p className='text-xs'>{store?.address}</p>
+				<p className='text-xs'>{store?.phone}</p>
+				{store?.email && <p className='text-xs'>{store.email}</p>}
 			</div>
 
 			{/* Receipt Info */}
 			<div className='mb-4 text-xs'>
 				<div className='flex justify-between'>
 					<span>Receipt #:</span>
-					<span>{sale.id.slice(0, 8) || sale.id}</span>
+					<span>{sale.id.slice(0, 8)}</span>
 				</div>
 				<div className='flex justify-between'>
 					<span>Date:</span>
@@ -78,9 +76,7 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 			{/* Items */}
 			<div className='border-t border-gray-300 pt-2 mb-4'>
 				{sale.items.map((item, index) => (
-					<div
-						key={index}
-						className='mb-2'>
+					<div key={index} className='mb-2'>
 						<div className='flex justify-between'>
 							<span className='truncate flex-1'>{item.inventoryItem.name}</span>
 							<span className='ml-2'>{formatNaira(item.price)}</span>
@@ -89,6 +85,11 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 							<span>Qty: {item.quantity}</span>
 							<span>{formatNaira(item.price * item.quantity)}</span>
 						</div>
+						{item.note && (
+							<p className='text-xs text-gray-500 italic mt-0.5'>
+								↳ {item.note}
+							</p>
+						)}
 					</div>
 				))}
 			</div>
@@ -121,7 +122,7 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 				</div>
 				<div className='flex justify-between'>
 					<span>Amount Paid:</span>
-					<span>{formatNaira(sale.total)}</span>
+					<span>{formatNaira(sale.amountPaid ?? sale.total)}</span>
 				</div>
 				<div className='flex justify-between'>
 					<span>Change Given:</span>
@@ -133,7 +134,6 @@ export function ReceiptTemplate({ sale }: ReceiptTemplateProps) {
 			<div className='text-center text-xs border-t border-gray-300 pt-4'>
 				<p>Thank you for your patronage!</p>
 				<p>Please keep this receipt for your records</p>
-				{/* <p className='mt-2'>Return Policy: 30 days with receipt</p> */}
 			</div>
 		</div>
 	);

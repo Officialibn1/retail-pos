@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Package } from "lucide-react";
 import { formatNaira, cn } from "@/lib/utils";
 import { useGetTopProductsQuery } from "@/lib/store/api";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface TopProductsReportProps {
 	limit?: number;
@@ -25,6 +26,7 @@ export function TopProductsReport({
 	onProductClick,
 	onRefresh,
 }: TopProductsReportProps) {
+	const c = useCurrencySymbol();
 	const {
 		data: topProducts = [],
 		isLoading,
@@ -154,7 +156,7 @@ export function TopProductsReport({
 									</div>
 								</div>
 								<div className='text-sm font-medium text-brand-main-800'>
-									{formatNaira(product.revenue)}
+									{formatNaira(product.revenue, c)}
 								</div>
 							</div>
 						))

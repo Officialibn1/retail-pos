@@ -222,6 +222,7 @@ exports.Prisma.SaleItemScalarFieldEnum = {
   id: 'id',
   quantity: 'quantity',
   price: 'price',
+  note: 'note',
   saleId: 'saleId',
   inventoryItemId: 'inventoryItemId'
 };
@@ -266,6 +267,7 @@ exports.Prisma.StoreInfoScalarFieldEnum = {
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
   logoUrl: 'logoUrl',
+  currencySymbol: 'currencySymbol',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

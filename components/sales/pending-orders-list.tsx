@@ -8,12 +8,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Package } from "lucide-react";
 import { useGetSalesQuery, useCancelSaleMutation } from "@/lib/store/api";
 import { toast } from "sonner";
+import type { SaleWithDetails } from "@/lib/services/sale.service";
 
 interface PendingOrdersListProps {
 	userId: string;
 	userRoles: string[];
 	onComplete?: (saleId: string, saleTotal: number) => void;
 	onCancel?: (saleId: string) => void;
+	onEdit?: (sale: SaleWithDetails) => void;
 }
 
 export function PendingOrdersList({
@@ -21,6 +23,7 @@ export function PendingOrdersList({
 	userRoles,
 	onComplete,
 	onCancel,
+	onEdit,
 }: PendingOrdersListProps) {
 	const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 	const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -162,6 +165,7 @@ export function PendingOrdersList({
 							sale={sale}
 							onComplete={handleComplete}
 							onCancel={handleCancelClick}
+							onEdit={(s) => onEdit?.(s)}
 							isProcessing={isCancelling && selectedSaleId === sale.id}
 							showCreatorName={isManagerOrHigher}
 						/>

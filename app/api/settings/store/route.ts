@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireSuperAdmin } from "@/lib/middleware/auth";
+import { requireAuth, requireManager } from "@/lib/middleware/auth";
 import {
 	getStoreSettings,
 	updateStoreSettings,
 } from "@/lib/services/store-settings.service";
 import { z, ZodError } from "zod";
+import { UserRole } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 
+// Full schema — all fields accepted from SUPERADMIN
 const updateSchema = z.object({
 	name: z.string().min(1).optional(),
 	address: z.string().optional(),
@@ -17,7 +19,17 @@ const updateSchema = z.object({
 	primaryColor: z.string().optional(),
 	secondaryColor: z.string().optional(),
 	logoUrl: z.string().optional(),
+	currencySymbol: z.string().min(1).max(8).optional(),
 });
+
+// Fields that only SUPERADMIN may update
+const SUPERADMIN_ONLY_FIELDS = [
+	"name",
+	"taxRate",
+	"primaryColor",
+	"secondaryColor",
+	"logoUrl",
+] as const;
 
 export async function GET() {
 	try {
@@ -37,11 +49,25 @@ export async function PUT(request: NextRequest) {
 		const authResult = await requireAuth(request);
 		if (authResult instanceof NextResponse) return authResult;
 
-		const roleCheck = requireSuperAdmin()(authResult.request);
+		// MANAGER and SUPERADMIN can both reach this route
+		const roleCheck = requireManager()(authResult.request);
 		if (roleCheck) return roleCheck;
 
+		const isSuperAdmin = authResult.request.user.roles.includes(
+			UserRole.SUPERADMIN,
+		);
+
 		const body = await request.json();
-		const data = updateSchema.parse(body);
+		let data = updateSchema.parse(body);
+
+		// Strip SUPERADMIN-only fields if the caller is only a MANAGER
+		if (!isSuperAdmin) {
+			const filtered = { ...data };
+			for (const field of SUPERADMIN_ONLY_FIELDS) {
+				delete (filtered as any)[field];
+			}
+			data = filtered;
+		}
 
 		const settings = await updateStoreSettings(data);
 		return NextResponse.json({ settings });

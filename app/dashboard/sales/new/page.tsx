@@ -18,6 +18,7 @@ import {
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useGetSalesQuery,
+	useUpdateSaleItemsMutation,
 } from "@/lib/store/api";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import {
@@ -25,6 +26,7 @@ import {
 	updateQuantity,
 	removeItem,
 	setDiscount,
+	setItemNote,
 	clearCart,
 	validateCart,
 	selectCartItems,
@@ -41,6 +43,7 @@ import {
 	InventoryItemWithCategory,
 	SaleItemWithInventoryItem,
 } from "@/lib/prisma-extended-types";
+import type { SaleWithDetails } from "@/lib/services/sale.service";
 
 export default function NewSalePage() {
 	const { user } = useAuth();
@@ -56,6 +59,8 @@ export default function NewSalePage() {
 	const [createSale, { isLoading: creatingSale }] = useCreateSaleMutation();
 	const [completeSale, { isLoading: completingSale }] =
 		useCompleteSaleMutation();
+	const [updateSaleItems, { isLoading: updatingSale }] =
+		useUpdateSaleItemsMutation();
 
 	// Redux cart state
 	const cartItems = useAppSelector(selectCartItems);
@@ -78,6 +83,8 @@ export default function NewSalePage() {
 	} | null>(null);
 	const [checkoutError, setCheckoutError] = useState<string | null>(null);
 	const [paymentError, setPaymentError] = useState<string | null>(null);
+	/** ID of the pending order currently being edited, null when not in edit mode */
+	const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
 
 	// Validate cart when inventory changes
 	useEffect(() => {
@@ -118,10 +125,75 @@ export default function NewSalePage() {
 
 	const handleClearCart = () => {
 		dispatch(clearCart());
+		setEditingOrderId(null);
 	};
 
 	const handleApplyDiscount = (discountValue: number) => {
 		dispatch(setDiscount(discountValue));
+	};
+
+	/** Load a pending order's items into the cart and enter edit mode */
+	const handleEditOrder = (sale: SaleWithDetails) => {
+		// Clear any current cart first
+		dispatch(clearCart());
+
+		// Restore each item from the sale back into the cart using existing inventory data
+		for (const saleItem of sale.items) {
+			const inventoryItem = inventory.find(
+				(i) => i.id === saleItem.inventoryItem.id,
+			);
+			if (!inventoryItem) continue;
+
+			const converted = {
+				...inventoryItem,
+				price: inventoryItem.price as any,
+				deletedAt: inventoryItem.deletedAt ? new Date(inventoryItem.deletedAt) : null,
+				createdAt: new Date(inventoryItem.createdAt),
+				updatedAt: new Date(inventoryItem.updatedAt),
+			} as InventoryItemWithCategory;
+
+			dispatch(addItem({ product: converted, quantity: saleItem.quantity, note: saleItem.note ?? undefined }));
+		}
+
+		// Restore discount if any
+		if (sale.discountAmount && Number(sale.subTotal) > 0) {
+			const pct = (Number(sale.discountAmount) / Number(sale.subTotal)) * 100;
+			dispatch(setDiscount(Math.round(pct)));
+		}
+
+		setEditingOrderId(sale.id);
+		// Scroll up so the cashier can see the cart
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	};
+
+	/** Submit the edited item list to the PATCH endpoint */
+	const handleUpdateOrder = async () => {
+		if (!editingOrderId || !user) return;
+		setCheckoutError(null);
+
+		try {
+			await updateSaleItems({
+				id: editingOrderId,
+				data: {
+					items: cartItems.map((item) => ({
+						inventoryItemId: item.inventoryItemId,
+						quantity: item.quantity,
+						price: Number(item.price),
+						note: item.note ?? null,
+					})),
+					discountRate: discount,
+				},
+			}).unwrap();
+
+			toast.success("Order updated successfully");
+			dispatch(clearCart());
+			setEditingOrderId(null);
+		} catch (err: any) {
+			const message =
+				err?.data?.error?.message || "Failed to update order. Please try again.";
+			setCheckoutError(message);
+			toast.error(message);
+		}
 	};
 
 	// Handler to create pending order when checkout is initiated
@@ -139,6 +211,7 @@ export default function NewSalePage() {
 					inventoryItemId: item.inventoryItemId,
 					quantity: item.quantity,
 					price: Number(item.price),
+					note: item.note ?? null,
 				})),
 				customerId: selectedCustomer?.id || null,
 				discountRate: discount,
@@ -153,6 +226,7 @@ export default function NewSalePage() {
 					id: item.id,
 					quantity: item.quantity,
 					price: Number(item.price),
+					note: item.note ?? null,
 					inventoryItem: {
 						id: item.inventoryItemId,
 						name: item.product.name,
@@ -338,9 +412,9 @@ export default function NewSalePage() {
 					onClick={handleClearCart}
 					variant='outline'
 					className='  text-brand-main-700 hover:bg-brand-main-50 bg-transparent'
-					disabled={cartItems.length === 0 || completingSale || creatingSale}>
+					disabled={cartItems.length === 0 || completingSale || creatingSale || updatingSale}>
 					<RefreshCw className='h-4 w-4 mr-2' />
-					Clear Cart
+					{editingOrderId ? "Cancel Edit" : "Clear Cart"}
 				</Button>
 			</div>
 
@@ -402,8 +476,9 @@ export default function NewSalePage() {
 						onRemoveItem={handleRemoveItem}
 						onApplyDiscount={handleApplyDiscount}
 						discount={discount}
-						onCheckout={handleCreatePendingOrder}
-						isProcessing={creatingSale || completingSale}
+						onCheckout={editingOrderId ? handleUpdateOrder : handleCreatePendingOrder}
+						isProcessing={creatingSale || completingSale || updatingSale}
+						editingOrderId={editingOrderId}
 					/>
 
 					<CustomerSelector disabled={creatingSale || completingSale} />
@@ -414,6 +489,7 @@ export default function NewSalePage() {
 				userId={user.id}
 				userRoles={user.roles}
 				onComplete={handleCompletePendingOrder}
+				onEdit={handleEditOrder}
 			/>
 
 			{pendingSaleId && pendingSaleData && (
@@ -427,6 +503,7 @@ export default function NewSalePage() {
 						inventoryItemId: item.inventoryItem.id,
 						quantity: item.quantity,
 						price: item.price,
+						note: item.note ?? null,
 					}))}
 					subtotal={subtotal}
 					discount={discountAmount}

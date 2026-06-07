@@ -22,12 +22,14 @@ interface TableDef {
 	handleEditItem: (item: InventoryItemWithCategory) => void;
 	handleDeleteItem: (item: InventoryItemWithCategory) => void;
 	handleAdjustStock: (item: InventoryItemWithCategory) => void;
+	currencySymbol?: string;
 }
 
 export const inventoryTableDef = ({
 	handleEditItem,
 	handleDeleteItem,
 	handleAdjustStock,
+	currencySymbol = "₦",
 }: TableDef) => {
 	const column: ColumnDef<InventoryItemWithCategory>[] = [
 		{
@@ -53,7 +55,7 @@ export const inventoryTableDef = ({
 			accessorKey: "price",
 			cell: ({ row }) => (
 				<div className='flex w-full justify-end text-end'>
-					{formatNaira(row.original.price)}
+					{formatNaira(row.original.price, currencySymbol)}
 				</div>
 			),
 		},

@@ -21,6 +21,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { CashierPerformanceResult, UserRole } from "@/lib/types";
 import {
 	Users,
@@ -47,12 +48,13 @@ type SortDirection = "asc" | "desc";
 
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
+	const c = useCurrencySymbol();
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
 		return (
 			<div className='bg-brand-main-50 p-3 border rounded-lg shadow-lg'>
 				<p className='font-semibold'>{data.fullName}</p>
-				<p className='text-sm'>Revenue: ₦{formatCurrency(data.totalRevenue)}</p>
+				<p className='text-sm'>Revenue: {c}{formatCurrency(data.totalRevenue)}</p>
 				<p className='text-sm'>Transactions: {data.transactionCount}</p>
 			</div>
 		);
@@ -84,12 +86,16 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function CashierPerformanceChart({
+  
+
 	data,
 	onCashierClick,
 }: CashierPerformanceChartProps) {
 	const [viewMode, setViewMode] = useState<ViewMode>("chart");
 	const [sortField, setSortField] = useState<SortField>("totalRevenue");
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+	const c = useCurrencySymbol();
 
 	// Prepare data for bar chart (top 10 for better visualization)
 	const chartData =
@@ -234,7 +240,7 @@ export function CashierPerformanceChart({
 							{data?.cashiers?.length || 0} cashiers
 						</Badge>
 					</div>
-					<span>Total Revenue: ₦{formatCurrency(totalRevenue)}</span>
+					<span>Total Revenue: {c}{formatCurrency(totalRevenue)}</span>
 					<span>Total Transactions: {totalTransactions.toLocaleString()}</span>
 					{topPerformer && <span>Top Performer: {topPerformer.userName}</span>}
 				</div>
@@ -378,7 +384,7 @@ export function CashierPerformanceChart({
 												<div className='flex items-center justify-between'>
 													<span className='text-sm text-gray-600'>Revenue</span>
 													<span className='font-medium'>
-														₦{formatCurrency(cashier.totalRevenue)}
+														{c}{formatCurrency(cashier.totalRevenue)}
 													</span>
 												</div>
 												<div className='flex items-center justify-between'>
@@ -394,7 +400,7 @@ export function CashierPerformanceChart({
 														Avg Transaction
 													</span>
 													<span className='font-medium'>
-														₦{formatCurrency(cashier.averageTransactionValue)}
+														{c}{formatCurrency(cashier.averageTransactionValue)}
 													</span>
 												</div>
 												{cashier.shiftInfo && (
@@ -403,7 +409,7 @@ export function CashierPerformanceChart({
 															Revenue/Hour
 														</span>
 														<span className='font-medium'>
-															₦
+															{c}
 															{formatCurrency(cashier.shiftInfo.revenuePerHour)}
 														</span>
 													</div>
@@ -474,19 +480,19 @@ export function CashierPerformanceChart({
 											</div>
 										</TableCell>
 										<TableCell className='text-right font-medium'>
-											₦{formatCurrency(cashier.totalRevenue)}
+											{c}{formatCurrency(cashier.totalRevenue)}
 										</TableCell>
 										<TableCell className='text-right'>
 											{cashier.transactionCount.toLocaleString()}
 										</TableCell>
 										<TableCell className='text-right'>
-											₦{formatCurrency(cashier.averageTransactionValue)}
+											{c}{formatCurrency(cashier.averageTransactionValue)}
 										</TableCell>
 										<TableCell className='text-right'>
 											{cashier.shiftInfo ? (
 												<div>
 													<div>
-														₦{formatCurrency(cashier.shiftInfo.revenuePerHour)}
+														{c}{formatCurrency(cashier.shiftInfo.revenuePerHour)}
 													</div>
 													<div className='text-xs text-gray-500'>
 														{cashier.shiftInfo.totalHours.toFixed(1)}h worked

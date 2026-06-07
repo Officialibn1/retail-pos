@@ -27,6 +27,7 @@ import { useCloseShiftMutation } from "@/lib/store/api";
 import { useToast } from "@/components/ui/use-toast";
 import { CashDrawerSession } from "@/lib/store/api";
 import { formatNaira } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { Clock, Banknote } from "lucide-react";
 
 interface CloseShiftDialogProps {
@@ -43,6 +44,7 @@ export function CloseShiftDialog({
 	onSuccess,
 }: CloseShiftDialogProps) {
 	const { toast } = useToast();
+	const c = useCurrencySymbol();
 	const [closeShift, { isLoading }] = useCloseShiftMutation();
 
 	const form = useForm<CloseShiftInput>({
@@ -72,8 +74,8 @@ export function CloseShiftDialog({
 				variance === 0
 					? "No variance — drawer balanced."
 					: variance > 0
-						? `Surplus of ${formatNaira(Math.abs(variance))}.`
-						: `Shortage of ${formatNaira(Math.abs(variance))}.`;
+						? `Surplus of ${formatNaira(Math.abs(variance), c)}.`
+						: `Shortage of ${formatNaira(Math.abs(variance), c)}.`;
 
 			toast({
 				title: "Shift closed",
@@ -111,7 +113,7 @@ export function CloseShiftDialog({
 					<div className="flex justify-between items-center text-sm">
 						<span className="text-brand-main-600">Opening float</span>
 						<span className="font-medium text-brand-main-800">
-							{formatNaira(Number(session.openingFloat))}
+							{formatNaira(Number(session.openingFloat), c)}
 						</span>
 					</div>
 					<div className="flex justify-between items-center text-sm">
@@ -137,7 +139,7 @@ export function CloseShiftDialog({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="text-brand-main-700">
-										Cash in Drawer (₦)
+										Cash in Drawer ({c})
 									</FormLabel>
 									<FormControl>
 										<Input
@@ -164,10 +166,10 @@ export function CloseShiftDialog({
 									className="text-xs"
 								>
 									{declaredClose > Number(session.openingFloat)
-										? `+${formatNaira(declaredClose - Number(session.openingFloat))}`
+										? `+${formatNaira(declaredClose - Number(session.openingFloat), c)}`
 										: declaredClose === Number(session.openingFloat)
 											? "Balanced"
-											: `-${formatNaira(Number(session.openingFloat) - declaredClose)}`}
+											: `-${formatNaira(Number(session.openingFloat) - declaredClose, c)}`}
 								</Badge>
 							</div>
 						)}

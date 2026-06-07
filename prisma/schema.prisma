@@ -172,6 +172,7 @@ model SaleItem {
   id              String        @id @default(cuid())
   quantity        Int
   price           Decimal       @db.Decimal(10, 2)
+  note            String?
   saleId          String
   inventoryItemId String
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
@@ -242,6 +243,7 @@ model StoreInfo {
   primaryColor   String   @default("#7c3aed")
   secondaryColor String   @default("#a78bfa")
   logoUrl        String   @default("/pos_logo.png")
+  currencySymbol String   @default("₦")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

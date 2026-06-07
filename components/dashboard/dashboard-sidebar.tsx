@@ -166,7 +166,7 @@ export function DashboardSidebar() {
 
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-brand-main-900 font-semibold'>
+					<SidebarGroupLabel className='text-slate-900 font-semibold'>
 						Navigation
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -201,7 +201,7 @@ export function DashboardSidebar() {
 				<SidebarSeparator className='bg-border max-w-[90%]' />
 
 				<SidebarGroup>
-					<SidebarGroupLabel className='text-brand-main-900 font-semibold'>
+					<SidebarGroupLabel className='text-slate-900 font-semibold'>
 						Settings
 					</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -246,7 +246,7 @@ export function DashboardSidebar() {
 							</AvatarFallback>
 						</Avatar>
 						<div className='flex flex-col min-w-0'>
-							<span className='text-sm font-medium text-brand-main-800 truncate'>
+							<span className='text-sm font-medium text-brand-main-900 truncate'>
 								{user.name}
 							</span>
 						</div>
@@ -284,7 +284,7 @@ export function DashboardSidebar() {
 							size='sm'
 							onClick={logout}
 							disabled={loggingOut}
-							className='w-full justify-start text-brand-main-700'>
+							className='w-full justify-start text-brand-main-900'>
 							{loggingOut ? (
 								<Spinner className='h-4 w-4 mr-2' />
 							) : (

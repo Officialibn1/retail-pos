@@ -28,38 +28,43 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
-// All fields are strings at the form level; taxRate is converted on submit.
 
 const storeSettingsSchema = z.object({
 	name: z.string().min(1, "Store name is required"),
 	address: z.string(),
 	phone: z.string(),
-	// Allow empty string OR a valid email
-	email: z.string().refine((v) => v === "" || z.string().email().safeParse(v).success, {
-		message: "Invalid email address",
-	}),
-	taxRate: z.string().refine((v) => v !== "" && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100, {
-		message: "Must be a number between 0 and 100",
-	}),
+	email: z.string().refine(
+		(v) => v === "" || z.string().email().safeParse(v).success,
+		{ message: "Invalid email address" },
+	),
+	taxRate: z.string().refine(
+		(v) => v !== "" && !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
+		{ message: "Must be a number between 0 and 100" },
+	),
 	logoUrl: z.string(),
 	primaryColor: z.string(),
 	secondaryColor: z.string(),
+	currencySymbol: z.string().min(1, "Currency symbol is required").max(8),
 });
 
 type StoreSettingsFormValues = z.infer<typeof storeSettingsSchema>;
 
-// ─── Inner form — only mounts once data is ready ──────────────────────────────
+// ─── Inner form ────────────────────────────────────────────────────────────────
 
 function StoreSettingsForm({
 	defaultValues,
 	isSuperAdmin,
+	isManager,
 }: {
 	defaultValues: StoreSettingsFormValues;
 	isSuperAdmin: boolean;
+	isManager: boolean;
 }) {
 	const { toast } = useToast();
 	const [updateSettings, { isLoading: isSaving }] =
 		useUpdateStoreSettingsMutation();
+
+	const canEdit = isSuperAdmin || isManager;
 
 	const form = useForm<StoreSettingsFormValues>({
 		resolver: zodResolver(storeSettingsSchema),
@@ -68,16 +73,23 @@ function StoreSettingsForm({
 
 	const onSubmit = async (values: StoreSettingsFormValues) => {
 		try {
-			await updateSettings({
-				name: values.name,
+			// Build payload — MANAGERs can only update contact + currency fields
+			const payload: Parameters<typeof updateSettings>[0] = {
 				address: values.address,
 				phone: values.phone,
 				email: values.email,
-				taxRate: Number(values.taxRate) / 100,
-				logoUrl: values.logoUrl,
-				primaryColor: values.primaryColor,
-				secondaryColor: values.secondaryColor,
-			}).unwrap();
+				currencySymbol: values.currencySymbol,
+			};
+
+			if (isSuperAdmin) {
+				payload.name = values.name;
+				payload.taxRate = Number(values.taxRate) / 100;
+				payload.logoUrl = values.logoUrl;
+				payload.primaryColor = values.primaryColor;
+				payload.secondaryColor = values.secondaryColor;
+			}
+
+			await updateSettings(payload).unwrap();
 			toast({ title: "Settings saved successfully" });
 		} catch {
 			toast({ title: "Failed to save settings", variant: "destructive" });
@@ -87,34 +99,37 @@ function StoreSettingsForm({
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+				{/* Store name — SUPERADMIN only */}
 				<FormField
 					control={form.control}
 					name='name'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Store Name</FormLabel>
+							<FormLabel>Store Name</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
+
+				{/* Contact fields — MANAGER+ can edit */}
 				<FormField
 					control={form.control}
 					name='phone'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Phone</FormLabel>
+							<FormLabel>Phone</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
-									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									disabled={!canEdit}
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -126,12 +141,12 @@ function StoreSettingsForm({
 					name='email'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Email</FormLabel>
+							<FormLabel>Email</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
-									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									disabled={!canEdit}
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -143,31 +158,58 @@ function StoreSettingsForm({
 					name='address'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Address</FormLabel>
+							<FormLabel>Address</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
-									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									disabled={!canEdit}
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
+
+				{/* Currency symbol — MANAGER+ can edit */}
+				<FormField
+					control={form.control}
+					name='currencySymbol'
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>
+								Currency Symbol
+							</FormLabel>
+							<FormControl>
+								<Input
+									{...field}
+									disabled={!canEdit}
+									className='focus:border-brand-main-400 w-24'
+									placeholder='₦'
+								/>
+							</FormControl>
+							<p className='text-xs text-slate-500'>
+								Displayed on receipts, carts, and analytics (e.g. ₦, $, €)
+							</p>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				{/* SUPERADMIN-only fields */}
 				<FormField
 					control={form.control}
 					name='taxRate'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Tax Rate (%)</FormLabel>
+							<FormLabel>Tax Rate (%)</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
 									type='number'
 									step='0.01'
 									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -179,12 +221,12 @@ function StoreSettingsForm({
 					name='logoUrl'
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel className='text-brand-main-700'>Logo URL</FormLabel>
+							<FormLabel>Logo URL</FormLabel>
 							<FormControl>
 								<Input
 									{...field}
 									disabled={!isSuperAdmin}
-									className='  focus:border-brand-main-400'
+									className='focus:border-brand-main-400'
 								/>
 							</FormControl>
 							<FormMessage />
@@ -197,13 +239,15 @@ function StoreSettingsForm({
 						name='primaryColor'
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel className='text-brand-main-700'>Primary Color</FormLabel>
+								<FormLabel>
+									Primary Color
+								</FormLabel>
 								<FormControl>
 									<Input
 										{...field}
 										type='color'
 										disabled={!isSuperAdmin}
-										className='h-10  '
+										className='h-10'
 									/>
 								</FormControl>
 								<FormMessage />
@@ -215,13 +259,15 @@ function StoreSettingsForm({
 						name='secondaryColor'
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel className='text-brand-main-700'>Secondary Color</FormLabel>
+								<FormLabel>
+									Secondary Color
+								</FormLabel>
 								<FormControl>
 									<Input
 										{...field}
 										type='color'
 										disabled={!isSuperAdmin}
-										className='h-10  '
+										className='h-10'
 									/>
 								</FormControl>
 								<FormMessage />
@@ -229,7 +275,8 @@ function StoreSettingsForm({
 						)}
 					/>
 				</div>
-				{isSuperAdmin && (
+
+				{canEdit && (
 					<Button
 						type='submit'
 						disabled={!form.formState.isDirty || isSaving}
@@ -251,6 +298,7 @@ export default function SettingsPage() {
 	const [backupDialogOpen, setBackupDialogOpen] = useState(false);
 
 	const isSuperAdmin = !!user?.roles.includes("SUPERADMIN");
+	const isManager = !!user?.roles.includes("MANAGER");
 	const { data, isLoading } = useGetStoreSettingsQuery();
 
 	const handlePasswordChangeSuccess = async () => {
@@ -260,34 +308,32 @@ export default function SettingsPage() {
 
 	if (!user) return null;
 
-	// Only build defaults once data has arrived — form mounts with correct
-	// values so no reset() race can cause stale validation errors.
 	const storeDefaults: StoreSettingsFormValues | null = data?.settings
 		? {
 				name: data.settings.name,
 				address: data.settings.address,
 				phone: data.settings.phone,
 				email: data.settings.email,
-				// taxRate stored as decimal (0.075), displayed as percent (7.5)
 				taxRate: String(data.settings.taxRate * 100),
 				logoUrl: data.settings.logoUrl,
 				primaryColor: data.settings.primaryColor,
 				secondaryColor: data.settings.secondaryColor,
+				currencySymbol: data.settings.currencySymbol ?? "₦",
 			}
 		: null;
 
 	return (
 		<div className='space-y-6 p-6'>
 			<div>
-				<h1 className='text-3xl font-bold text-brand-main-800'>Settings</h1>
-				<p className='text-brand-main-600 mt-1'>
+				<h1 className='text-3xl font-bold text-brand-main-900'>Settings</h1>
+				<p className='text-brand-main-800 mt-1'>
 					Manage your store settings and preferences
 				</p>
 			</div>
 
 			<div className='grid gap-6'>
 				{/* Store Information */}
-				<Card className=' '>
+				<Card>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Store className='h-5 w-5' />
@@ -301,13 +347,14 @@ export default function SettingsPage() {
 							<StoreSettingsForm
 								defaultValues={storeDefaults}
 								isSuperAdmin={isSuperAdmin}
+								isManager={isManager}
 							/>
 						)}
 					</CardContent>
 				</Card>
 
 				{/* Personal Information */}
-				<Card className=' '>
+				<Card>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<User2 className='h-5 w-5' />
@@ -316,19 +363,19 @@ export default function SettingsPage() {
 					</CardHeader>
 					<CardContent className='space-y-4'>
 						<div className='grid gap-2'>
-							<Label className='text-brand-main-700'>Name</Label>
-							<Input value={user.name} disabled className=' ' />
+							<Label>Name</Label>
+							<Input value={user.name} disabled />
 						</div>
 						<div className='grid gap-2'>
-							<Label className='text-brand-main-700'>Username</Label>
-							<Input value={user.username} disabled className=' ' />
+							<Label>Username</Label>
+							<Input value={user.username} disabled />
 						</div>
 						<div className='grid gap-2'>
-							<Label className='text-brand-main-700'>Email</Label>
-							<Input value={user.email} disabled className=' ' />
+							<Label>Email</Label>
+							<Input value={user.email} disabled />
 						</div>
 						<div className='grid gap-2'>
-							<Label className='text-brand-main-700'>Role</Label>
+							<Label>Role</Label>
 							<Input
 								value={user.roles
 									.map((r, i) =>
@@ -336,14 +383,13 @@ export default function SettingsPage() {
 									)
 									.join("")}
 								disabled
-								className=' '
 							/>
 						</div>
 					</CardContent>
 				</Card>
 
 				{/* Security */}
-				<Card className=' '>
+				<Card>
 					<CardHeader>
 						<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 							<Shield className='h-5 w-5' />
@@ -354,7 +400,7 @@ export default function SettingsPage() {
 						<Button
 							variant='outline'
 							onClick={() => setChangePasswordOpen(true)}
-							className='  text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
+							className='text-brand-main-700 hover:bg-brand-main-50 bg-transparent'>
 							Change Password
 						</Button>
 					</CardContent>
@@ -362,7 +408,7 @@ export default function SettingsPage() {
 
 				{/* Database Backup — SUPERADMIN only */}
 				{isSuperAdmin && (
-					<Card className=' '>
+					<Card>
 						<CardHeader>
 							<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 								<DatabaseBackup className='h-5 w-5' />
@@ -371,8 +417,8 @@ export default function SettingsPage() {
 						</CardHeader>
 						<CardContent className='space-y-4'>
 							<div>
-								<Label className='text-brand-main-700'>Manual Backup</Label>
-								<p className='text-sm text-brand-main-600 mb-3'>
+								<Label>Manual Backup</Label>
+								<p className='text-sm text-slate-600 mb-3'>
 									Download a complete backup of your database as an Excel file
 								</p>
 								<Button

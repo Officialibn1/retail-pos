@@ -23,6 +23,7 @@ import {
 import { Search, Plus, Camera } from "lucide-react";
 import { QR_SCANNER_FORMAT_OPTIONS, formatNaira } from "@/lib/utils";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface ProductSearchProps {
 	inventory: InventoryItemWithCategory[];
@@ -37,6 +38,7 @@ export function ProductSearch({
 	creatingSale,
 	completingSale,
 }: ProductSearchProps) {
+	const c = useCurrencySymbol();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [isScanning, setIsScanning] = useState(false);
@@ -166,7 +168,7 @@ export function ProductSearch({
 										{product.sku}
 									</TableCell>
 									<TableCell className='text-brand-main-900 font-mono font-medium'>
-										{formatNaira(Number(product.price))}
+										{formatNaira(Number(product.price), c)}
 									</TableCell>
 									<TableCell className='text-brand-main-900'>
 										{product.stock}

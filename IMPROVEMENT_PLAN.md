@@ -95,13 +95,13 @@
 ## Improvements to Existing Modules
 
 ### Sales / Checkout 🔴
-- [ ] **Fix receipt store info:** Update `components/receipts/receipt-template.tsx` to use `useGetStoreSettingsQuery` instead of `process.env.NEXT_PUBLIC_STORE_*`
-- [ ] **Add items to a pending order:** See detailed workflow below.
-- [ ] **Item notes:** Add an optional per-line note field in the cart (e.g. "gift wrap", "size adjustment")
+- [x] **Fix receipt store info:** Update `components/receipts/receipt-template.tsx` to use `useGetStoreSettingsQuery` instead of `process.env.NEXT_PUBLIC_STORE_*`
+- [x] **Add items to a pending order:** See detailed workflow below.
+- [x] **Item notes:** Add an optional per-line note field in the cart (e.g. "gift wrap", "size adjustment")
 
 #### Add Items to a Pending Order — Detailed Workflow
 
-**Problem:** Once a cashier creates a pending order and the cart clears, there is no way to add more items if the customer decides to pick up another product before paying.
+**Problem:** Once a cashier creates a pending order and the cart clears, there is no way to add more items if the customer decides to pick up another product b````efore paying.
 
 **Proposed workflow:**
 
@@ -121,12 +121,12 @@
 6. On success, `editingOrderId` is cleared, the cart is cleared, and the pending orders list refetches.
 
 **Files to create/modify:**
-- [ ] `app/api/sales/[id]/items/route.ts` — new `PATCH` route (auth required, any role, active mutation check)
-- [ ] `lib/store/api/index.ts` — add `useUpdateSaleItemsMutation`
-- [ ] `components/sales/pending-order-card.tsx` — add "Edit Order" button
-- [ ] `components/sales/pending-orders-list.tsx` — add `onEdit` callback prop
-- [ ] `app/dashboard/sales/new/page.tsx` — handle `editingOrderId` state, swap checkout button label, pass edit handler to `PendingOrdersList`
-- [ ] `components/sales/shopping-cart.tsx` — accept and display an `editingOrderId` prop to show the editing banner and change the button label
+- [x] `app/api/sales/[id]/items/route.ts` — new `PATCH` route (auth required, any role, active mutation check)
+- [x] `lib/store/api/index.ts` — add `useUpdateSaleItemsMutation`
+- [x] `components/sales/pending-order-card.tsx` — add "Edit Order" button
+- [x] `components/sales/pending-orders-list.tsx` — add `onEdit` callback prop
+- [x] `app/dashboard/sales/new/page.tsx` — handle `editingOrderId` state, swap checkout button label, pass edit handler to `PendingOrdersList`
+- [x] `components/sales/shopping-cart.tsx` — accept and display an `editingOrderId` prop to show the editing banner and change the button label
 
 ---
 
@@ -157,8 +157,8 @@
 ---
 
 ### Settings 🟢
-- [ ] **MANAGER store edit access:** Allow MANAGER role to update `phone`, `address`, and `email` (but not `taxRate`, `primaryColor`, or `logoUrl` — those stay SUPERADMIN-only); update the PUT route's role check and the form's disabled logic accordingly
-- [ ] **Currency configuration:** Add a `currency` field to `StoreSettings` (code + symbol, e.g. `NGN` / `₦`); replace the hardcoded `₦` symbol across receipt templates, analytics cards, and the cart with a value read from store settings
+- [x] **MANAGER store edit access:** Allow MANAGER role to update `phone`, `address`, and `email` (but not `taxRate`, `primaryColor`, or `logoUrl` — those stay SUPERADMIN-only); update the PUT route's role check and the form's disabled logic accordingly
+- [x] **Currency configuration:** Add a `currency` field to `StoreSettings` (code + symbol, e.g. `NGN` / `₦`); replace the hardcoded `₦` symbol across receipt templates, analytics cards, and the cart with a value read from store settings
 
 ---
 

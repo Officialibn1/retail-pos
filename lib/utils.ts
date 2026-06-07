@@ -42,8 +42,8 @@ export function formatLargeNumber(amount: number): string {
 	return amount.toString();
 }
 
-export function formatNaira(amount: number): string {
-	return `₦${formatCurrency(amount)}`;
+export function formatNaira(amount: number, currencySymbol = "₦"): string {
+	return `${currencySymbol}${formatCurrency(amount)}`;
 }
 
 export const dateTimeFormatter = (

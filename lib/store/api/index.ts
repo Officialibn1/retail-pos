@@ -68,6 +68,7 @@ export interface StoreSettings {
 	primaryColor: string;
 	secondaryColor: string;
 	logoUrl: string;
+	currencySymbol: string;
 }
 
 export interface GetStoreSettingsResponse {
@@ -83,6 +84,7 @@ export interface UpdateStoreSettingsRequest {
 	primaryColor?: string;
 	secondaryColor?: string;
 	logoUrl?: string;
+	currencySymbol?: string;
 }
 
 export type TagType = (typeof TAG_TYPES)[number];
@@ -564,6 +566,18 @@ export interface GetSessionsResponse {
 			invalidatesTags: ["Sales", "Inventory"],
 		}),
 
+		updateSaleItems: builder.mutation<
+			SaleWithDetails,
+			{ id: string; data: { items: { inventoryItemId: string; quantity: number; price: number; note?: string | null }[]; discountRate: number } }
+		>({
+			query: ({ id, data }) => ({
+				url: `/api/sales/${id}/items`,
+				method: "PATCH",
+				body: data,
+			}),
+			invalidatesTags: ["Sales", "Inventory"],
+		}),
+
 		createReturn: builder.mutation<
 			CreateReturnResponse,
 			{ id: string; data: CreateReturnRequest }
@@ -964,6 +978,7 @@ export const {
 	useCreateSaleMutation,
 	useCompleteSaleMutation,
 	useCancelSaleMutation,
+	useUpdateSaleItemsMutation,
 	useCreateReturnMutation,
 	useGetReturnsQuery,
 	useGetUsersQuery,

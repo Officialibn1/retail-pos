@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { SalesTrendResult } from "@/lib/types";
 import {
 	TrendingUp,
@@ -40,7 +41,7 @@ type ChartType = "area" | "line";
 
 const chartConfig = {
 	totalRevenue: {
-		label: "Revenue (₦)",
+		label: "Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 	transactionCount: {
@@ -48,15 +49,15 @@ const chartConfig = {
 		color: "var(--color-brand-main-500)",
 	},
 	averageTransactionValue: {
-		label: "Avg Transaction (₦)",
+		label: "Avg Transaction",
 		color: "var(--color-brand-main-700)",
 	},
 	totalDiscounts: {
-		label: "Discounts (₦)",
+		label: "Discounts",
 		color: "#EF4444",
 	},
 	totalTax: {
-		label: "Tax (₦)",
+		label: "Tax",
 		color: "#10B981",
 	},
 } satisfies ChartConfig;
@@ -66,6 +67,7 @@ export function SalesTrendChart({
 	interval = "daily",
 	onIntervalChange,
 }: SalesTrendChartProps) {
+	const c = useCurrencySymbol();
 	const [chartType, setChartType] = useState<ChartType>("area");
 
 	// Format date labels based on interval
@@ -107,7 +109,7 @@ export function SalesTrendChart({
 					<p className='font-semibold text-sm mb-2'>{label}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
-							<span className='font-medium'>Revenue:</span> ₦
+							<span className='font-medium'>Revenue:</span> {c}
 							{formatCurrency(data.totalRevenue)}
 						</p>
 						<p className='text-sm'>
@@ -115,18 +117,18 @@ export function SalesTrendChart({
 							{data.transactionCount.toLocaleString()}
 						</p>
 						<p className='text-sm'>
-							<span className='font-medium'>Avg Transaction:</span> ₦
+							<span className='font-medium'>Avg Transaction:</span> {c}
 							{formatCurrency(data.averageTransactionValue)}
 						</p>
 						{data.totalDiscounts > 0 && (
 							<p className='text-sm'>
-								<span className='font-medium'>Discounts:</span> ₦
+								<span className='font-medium'>Discounts:</span> {c}
 								{formatCurrency(data.totalDiscounts)}
 							</p>
 						)}
 						{data.totalTax > 0 && (
 							<p className='text-sm'>
-								<span className='font-medium'>Tax:</span> ₦
+								<span className='font-medium'>Tax:</span> {c}
 								{formatCurrency(data.totalTax)}
 							</p>
 						)}
@@ -146,7 +148,7 @@ export function SalesTrendChart({
 						<div>
 							<p className='text-sm font-medium text-gray-600'>Total Revenue</p>
 							<p className='text-2xl font-bold text-brand-main-600'>
-								₦{formatCurrency(data.kpis.totalGrossRevenue)}
+								{c}{formatCurrency(data.kpis.totalGrossRevenue)}
 							</p>
 						</div>
 						<DollarSign className='h-8 w-8 text-brand-main-600' />
@@ -162,7 +164,7 @@ export function SalesTrendChart({
 								Avg Order Value
 							</p>
 							<p className='text-2xl font-bold text-brand-main-600'>
-								₦{formatCurrency(data.kpis.averageOrderValue)}
+								{c}{formatCurrency(data.kpis.averageOrderValue)}
 							</p>
 						</div>
 						<ShoppingCart className='h-8 w-8 text-brand-main-600' />
@@ -178,7 +180,7 @@ export function SalesTrendChart({
 								Total Discounts
 							</p>
 							<p className='text-2xl font-bold text-red-600'>
-								₦{formatCurrency(data.kpis.totalDiscounts)}
+								{c}{formatCurrency(data.kpis.totalDiscounts)}
 							</p>
 						</div>
 						<TrendingUp className='h-8 w-8 text-red-600' />
@@ -192,7 +194,7 @@ export function SalesTrendChart({
 						<div>
 							<p className='text-sm font-medium text-gray-600'>Total Tax</p>
 							<p className='text-2xl font-bold text-green-600'>
-								₦{formatCurrency(data.kpis.totalTax)}
+								{c}{formatCurrency(data.kpis.totalTax)}
 							</p>
 						</div>
 						<Calendar className='h-8 w-8 text-green-600' />
@@ -275,7 +277,7 @@ export function SalesTrendChart({
 						{data.trends.length > 0 && (
 							<div className='flex items-center gap-4'>
 								<span>
-									Peak Revenue: ₦
+									Peak Revenue: {c}
 									{formatCurrency(
 										Math.max(...data.trends.map((t) => t.totalRevenue)),
 									)}
@@ -340,7 +342,7 @@ export function SalesTrendChart({
 											tickLine={false}
 											axisLine={false}
 											className='text-brand-main-600'
-											tickFormatter={(value) => `₦${formatCurrency(value)}`}
+											tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 										/>
 										<YAxis
 											yAxisId='count'
@@ -397,7 +399,7 @@ export function SalesTrendChart({
 											tickLine={false}
 											axisLine={false}
 											className='text-brand-main-600'
-											tickFormatter={(value) => `₦${formatCurrency(value)}`}
+											tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 										/>
 										<YAxis
 											yAxisId='count'

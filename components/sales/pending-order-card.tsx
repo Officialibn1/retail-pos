@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, User, CheckCircle, XCircle } from "lucide-react";
+import { Clock, ShoppingBag, User, CheckCircle, XCircle, Pencil } from "lucide-react";
 import { formatNaira } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import type { SaleWithDetails } from "@/lib/services/sale.service";
@@ -12,6 +12,7 @@ interface PendingOrderCardProps {
 	sale: SaleWithDetails;
 	onComplete: (saleId: string) => void;
 	onCancel: (saleId: string) => void;
+	onEdit: (sale: SaleWithDetails) => void;
 	isProcessing: boolean;
 	showCreatorName?: boolean;
 }
@@ -20,6 +21,7 @@ export function PendingOrderCard({
 	sale,
 	onComplete,
 	onCancel,
+	onEdit,
 	isProcessing,
 	showCreatorName = false,
 }: PendingOrderCardProps) {
@@ -87,6 +89,15 @@ export function PendingOrderCard({
 							size='sm'>
 							<CheckCircle className='h-4 w-4 mr-1' />
 							Complete
+						</Button>
+						<Button
+							onClick={() => onEdit(sale)}
+							disabled={isProcessing}
+							variant='outline'
+							className='flex-1 border-brand-main-300 text-brand-main-700 hover:bg-brand-main-50'
+							size='sm'>
+							<Pencil className='h-4 w-4 mr-1' />
+							Edit
 						</Button>
 						<Button
 							onClick={() => onCancel(sale.id)}

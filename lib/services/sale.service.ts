@@ -16,6 +16,7 @@ export type SaleWithDetails = Sale & {
 		id: string;
 		quantity: number;
 		price: number;
+		note: string | null;
 		inventoryItem: {
 			id: string;
 			name: string;
@@ -148,6 +149,7 @@ export async function createSale(data: CreateSaleInput): Promise<Sale> {
 							inventoryItemId: item.inventoryItemId,
 							quantity: item.quantity,
 							price: item.price,
+							note: item.note ?? null,
 						})),
 					},
 				},

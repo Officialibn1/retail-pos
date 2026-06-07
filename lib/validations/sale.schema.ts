@@ -18,6 +18,11 @@ const saleItemSchema = z.object({
 				.regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
 				.transform(Number),
 		),
+	note: z
+		.string()
+		.max(120, "Note must not exceed 120 characters")
+		.optional()
+		.nullable(),
 });
 
 // Sale validation schemas
@@ -108,6 +113,20 @@ export const createReturnSchema = z.object({
 		errorMap: () => ({ message: "Invalid refund method" }),
 	}),
 });
+
+export const updateSaleItemsSchema = z.object({
+	items: z
+		.array(saleItemSchema)
+		.min(1, "At least one item is required")
+		.max(100, "Cannot have more than 100 items"),
+	discountRate: z
+		.number()
+		.min(0)
+		.max(100, "Discount must not be more than 100%")
+		.default(0),
+});
+
+export type UpdateSaleItemsInput = z.infer<typeof updateSaleItemsSchema>;
 
 export type CreateSaleInput = z.infer<typeof createSaleSchema>;
 export type CompleteSaleInput = z.infer<typeof completeSaleSchema>;

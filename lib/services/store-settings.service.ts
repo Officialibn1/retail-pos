@@ -10,6 +10,7 @@ export interface StoreSettings {
 	primaryColor: string;
 	secondaryColor: string;
 	logoUrl: string;
+	currencySymbol: string;
 }
 
 // Module-level cache — invalidated on write
@@ -25,6 +26,7 @@ function rowToSettings(row: {
 	primaryColor: string;
 	secondaryColor: string;
 	logoUrl: string;
+	currencySymbol: string;
 }): StoreSettings {
 	return {
 		id: row.id,
@@ -36,6 +38,7 @@ function rowToSettings(row: {
 		primaryColor: row.primaryColor,
 		secondaryColor: row.secondaryColor,
 		logoUrl: row.logoUrl,
+		currencySymbol: row.currencySymbol,
 	};
 }
 
@@ -55,6 +58,7 @@ export async function getStoreSettings(): Promise<StoreSettings> {
 				primaryColor: "#7c3aed",
 				secondaryColor: "#a78bfa",
 				logoUrl: "/pos_logo.png",
+				currencySymbol: "₦",
 			},
 		});
 	}

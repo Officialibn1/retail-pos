@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 import { formatNaira, cn } from "@/lib/utils";
 import { useGetDashboardStatsQuery } from "@/lib/store/api";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface OverviewMetricsProps {
 	onRefresh?: () => void;
 }
 
 export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
+	const c = useCurrencySymbol();
 	const {
 		data: dashboardStats,
 		isLoading: isDashboardLoading,
@@ -108,7 +110,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardHeader>
 				<CardContent>
 					<div className='text-2xl font-bold text-brand-main-800'>
-						{formatNaira(dashboardStats.totalRevenue)}
+						{formatNaira(dashboardStats.totalRevenue, c)}
 					</div>
 					<p className='text-xs text-brand-main-600 flex items-center mt-1'>
 						<TrendingUp className='h-3 w-3 mr-1' />
@@ -144,7 +146,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 				</CardHeader>
 				<CardContent>
 					<div className='text-2xl font-bold text-brand-main-800'>
-						{formatNaira(dashboardStats.averageOrderValue)}
+						{formatNaira(dashboardStats.averageOrderValue, c)}
 					</div>
 					<p className='text-xs text-brand-main-600 flex items-center mt-1'>
 						<TrendingDown className='h-3 w-3 mr-1' />

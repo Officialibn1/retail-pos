@@ -29,6 +29,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { CustomerTrendsResult, TopCustomersResult } from "@/lib/types";
 import {
 	Users,
@@ -61,7 +62,7 @@ type SortDirection = "asc" | "desc";
 
 const chartConfig = {
 	totalSpent: {
-		label: "Total Spent (₦)",
+		label: "Total Spent",
 		color: "var(--color-brand-main-600)",
 	},
 	totalVisits: {
@@ -69,7 +70,7 @@ const chartConfig = {
 		color: "var(--color-brand-main-500)",
 	},
 	revenue: {
-		label: "Revenue (₦)",
+		label: "Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 	growthPercentage: {
@@ -110,6 +111,7 @@ export function CustomerAnalyticsChart({
 	customerTrendsData,
 	onCustomerClick,
 }: CustomerAnalyticsChartProps) {
+	const c = useCurrencySymbol();
 	const [viewMode, setViewMode] = useState<ViewMode>("ranking");
 	const [sortField, setSortField] = useState<SortField>("totalSpent");
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
@@ -199,7 +201,7 @@ export function CustomerAnalyticsChart({
 					<p className='text-xs text-gray-600 mb-2'>{data.customerPhone}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
-							<span className='font-medium'>Total Spent:</span> ₦
+							<span className='font-medium'>Total Spent:</span> {c}
 							{formatCurrency(data.totalSpent)}
 						</p>
 						<p className='text-sm'>
@@ -207,7 +209,7 @@ export function CustomerAnalyticsChart({
 							{data.totalVisits.toLocaleString()}
 						</p>
 						<p className='text-sm'>
-							<span className='font-medium'>Avg Transaction:</span> ₦
+							<span className='font-medium'>Avg Transaction:</span> {c}
 							{formatCurrency(data.averageTransactionValue)}
 						</p>
 						<p className='text-sm'>
@@ -238,7 +240,7 @@ export function CustomerAnalyticsChart({
 								style={{ color: entry.color }}>
 								<span className='font-medium'>{entry.name}:</span>{" "}
 								{entry.dataKey === "revenue"
-									? `₦${formatCurrency(entry.value)}`
+									? `${c}${formatCurrency(entry.value)}`
 									: `${entry.value.toFixed(1)}%`}
 							</p>
 						))}
@@ -340,7 +342,7 @@ export function CustomerAnalyticsChart({
 					<div className='flex items-center gap-1'>
 						<Badge variant='secondary'>{totalCustomers} customers</Badge>
 					</div>
-					<span>Total Revenue: ₦{formatCurrency(totalRevenue)}</span>
+					<span>Total Revenue: {c}{formatCurrency(totalRevenue)}</span>
 					{topCustomer && <span>Top Customer: {topCustomer.customerName}</span>}
 					{/* Status indicators */}
 					{Object.entries(statusCounts).map(([status, count]) => {
@@ -395,7 +397,7 @@ export function CustomerAnalyticsChart({
 											axisLine={false}
 											angle={-45}
 											className='text-brand-main-600'
-											tickFormatter={(value) => `₦${formatCurrency(value)}`}
+											tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 										/>
 										<ChartTooltip content={<CustomRankingTooltip />} />
 										<Bar
@@ -447,7 +449,7 @@ export function CustomerAnalyticsChart({
 															Total Spent
 														</span>
 														<span className='font-medium'>
-															₦{formatCurrency(customer.totalSpent)}
+															{c}{formatCurrency(customer.totalSpent)}
 														</span>
 													</div>
 													<div className='flex items-center justify-between'>
@@ -455,7 +457,7 @@ export function CustomerAnalyticsChart({
 															Avg Transaction
 														</span>
 														<span className='font-medium'>
-															₦
+															{c}
 															{formatCurrency(customer.averageTransactionValue)}
 														</span>
 													</div>
@@ -525,7 +527,7 @@ export function CustomerAnalyticsChart({
 											tickLine={false}
 											axisLine={false}
 											className='text-brand-main-600'
-											tickFormatter={(value) => `₦${formatCurrency(value)}`}
+											tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 										/>
 										<YAxis
 											yAxisId='growth'
@@ -650,13 +652,13 @@ export function CustomerAnalyticsChart({
 												</div>
 											</TableCell>
 											<TableCell className='text-right font-medium'>
-												₦{formatCurrency(customer.totalSpent)}
+												{c}{formatCurrency(customer.totalSpent)}
 											</TableCell>
 											<TableCell className='text-right'>
 												{customer.totalVisits.toLocaleString()}
 											</TableCell>
 											<TableCell className='text-right'>
-												₦{formatCurrency(customer.averageTransactionValue)}
+												{c}{formatCurrency(customer.averageTransactionValue)}
 											</TableCell>
 											<TableCell className='text-right'>
 												{new Date(customer.lastVisit).toLocaleDateString()}
