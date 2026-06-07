@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -103,7 +103,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 		<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-					<CardTitle className='text-sm font-medium text-brand-main-700'>
+					<CardTitle>
 						Total Revenue
 					</CardTitle>
 					<DollarSign className='h-4 w-4 text-brand-main-600' />
@@ -112,16 +112,16 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 					<div className='text-2xl font-bold text-brand-main-800'>
 						{formatNaira(dashboardStats.totalRevenue, c)}
 					</div>
-					<p className='text-xs text-brand-main-600 flex items-center mt-1'>
+					<CardDescription className="flex items-center mt-1">
 						<TrendingUp className='h-3 w-3 mr-1' />
 						Total sales revenue
-					</p>
+					</CardDescription>
 				</CardContent>
 			</Card>
 
 			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-					<CardTitle className='text-sm font-medium text-brand-main-700'>
+					<CardTitle>
 						Total Sales
 					</CardTitle>
 					<ShoppingCart className='h-4 w-4 text-brand-main-600' />
@@ -130,16 +130,16 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 					<div className='text-2xl font-bold text-brand-main-800'>
 						{dashboardStats.totalSales}
 					</div>
-					<p className='text-xs text-brand-main-600 flex items-center mt-1'>
+					<CardDescription className="flex items-center mt-1">
 						<TrendingUp className='h-3 w-3 mr-1' />
 						Completed transactions
-					</p>
+					</CardDescription>
 				</CardContent>
 			</Card>
 
 			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-					<CardTitle className='text-sm font-medium text-brand-main-700'>
+					<CardTitle>
 						Avg Order Value
 					</CardTitle>
 					<DollarSign className='h-4 w-4 text-brand-main-600' />
@@ -148,16 +148,16 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 					<div className='text-2xl font-bold text-brand-main-800'>
 						{formatNaira(dashboardStats.averageOrderValue, c)}
 					</div>
-					<p className='text-xs text-brand-main-600 flex items-center mt-1'>
+					<CardDescription className="flex items-center mt-1">
 						<TrendingDown className='h-3 w-3 mr-1' />
 						Per transaction
-					</p>
+					</CardDescription>
 				</CardContent>
 			</Card>
 
 			<Card className=' '>
 				<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-					<CardTitle className='text-sm font-medium text-brand-main-700'>
+					<CardTitle>
 						Low Stock Items
 					</CardTitle>
 					<AlertTriangle className='h-4 w-4 text-brand-main-600' />
@@ -166,7 +166,7 @@ export function OverviewMetrics({ onRefresh }: OverviewMetricsProps) {
 					<div className='text-2xl font-bold text-brand-main-800'>
 						{dashboardStats.lowStockCount}
 					</div>
-					<p className='text-xs text-brand-main-600'>Items below 10 units</p>
+					<CardDescription>Items below 10 units</CardDescription>
 				</CardContent>
 			</Card>
 		</div>

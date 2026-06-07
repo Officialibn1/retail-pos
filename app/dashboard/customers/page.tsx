@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -52,6 +53,7 @@ export default function CustomersPage() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const debouncedSearchTerm = useDebounce(searchTerm, 300);
 	const c = useCurrencySymbol();
+	const router = useRouter();
 
 	// Refs for focus restoration (Requirement 10.5)
 	const addButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -352,6 +354,9 @@ export default function CustomersPage() {
 										currencySymbol: c,
 									})}
 									data={customers}
+									onRowClick={(row) =>
+										router.push(`/dashboard/customers/${row.id}`)
+									}
 								/>
 							</div>
 						</CardContent>

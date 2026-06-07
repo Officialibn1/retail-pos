@@ -229,6 +229,68 @@ export interface GetCustomerResponse {
 	customer: CustomerWithSales;
 }
 
+// Customer detail sale item
+export interface CustomerDetailSaleItem {
+	id: string;
+	quantity: number;
+	price: number;
+	note: string | null;
+	inventoryItem: {
+		id: string;
+		name: string;
+		sku: string;
+		category: { id: string; name: string };
+	};
+}
+
+// Customer detail return item
+export interface CustomerDetailReturnItem {
+	id: string;
+	quantity: number;
+	price: number;
+	inventoryItem: { id: string; name: string; sku: string };
+}
+
+// Customer detail sale
+export interface CustomerDetailSale {
+	id: string;
+	total: number;
+	subTotal: number;
+	discountAmount: number | null;
+	taxAmount: number | null;
+	status: string;
+	paymentMethod: string | null;
+	amountPaid: number | null;
+	changeGiven: number | null;
+	createdAt: string;
+	completedAt: string | null;
+	cancelledAt: string | null;
+	user: { id: string; name: string };
+	items: CustomerDetailSaleItem[];
+	returns: Array<{
+		id: string;
+		reason: string;
+		refundAmount: number;
+		refundMethod: string;
+		createdAt: string;
+		processedBy: { id: string; name: string };
+		items: CustomerDetailReturnItem[];
+	}>;
+}
+
+// Customer detail response
+export interface CustomerDetailResponse {
+	customer: {
+		id: string;
+		name: string | null;
+		phone: string;
+		email: string | null;
+		createdAt: string;
+		updatedAt: string;
+		sales: CustomerDetailSale[];
+	};
+}
+
 // Create customer response
 export interface CreateCustomerResponse {
 	message: string;
@@ -669,6 +731,11 @@ export interface GetSessionsResponse {
 			providesTags: ["Customers"],
 		}),
 
+		getCustomerDetail: builder.query<CustomerDetailResponse, string>({
+			query: (id) => `/api/customers/${id}/detail`,
+			providesTags: ["Customers"],
+		}),
+
 		createCustomer: builder.mutation<
 			CreateCustomerResponse,
 			CreateCustomerInput
@@ -989,6 +1056,7 @@ export const {
 	useUpdateUserStatusMutation,
 	useGetCustomersQuery,
 	useGetCustomerQuery,
+	useGetCustomerDetailQuery,
 	useCreateCustomerMutation,
 	useUpdateCustomerMutation,
 	useDeleteCustomerMutation,

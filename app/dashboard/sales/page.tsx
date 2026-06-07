@@ -292,7 +292,7 @@ export default function SalesHistoryPage() {
 			{/* Page header */}
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-950'>
+					<h1 className='text-3xl font-bold text-brand-main-900'>
 						Sales History
 					</h1>
 					<p className='text-brand-main-800 mt-1'>

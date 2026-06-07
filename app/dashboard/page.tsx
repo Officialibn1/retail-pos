@@ -111,7 +111,7 @@ export default function DashboardPage() {
 			<div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
 				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Total Revenue
 						</CardTitle>
 						<svg
@@ -130,13 +130,13 @@ export default function DashboardPage() {
 						<div className='text-2xl font-bold text-brand-main-900'>
 							{formatNaira(stats.totalRevenue, c)}
 						</div>
-						<p className='text-xs text-brand-main-700'>Total sales revenue</p>
+						<CardDescription>Total sales revenue</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Orders
 						</CardTitle>
 						<svg
@@ -162,13 +162,13 @@ export default function DashboardPage() {
 						<div className='text-2xl font-bold text-brand-main-900'>
 							{stats.totalSales}
 						</div>
-						<p className='text-xs text-brand-main-700'>Total completed sales</p>
+						<CardDescription>Total completed sales</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Avg Order Value
 						</CardTitle>
 						<svg
@@ -190,13 +190,13 @@ export default function DashboardPage() {
 						<div className='text-2xl font-bold text-brand-main-900'>
 							{formatNaira(stats.averageOrderValue, c)}
 						</div>
-						<p className='text-xs text-brand-main-700'>Per transaction</p>
+						<CardDescription>Per transaction</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Recent Activity
 						</CardTitle>
 						<svg
@@ -221,7 +221,7 @@ export default function DashboardPage() {
 						<div className='text-2xl font-bold text-brand-main-900'>
 							{stats.recentSales.length}
 						</div>
-						<p className='text-xs text-brand-main-700'>Recent transactions</p>
+						<CardDescription>Recent transactions</CardDescription>
 					</CardContent>
 				</Card>
 			</div>
