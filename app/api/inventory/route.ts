@@ -88,6 +88,25 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		// Handle Prisma unique constraint violations (P2002)
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"code" in error &&
+			(error as { code: string }).code === "P2002"
+		) {
+			const meta = (error as { meta?: { modelName?: string } }).meta;
+			return NextResponse.json(
+				{
+					error: {
+						message: "A record with this barcode already exists",
+						code: "DUPLICATE_BARCODE",
+					},
+				},
+				{ status: 409 },
+			);
+		}
+
 		// Handle unexpected errors
 		console.error("Error creating inventory item:", error);
 		return NextResponse.json(

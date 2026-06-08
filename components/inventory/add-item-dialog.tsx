@@ -42,7 +42,7 @@ import {
 interface AddItemDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (item: CreateInventoryItemInput) => void;
+	onSave: (item: CreateInventoryItemInput, form: any) => void;
 	isCreatingItem: boolean;
 }
 
@@ -83,8 +83,7 @@ export function AddItemDialog({
 	}, [open, form]);
 
 	const onSubmit = (data: CreateInventoryItemInput) => {
-		onSave(data);
-		form.reset();
+		onSave(data, form);
 		setIsScanning(false);
 	};
 

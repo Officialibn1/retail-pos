@@ -112,9 +112,10 @@ export default function InventoryPage() {
 	// Extract categories from the API response
 	const categories = categoriesData?.categories || [];
 
-	const handleAddItem = async (newItem: CreateInventoryItemInput) => {
+	const handleAddItem = async (newItem: CreateInventoryItemInput, form: any) => {
 		try {
 			await createInventoryItem(newItem).unwrap();
+			form.reset()
 			setShowAddDialog(false);
 			toast.success("Item added successfully");
 		} catch (err: any) {

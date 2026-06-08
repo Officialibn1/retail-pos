@@ -48,9 +48,9 @@ export const createInventoryItemSchema = z.object({
 			/^[a-zA-Z0-9-]+$/,
 			"Barcode can only contain letters, numbers, and hyphens",
 		)
-		.or(z.literal(""))
 		.optional()
-		.nullable(),
+		.nullable()
+		.or(z.literal("").transform(() => null)),
 	categoryId: z.string().cuid("Invalid category ID"),
 });
 
@@ -92,9 +92,9 @@ export const updateInventoryItemSchema = z.object({
 			/^[a-zA-Z0-9-]+$/,
 			"Barcode can only contain letters, numbers, and hyphens",
 		)
-		.or(z.literal(""))
 		.optional()
-		.nullable(),
+		.nullable()
+		.or(z.literal("").transform(() => null)),
 	reorderLevel: z
 		.number()
 		.int("Reorder level must be an integer")
