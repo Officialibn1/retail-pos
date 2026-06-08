@@ -207,10 +207,10 @@ export default function CategoriesPage() {
 			<div className='space-y-6 p-6'>
 				<header className='flex items-center justify-between'>
 					<div>
-						<h1 className='text-3xl font-bold text-brand-main-800'>
+						<h1 className='text-3xl font-bold text-brand-main-900'>
 							Categories Management
 						</h1>
-						<p className='text-brand-main-600 mt-1'>
+						<p className='text-brand-main-800 mt-1'>
 							Manage product categories for your store
 						</p>
 					</div>
@@ -235,7 +235,7 @@ export default function CategoriesPage() {
 					className='grid gap-4 md:grid-cols-2'>
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle>
 								Total Categories
 							</CardTitle>
 							<Package
@@ -255,7 +255,7 @@ export default function CategoriesPage() {
 
 					<Card className=' '>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle>
 								Total Items
 							</CardTitle>
 							<ShoppingBag
@@ -301,12 +301,12 @@ export default function CategoriesPage() {
 										</label>
 										{isFetching ? (
 											<Spinner
-												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 												aria-label='Loading categories'
 											/>
 										) : (
 											<Search
-												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 												aria-hidden='true'
 											/>
 										)}

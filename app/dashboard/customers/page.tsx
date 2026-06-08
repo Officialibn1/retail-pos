@@ -41,6 +41,7 @@ import DataTable from "@/components/dashboard/data-table";
 import { CustomerWithSales } from "@/lib/services/customer.service";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
+import { getSpendingTier } from "@/lib/spending-tier";
 
 export default function CustomersPage() {
 	const { user } = useAuth();
@@ -253,10 +254,10 @@ export default function CustomersPage() {
 			<div className='space-y-6 p-6'>
 				<header className='flex items-center justify-between'>
 					<div>
-						<h1 className='text-3xl font-bold text-brand-main-800'>
+						<h1 className='text-3xl font-bold text-brand-main-900'>
 							Customers Management
 						</h1>
-						<p className='text-brand-main-600 mt-1'>
+						<p className='text-brand-main-800 mt-1'>
 							Manage customer information and track sales history
 						</p>
 					</div>
@@ -276,31 +277,76 @@ export default function CustomersPage() {
 				{/* Summary Cards */}
 				<section
 					aria-label='Customer statistics'
-					className='grid gap-4 md:grid-cols-2'>
-					<Card className=' '>
+					className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+					<Card>
 						<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-							<CardTitle className='text-sm font-medium text-brand-main-700'>
+							<CardTitle>
 								Total Customers
 							</CardTitle>
-							<Users
-								className='h-4 w-4 text-brand-main-600'
-								aria-hidden='true'
-							/>
+							<Users className='h-4 w-4 text-brand-main-600' aria-hidden='true' />
 						</CardHeader>
 						<CardContent>
-							<div
-								className='text-2xl font-bold text-brand-main-800'
-								aria-label={`${customers.length} total customers`}>
+							<div className='text-2xl font-bold text-brand-main-800'>
 								{customers.length}
 							</div>
-							<p className='text-xs text-brand-main-600'>
-								Registered customers
-							</p>
+							<CardDescription>Registered customers</CardDescription>
 						</CardContent>
 					</Card>
+
+					{(
+						[
+							{
+								tier: "Gold" as const,
+								label: "🥇 Gold",
+								description: "≥ ₦200k spend",
+								cardClass: "border-yellow-200 bg-yellow-50/40",
+								valueClass: "text-yellow-800",
+								descClass: "text-yellow-700",
+							},
+							{
+								tier: "Silver" as const,
+								label: "🥈 Silver",
+								description: "₦50k – ₦200k spend",
+								cardClass: "border-slate-200 bg-slate-50/40",
+								valueClass: "text-slate-700",
+								descClass: "text-slate-600",
+							},
+							{
+								tier: "Bronze" as const,
+								label: "🥉 Bronze",
+								description: "< ₦50k spend",
+								cardClass: "border-amber-200 bg-amber-50/40",
+								valueClass: "text-amber-800",
+								descClass: "text-amber-700",
+							},
+							
+						] as const
+					).map(({ tier, label, description, cardClass, valueClass, descClass }) => {
+						const count = customers.filter((cu) => {
+							const totalSpend = cu.sales
+								.filter((s) => s.status === "COMPLETED")
+								.reduce((sum, s) => sum + Number(s.total), 0);
+							return getSpendingTier(totalSpend).tier === tier;
+						}).length;
+
+						return (
+							<Card key={tier} className={`border ${cardClass}`}>
+								<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+									<CardTitle className={`text-sm font-medium ${valueClass}`}>
+										{label}
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className={`text-2xl font-bold ${valueClass}`}>
+										{count}
+									</div>
+									<p className={`text-xs ${descClass}`}>{description}</p>
+								</CardContent>
+							</Card>
+						);
+					})}
 				</section>
 
-				{/* Customers Table - Will be implemented in Task 8 */}
 				{customers.length === 0 ? (
 					<Card className=' '>
 						<CardHeader>
@@ -325,12 +371,12 @@ export default function CustomersPage() {
 										</label>
 										{isFetching ? (
 											<Spinner
-												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 												aria-label='Loading customers'
 											/>
 										) : (
 											<Search
-												className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+												className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 												aria-hidden='true'
 											/>
 										)}
