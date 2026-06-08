@@ -47,6 +47,8 @@ export async function POST(
 			"SALE_CANCELLED",
 			`Cancelled sale ${id}`,
 			ipAddress,
+			undefined,
+			{ entityType: "Sale", entityId: id },
 		);
 
 		return NextResponse.json(sale, { status: 200 });

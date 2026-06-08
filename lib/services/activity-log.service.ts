@@ -2,13 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { UserRole } from "@/generated/prisma/client";
 import { ActivityLogWithUser } from "../prisma-extended-types";
 
+export interface ActivityMetadata {
+	entityType?: string; // e.g. "InventoryItem", "Sale", "User"
+	entityId?: string;
+	changes?: Record<string, [unknown, unknown]>; // { field: [oldValue, newValue] }
+	[key: string]: unknown;
+}
+
 /**
  * Create an activity log entry
- * @param userId - User ID performing the action
- * @param action - Action performed (e.g., "LOGIN", "SALE_CREATED")
- * @param details - Additional details about the action
- * @param ipAddress - Optional IP address
- * @param userAgent - Optional user agent string
  */
 export async function logActivity(
 	userId: string,
@@ -16,6 +18,7 @@ export async function logActivity(
 	details: string,
 	ipAddress?: string,
 	userAgent?: string,
+	metadata?: ActivityMetadata,
 ): Promise<void> {
 	try {
 		await prisma.activityLog.create({
@@ -25,10 +28,10 @@ export async function logActivity(
 				details,
 				ipAddress,
 				userAgent,
+				metadata: metadata ?? undefined,
 			},
 		});
 	} catch (error) {
-		// Log error but don't throw - activity logging shouldn't break the app
 		console.error("Failed to log activity:", error);
 	}
 }
@@ -40,13 +43,13 @@ export async function getActivityLogs(
 ): Promise<ActivityLogWithUser[]> {
 	const searchTerm = params?.get("searchTerm");
 	const actionFilter = params?.get("action");
+	const entityType = params?.get("entityType");
+	const entityId = params?.get("entityId");
 	const limit = Number(params?.get("limit") || "100");
 
-	// Build where clause based on role
 	const whereClause: any = {};
 
-	// Only SUPERADMIN and MANAGER can see all activities
-	// ADMIN and CASHIER can only see their own activities
+	// Role-based scoping
 	if (
 		userId &&
 		userRoles &&
@@ -56,37 +59,20 @@ export async function getActivityLogs(
 		whereClause.userId = userId;
 	}
 
-	// Apply search term
+	// Free-text search across action, details, and user name
 	if (searchTerm) {
-		const searchConditions: any[] = [];
-
-		searchConditions.push({
-			action: {
-				contains: searchTerm,
-				mode: "insensitive" as const,
-			},
-		});
-
-		searchConditions.push({
-			details: {
-				contains: searchTerm,
-				mode: "insensitive" as const,
-			},
-		});
-
-		searchConditions.push({
-			user: {
-				name: {
-					contains: searchTerm,
-					mode: "insensitive" as const,
+		whereClause.OR = [
+			{ action: { contains: searchTerm, mode: "insensitive" as const } },
+			{ details: { contains: searchTerm, mode: "insensitive" as const } },
+			{
+				user: {
+					name: { contains: searchTerm, mode: "insensitive" as const },
 				},
 			},
-		});
-
-		whereClause.OR = searchConditions;
+		];
 	}
 
-	// Apply action filter
+	// Action category filter
 	if (actionFilter && actionFilter !== "all") {
 		whereClause.action = {
 			contains: actionFilter,
@@ -94,20 +80,29 @@ export async function getActivityLogs(
 		};
 	}
 
+	// Entity type filter — matches metadata->>'entityType'
+	if (entityType && entityType !== "all") {
+		whereClause.metadata = {
+			path: ["entityType"],
+			equals: entityType,
+		};
+	}
+
+	// Entity ID filter — further narrows by metadata->>'entityId'
+	if (entityId && entityId.trim() !== "") {
+		whereClause.metadata = {
+			...(whereClause.metadata ?? {}),
+			path: ["entityId"],
+			equals: entityId.trim(),
+		};
+	}
+
 	const logs = await prisma.activityLog.findMany({
 		where: whereClause,
 		include: {
-			user: {
-				select: {
-					id: true,
-					name: true,
-					email: true,
-				},
-			},
+			user: { select: { id: true, name: true, email: true } },
 		},
-		orderBy: {
-			createdAt: "desc",
-		},
+		orderBy: { createdAt: "desc" },
 		take: limit,
 	});
 
@@ -119,58 +114,27 @@ export async function getUserActivityLogs(
 	limit: number = 50,
 ): Promise<ActivityLogWithUser[]> {
 	const logs = await prisma.activityLog.findMany({
-		where: {
-			userId,
-		},
+		where: { userId },
 		include: {
-			user: {
-				select: {
-					id: true,
-					name: true,
-					email: true,
-				},
-			},
+			user: { select: { id: true, name: true, email: true } },
 		},
-		orderBy: {
-			createdAt: "desc",
-		},
+		orderBy: { createdAt: "desc" },
 		take: limit,
 	});
-
 	return logs;
 }
 
-/**
- * Get activity logs by action type
- * @param action - Action to filter by
- * @param limit - Maximum number of logs to return
- * @returns Array of activity logs
- */
 export async function getActivityLogsByAction(
 	action: string,
 	limit: number = 50,
 ): Promise<ActivityLogWithUser[]> {
 	const logs = await prisma.activityLog.findMany({
-		where: {
-			action: {
-				contains: action,
-				mode: "insensitive",
-			},
-		},
+		where: { action: { contains: action, mode: "insensitive" } },
 		include: {
-			user: {
-				select: {
-					id: true,
-					name: true,
-					email: true,
-				},
-			},
+			user: { select: { id: true, name: true, email: true } },
 		},
-		orderBy: {
-			createdAt: "desc",
-		},
+		orderBy: { createdAt: "desc" },
 		take: limit,
 	});
-
 	return logs;
 }

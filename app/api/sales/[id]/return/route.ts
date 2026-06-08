@@ -69,6 +69,8 @@ export async function POST(
 			"SALE_RETURNED",
 			`Processed return for sale ${id} — Refund: ₦${saleReturn.refundAmount.toFixed(2)} via ${returnData.refundMethod}`,
 			ipAddress,
+			undefined,
+			{ entityType: "SaleReturn", entityId: saleReturn.id, saleId: id },
 		);
 
 		return NextResponse.json(saleReturn, { status: 201 });

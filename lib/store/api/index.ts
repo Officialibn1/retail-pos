@@ -390,6 +390,8 @@ export interface ActivityLogSearchParams {
 	searchTerm?: string;
 	action?: string;
 	limit?: number;
+	entityType?: string;
+	entityId?: string;
 }
 
 // Returns list search parameters

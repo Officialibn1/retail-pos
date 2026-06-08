@@ -54,7 +54,11 @@ export async function POST(
 		const adjustmentSign = validatedData.quantity > 0 ? "+" : "";
 		const detailsText = `Adjusted stock for "${itemBefore.name}" (SKU: ${itemBefore.sku}): ${adjustmentSign}${validatedData.quantity} units (${oldStock} → ${newStock}). Reason: ${validatedData.reason}${validatedData.notes ? `. Notes: ${validatedData.notes}` : ""}`;
 
-		await logActivity(user.id, "STOCK_ADJUSTED", detailsText, ipAddress);
+		await logActivity(user.id, "STOCK_ADJUSTED", detailsText, ipAddress, undefined, {
+			entityType: "InventoryItem",
+			entityId: params.id,
+			changes: { stock: [oldStock, newStock] },
+		});
 
 		return NextResponse.json({
 			message: "Stock adjusted successfully",

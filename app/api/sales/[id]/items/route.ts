@@ -211,6 +211,8 @@ export async function PATCH(
 			"SALE_ITEMS_UPDATED",
 			`Updated items for pending sale ${id} — ${newItems.length} item(s), total: ₦${Number(result.total).toFixed(2)}`,
 			ipAddress,
+			undefined,
+			{ entityType: "Sale", entityId: id },
 		);
 
 		return NextResponse.json(result, { status: 200 });

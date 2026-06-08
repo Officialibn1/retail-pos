@@ -52,6 +52,8 @@ export async function POST(request: NextRequest) {
         user.email
       }) with roles: ${user.roles.join(", ")}`,
       ipAddress,
+      undefined,
+      { entityType: "User", entityId: user.id },
     );
 
     return NextResponse.json(

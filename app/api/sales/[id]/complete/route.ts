@@ -71,6 +71,8 @@ export async function POST(
 				2,
 			)} - Payment: ${paymentData.paymentMethod}`,
 			ipAddress,
+			undefined,
+			{ entityType: "Sale", entityId: id },
 		);
 
 		return NextResponse.json(sale, { status: 200 });

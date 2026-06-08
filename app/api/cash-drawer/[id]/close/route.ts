@@ -49,6 +49,8 @@ export async function POST(
 			"SHIFT_CLOSED",
 			`Closed shift — declared: ₦${Number(session.declaredClose).toFixed(2)}, expected: ₦${Number(session.expectedClose).toFixed(2)}, ${varianceLabel}`,
 			ipAddress,
+			undefined,
+			{ entityType: "CashDrawerSession", entityId: id, variance: Number(session.variance ?? 0) },
 		);
 
 		return NextResponse.json(

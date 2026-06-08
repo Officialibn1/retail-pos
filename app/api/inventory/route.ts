@@ -49,6 +49,8 @@ export async function POST(request: NextRequest) {
 			"INVENTORY_CREATED",
 			`Created inventory item: ${item.name} (SKU: ${item.sku})`,
 			ipAddress,
+			undefined,
+			{ entityType: "InventoryItem", entityId: item.id },
 		);
 
 		return NextResponse.json(

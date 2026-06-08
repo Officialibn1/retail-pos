@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
 			"SHIFT_OPENED",
 			`Opened shift with opening float: ₦${Number(session.openingFloat).toFixed(2)}`,
 			ipAddress,
+			undefined,
+			{ entityType: "CashDrawerSession", entityId: session.id },
 		);
 
 		return NextResponse.json(

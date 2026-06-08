@@ -151,8 +151,8 @@
 ---
 
 ### Activity Logs 🟢
-- [ ] **Structured metadata:** Store a JSON `metadata` field on `ActivityLog` alongside the free-text `details` (e.g. `{ entityType: "InventoryItem", entityId: "...", changes: { price: [old, new] } }`)
-- [ ] **Filter by entity:** Add filter dropdowns on the Activity Logs page for entity type and entity ID so specific item/sale histories are queryable without text search
+- [x] **Structured metadata:** Store a JSON `metadata` field on `ActivityLog` alongside the free-text `details` (e.g. `{ entityType: "InventoryItem", entityId: "...", changes: { price: [old, new] } }`)
+- [x] **Filter by entity:** Add filter dropdowns on the Activity Logs page for entity type and entity ID so specific item/sale histories are queryable without text search
 
 ---
 
