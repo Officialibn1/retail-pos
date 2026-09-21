@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -17,8 +14,7 @@ model Session {
   expires   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -27,10 +23,10 @@ model PasswordResetToken {
   id        String    @id @default(cuid())
   token     String    @unique
   userId    String
-  otp       String?
-  type      ResetType @default(LINK)
   expires   DateTime
   createdAt DateTime  @default(now())
+  otp       String?
+  type      ResetType @default(LINK)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -38,27 +34,24 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-enum ResetType {
-  LINK
-  OTP
-}
-
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  username  String     @unique
-  name      String
-  password  String
-  roles     UserRole[] @default([CASHIER])
-  status    UserStatus @default(ACTIVE)
-  shift     Shift      @default(MORNING)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  sessions            Session[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  username            String               @unique
+  name                String
+  password            String
+  roles               UserRole[]           @default([CASHIER])
+  shift               Shift                @default(MORNING)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  status              UserStatus           @default(ACTIVE)
+  activityLogs        ActivityLog[]
+  cashDrawerSessions  CashDrawerSession[]
+  expenses            Expense[]
   passwordResetTokens PasswordResetToken[]
   sales               Sale[]
-  activityLogs        ActivityLog[]
+  saleReturns         SaleReturn[]
+  sessions            Session[]
 
   @@map("users")
 }
@@ -68,11 +61,11 @@ model ActivityLog {
   userId    String
   action    String
   details   String
+  metadata  Json?
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -87,8 +80,7 @@ model Customer {
   email     String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  sales Sale[]
+  sales     Sale[]
 
   @@index([phone, name])
   @@index([createdAt])
@@ -96,32 +88,37 @@ model Customer {
 }
 
 model InventoryItemCategory {
-  id   String @id @default(cuid())
-  name String @unique
-
+  id             String          @id @default(cuid())
+  name           String          @unique
   inventoryItems InventoryItem[]
 
   @@map("inventory_item_categories")
 }
 
 model InventoryItem {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal   @db.Decimal(10, 2)
-  stock       Int       @default(0)
-  sku         String    @unique
-  barcode     String?   @unique
-  categoryId  String
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  saleItems      SaleItem[]
-  category       InventoryItemCategory @relation(fields: [categoryId], references: [id])
-  stockMovements StockMovement[]
+  id                 String                @id @default(cuid())
+  name               String
+  description        String?
+  price              Decimal               @db.Decimal(10, 2)
+  cost               Decimal?              @db.Decimal(10, 2)
+  stock              Int                   @default(0)
+  reorderLevel       Int                   @default(10)
+  sku                String                @unique
+  barcode            String?               @unique
+  categoryId         String
+  supplierId         String?
+  deletedAt          DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  category           InventoryItemCategory @relation(fields: [categoryId], references: [id])
+  supplier           Supplier?             @relation(fields: [supplierId], references: [id])
+  saleItems          SaleItem[]
+  saleReturnItems    SaleReturnItem[]
+  stockMovements     StockMovement[]
+  purchaseOrderItems PurchaseOrderItem[]
 
   @@index([categoryId])
+  @@index([supplierId])
   @@index([barcode])
   @@index([deletedAt])
   @@index([categoryId, deletedAt])
@@ -130,15 +127,62 @@ model InventoryItem {
   @@map("inventory_items")
 }
 
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  phone          String?         @unique
+  email          String?         @unique
+  address        String?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  inventoryItems InventoryItem[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([name])
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id         String              @id @default(cuid())
+  supplierId String
+  status     PurchaseOrderStatus @default(PENDING)
+  notes      String?
+  totalCost  Decimal             @db.Decimal(10, 2)
+  receivedAt DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  supplier   Supplier            @relation(fields: [supplierId], references: [id])
+  items      PurchaseOrderItem[]
+
+  @@index([supplierId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  inventoryItemId String
+  quantity        Int
+  unitCost        Decimal       @db.Decimal(10, 2)
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@index([inventoryItemId])
+  @@map("purchase_order_items")
+}
+
 model StockMovement {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   inventoryItemId String
   quantity        Int
   reason          String
   notes           String?
-  createdAt       DateTime @default(now())
-
-  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  createdAt       DateTime      @default(now())
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
 
   @@index([inventoryItemId])
   @@index([createdAt])
@@ -148,25 +192,26 @@ model StockMovement {
 
 model Sale {
   id             String         @id @default(cuid())
-  subTotal       Decimal        @db.Decimal(10, 2)
   total          Decimal        @db.Decimal(10, 2)
   status         SaleStatus     @default(PENDING)
   paymentMethod  PaymentMethod?
   amountPaid     Decimal?       @db.Decimal(10, 2)
   changeGiven    Decimal?       @db.Decimal(10, 2)
-  taxAmount      Int?
-  discountAmount Int?
   completedAt    DateTime?
   cancelledAt    DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  customerId String?
-  customer   Customer? @relation(fields: [customerId], references: [id])
-
-  items SaleItem[]
+  userId         String
+  customerId     String?
+  discountAmount Int?
+  taxAmount      Int?
+  subTotal       Decimal        @db.Decimal(10, 2)
+  promotionId    String?
+  items          SaleItem[]
+  returns        SaleReturn[]
+  customer       Customer?      @relation(fields: [customerId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  promotion      Promotion?     @relation(fields: [promotionId], references: [id])
 
   @@index([userId])
   @@index([customerId])
@@ -177,23 +222,153 @@ model Sale {
   @@index([customerId, status, createdAt])
   @@index([paymentMethod, status])
   @@index([completedAt])
+  @@index([promotionId])
   @@map("sales")
 }
 
+model Promotion {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  description String?
+  type        PromotionType
+  value       Decimal        @db.Decimal(10, 4)
+  scope       PromotionScope
+  targetId    String? // categoryId or inventoryItemId when scope != ALL
+  isActive    Boolean        @default(true)
+  expiresAt   DateTime?
+  usageLimit  Int?
+  usageCount  Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  sales       Sale[]
+
+  @@index([code])
+  @@index([isActive, expiresAt])
+  @@map("promotions")
+}
+
 model SaleItem {
-  id       String  @id @default(cuid())
-  quantity Int
-  price    Decimal @db.Decimal(10, 2)
-
-  saleId String
-  sale   Sale   @relation(fields: [saleId], references: [id])
-
+  id              String        @id @default(cuid())
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  note            String?
+  saleId          String
   inventoryItemId String
   inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  sale            Sale          @relation(fields: [saleId], references: [id])
 
   @@index([inventoryItemId, saleId])
   @@index([quantity, price])
   @@map("sale_items")
+}
+
+model SaleReturn {
+  id            String           @id @default(cuid())
+  saleId        String
+  reason        String
+  refundAmount  Decimal          @db.Decimal(10, 2)
+  refundMethod  PaymentMethod
+  processedById String
+  createdAt     DateTime         @default(now())
+  items         SaleReturnItem[]
+  sale          Sale             @relation(fields: [saleId], references: [id])
+  processedBy   User             @relation(fields: [processedById], references: [id])
+
+  @@index([saleId])
+  @@index([processedById])
+  @@index([createdAt])
+  @@map("sale_returns")
+}
+
+model SaleReturnItem {
+  id              String        @id @default(cuid())
+  returnId        String
+  inventoryItemId String
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  saleReturn      SaleReturn    @relation(fields: [returnId], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([returnId])
+  @@index([inventoryItemId])
+  @@map("sale_return_items")
+}
+
+model CashDrawerSession {
+  id            String    @id @default(cuid())
+  userId        String
+  openingFloat  Decimal   @db.Decimal(10, 2)
+  declaredClose Decimal?  @db.Decimal(10, 2)
+  expectedClose Decimal?  @db.Decimal(10, 2)
+  variance      Decimal?  @db.Decimal(10, 2)
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+  notes         String?
+  user          User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([openedAt])
+  @@index([closedAt])
+  @@map("cash_drawer_sessions")
+}
+
+model Expense {
+  id           String          @id @default(cuid())
+  title        String
+  amount       Decimal         @db.Decimal(10, 2)
+  category     ExpenseCategory
+  description  String?
+  date         DateTime        @default(now())
+  recordedById String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  recordedBy   User            @relation(fields: [recordedById], references: [id])
+
+  @@index([recordedById])
+  @@index([date])
+  @@index([category])
+  @@index([date, category])
+  @@map("expenses")
+}
+
+model StoreInfo {
+  id             String   @id @default("singleton")
+  name           String   @default("POS Store")
+  address        String   @default("")
+  phone          String   @default("")
+  email          String?
+  taxRate        Decimal  @default(0.1) @db.Decimal(5, 4)
+  primaryColor   String   @default("#7c3aed")
+  secondaryColor String   @default("#a78bfa")
+  logoUrl        String   @default("/pos_logo.png")
+  currencySymbol String   @default("₦")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("store_info")
+}
+
+enum PurchaseOrderStatus {
+  PENDING
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED
+}
+
+enum PromotionScope {
+  ALL
+  CATEGORY
+  ITEM
+}
+
+enum ResetType {
+  LINK
+  OTP
 }
 
 enum UserRole {
@@ -226,4 +401,14 @@ enum PaymentMethod {
   CARD
   MOBILE_MONEY
   BANK_TRANSFER
+}
+
+enum ExpenseCategory {
+  RENT
+  SALARIES
+  UTILITIES
+  RESTOCKING
+  MAINTENANCE
+  MARKETING
+  OTHER
 }

@@ -22,12 +22,14 @@ interface TableDef {
 	handleEditItem: (item: InventoryItemWithCategory) => void;
 	handleDeleteItem: (item: InventoryItemWithCategory) => void;
 	handleAdjustStock: (item: InventoryItemWithCategory) => void;
+	currencySymbol?: string;
 }
 
 export const inventoryTableDef = ({
 	handleEditItem,
 	handleDeleteItem,
 	handleAdjustStock,
+	currencySymbol = "₦",
 }: TableDef) => {
 	const column: ColumnDef<InventoryItemWithCategory>[] = [
 		{
@@ -53,7 +55,7 @@ export const inventoryTableDef = ({
 			accessorKey: "price",
 			cell: ({ row }) => (
 				<div className='flex w-full justify-end text-end'>
-					{formatNaira(row.original.price)}
+					{formatNaira(row.original.price, currencySymbol)}
 				</div>
 			),
 		},
@@ -62,7 +64,7 @@ export const inventoryTableDef = ({
 			accessorKey: "stock",
 			cell: ({ row }) => (
 				<div className='flex items-center gap-2 justify-end'>
-					{row.original.stock < 10 && (
+					{row.original.stock <= row.original.reorderLevel && (
 						<AlertTriangle className='h-4 w-4 text-amber-500 mr-auto' />
 					)}
 					{row.original.stock}
@@ -73,7 +75,7 @@ export const inventoryTableDef = ({
 			header: "Status",
 			accessorKey: "stock",
 			cell: ({ row }) => {
-				const stockStatus = getStockStatus(row.original.stock);
+				const stockStatus = getStockStatus(row.original.stock, row.original.reorderLevel);
 
 				return (
 					<Badge

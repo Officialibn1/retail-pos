@@ -4,201 +4,176 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-	/* Brand color palette - UPDATE THESE TO CHANGE YOUR ENTIRE THEME */
-	/*--color-brand-main-50: #f3f7f8;
-    --color-brand-main-100: #e0e9ed;
-    --color-brand-main-200: #c5d5dc;
-    --color-brand-main-300: #9cb7c4;
-    --color-brand-main-400: #6d91a3;
-    --color-brand-main-500: #517689;
-    --color-brand-main-600: #466274;
-    --color-brand-main-700: #3c505e;
-    --color-brand-main-800: #384752;
-    --color-brand-main-900: #323d47;
-    --color-brand-main-950: #1e262e;*/
+  /* Brand color palette - UPDATE THESE TO CHANGE YOUR ENTIRE THEME */
+  /* --color-brand-main-50: #f3fcf1;
+	--color-brand-main-100: #e0fbdd;
+	--color-brand-main-200: #c3f5bd;
+	--color-brand-main-300: #93eb8a;
+	--color-brand-main-400: #5dd850;
+	--color-brand-main-500: #36be29;
+	--color-brand-main-600: #29a51d;
+	--color-brand-main-700: #217c19;
+	--color-brand-main-800: #1f6219;
+	--color-brand-main-900: #1a5017;
+	--color-brand-main-950: #092c07; */
 
-	/*Apple Green*/
-	/* --color-brand-main-50: #f3f8ed;
-	--color-brand-main-100: #e2f0d7;
-	--color-brand-main-200: #c8e2b4;
-	--color-brand-main-300: #a5ce88;
-	--color-brand-main-400: #85b962;
-	--color-brand-main-500: #6ba547;
-	--color-brand-main-600: #4e7d33;
-	--color-brand-main-700: #3d602b;
-	--color-brand-main-800: #334e26;
-	--color-brand-main-900: #2e4324;
-	--color-brand-main-950: #15240f; */
+  /* --color-brand-main-50: #f6f6f9;
+  --color-brand-main-100: #ecedf2;
+  --color-brand-main-200: #d5d7e2;
+  --color-brand-main-300: #b0b5c9;
+  --color-brand-main-400: #868eaa;
+  --color-brand-main-500: #626b8a;
+  --color-brand-main-600: #525977;
+  --color-brand-main-700: #434861;
+  --color-brand-main-800: #3a3e52;
+  --color-brand-main-900: #343746;
+  --color-brand-main-950: #22242f; */
 
-	/*Calypso blue*/
-	/* --color-brand-main-50: #f1f8fa;
-    --color-brand-main-100: #dcedf1;
-    --color-brand-main-200: #bedbe3;
-    --color-brand-main-300: #90c1d0;
-    --color-brand-main-400: #5c9fb4;
-    --color-brand-main-500: #40839a;
-    --color-brand-main-600: #396d84;
-    --color-brand-main-700: #33596b;
-    --color-brand-main-800: #304b5a;
-    --color-brand-main-900: #2c404d;
-    --color-brand-main-950: #192933; */
+  --color-brand-main-50: #f2fbfb;
+  --color-brand-main-100: #d4f3f3;
+  --color-brand-main-200: #a9e6e6;
+  --color-brand-main-300: #75cfd3;
+  --color-brand-main-400: #49b0b8;
+  --color-brand-main-500: #30929c;
+  --color-brand-main-600: #24737d;
+  --color-brand-main-700: #205d65;
+  --color-brand-main-800: #1e4a51;
+  --color-brand-main-900: #1c3d42;
+  --color-brand-main-950: #0b2328;
 
-	/* --color-brand-main-50: #f9f5ed;
-	--color-brand-main-100: #f1e6d0;
-	--color-brand-main-200: #e4cca4;
-	--color-brand-main-300: #d4ac70;
-	--color-brand-main-400: #c8914c;
-	--color-brand-main-500: #b77b3b;
-	--color-brand-main-600: #9e5f30;
-	--color-brand-main-700: #7f4729;
-	--color-brand-main-800: #6a3b29;
-	--color-brand-main-900: #5c3327;
-	--color-brand-main-950: #351a13; */
-
-	--color-brand-main-50: #fafaf9;
-	--color-brand-main-100: #f5f5f4;
-	--color-brand-main-200: #e8e6e3;
-	--color-brand-main-300: #d8d5cf;
-	--color-brand-main-400: #aca69a;
-	--color-brand-main-500: #8c8473;
-	--color-brand-main-600: #5b574a;
-	--color-brand-main-700: #474439;
-	--color-brand-main-800: #2b2622;
-	--color-brand-main-900: #1e1b15;
-	--color-brand-main-950: #0d0b08;
-
-	/* Light theme - References brand main variables */
-	--background: var(--color-brand-main-50);
-	--foreground: var(--color-brand-main-950);
-	--card: #ffffff;
-	--card-foreground: var(--color-brand-main-950);
-	--popover: #ffffff;
-	--popover-foreground: var(--color-brand-main-950);
-	--primary: var(--color-brand-main-600);
-	--primary-foreground: var(--color-brand-main-50);
-	--secondary: var(--color-brand-main-100);
-	--secondary-foreground: var(--color-brand-main-900);
-	--muted: var(--color-brand-main-100);
-	--muted-foreground: var(--color-brand-main-500);
-	--accent: var(--color-brand-main-200);
-	--accent-foreground: var(--color-brand-main-900);
-	--destructive: #dc2626;
-	--destructive-foreground: #ffffff;
-	--border: var(--color-brand-main-200);
-	--input: var(--color-brand-main-200);
-	--ring: var(--color-brand-main-600);
-	--chart-1: var(--color-brand-main-600);
-	--chart-2: var(--color-brand-main-500);
-	--chart-3: var(--color-brand-main-400);
-	--chart-4: var(--color-brand-main-200);
-	--chart-5: var(--color-brand-main-700);
-	--radius: 0.625rem;
-	--sidebar: var(--color-brand-main-50);
-	--sidebar-foreground: var(--color-brand-main-950);
-	--sidebar-primary: var(--color-brand-main-600);
-	--sidebar-primary-foreground: var(--color-brand-main-50);
-	--sidebar-accent: var(--color-brand-main-100);
-	--sidebar-accent-foreground: var(--color-brand-main-900);
-	--sidebar-border: var(--color-brand-main-200);
-	--sidebar-ring: var(--color-brand-main-600);
+  /* Light theme - References brand main variables */
+  --background: #f4f4f5;
+  --foreground: var(--color-brand-main-950);
+  --card: #ffffff;
+  --card-foreground: var(--color-brand-main-950);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-brand-main-950);
+  --primary: var(--color-brand-main-900);
+  --primary-foreground: #e7e6e6;
+  --secondary: var(--color-brand-main-100);
+  --secondary-foreground: var(--color-brand-main-900);
+  --muted: #fafafa;
+  --muted-foreground: #2d2d30;
+  --accent: var(--color-brand-main-200);
+  --accent-foreground: var(--color-brand-main-900);
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e7e6e6;
+  --input: #e7e6e6;
+  --ring: var(--color-brand-main-600);
+  --chart-1: var(--color-brand-main-600);
+  --chart-2: var(--color-brand-main-500);
+  --chart-3: var(--color-brand-main-400);
+  --chart-4: var(--color-brand-main-200);
+  --chart-5: var(--color-brand-main-700);
+  --radius: 0.625rem;
+  --sidebar: var(--color-brand-main-50);
+  --sidebar-foreground: var(--color-brand-main-950);
+  --sidebar-primary: var(--color-brand-main-600);
+  --sidebar-primary-foreground: var(--color-brand-main-50);
+  --sidebar-accent: var(--color-brand-main-100);
+  --sidebar-accent-foreground: var(--color-brand-main-900);
+  --sidebar-border: var(--color-brand-main-200);
+  --sidebar-ring: var(--color-brand-main-600);
 }
 
 .dark {
-	/* Brand color palette stays the same in dark mode */
-	/* No need to redefine brand-main variables unless you want different colors in dark mode */
+  /* Brand color palette stays the same in dark mode */
+  /* No need to redefine brand-main variables unless you want different colors in dark mode */
 
-	/* Dark theme - References brand main variables */
-	--background: var(--color-brand-main-950);
-	--foreground: var(--color-brand-main-50);
-	--card: var(--color-brand-main-900);
-	--card-foreground: var(--color-brand-main-50);
-	--popover: var(--color-brand-main-900);
-	--popover-foreground: var(--color-brand-main-50);
-	--primary: var(--color-brand-main-400);
-	--primary-foreground: var(--color-brand-main-950);
-	--secondary: var(--color-brand-main-900);
-	--secondary-foreground: var(--color-brand-main-100);
-	--muted: var(--color-brand-main-900);
-	--muted-foreground: var(--color-brand-main-500);
-	--accent: var(--color-brand-main-800);
-	--accent-foreground: var(--color-brand-main-100);
-	--destructive: #ef4444;
-	--destructive-foreground: #ffffff;
-	--border: var(--color-brand-main-800);
-	--input: var(--color-brand-main-800);
-	--ring: var(--color-brand-main-400);
-	--chart-1: var(--color-brand-main-400);
-	--chart-2: var(--color-brand-main-500);
-	--chart-3: var(--color-brand-main-200);
-	--chart-4: var(--color-brand-main-600);
-	--chart-5: var(--color-brand-main-800);
-	--sidebar: var(--color-brand-main-900);
-	--sidebar-foreground: var(--color-brand-main-50);
-	--sidebar-primary: var(--color-brand-main-400);
-	--sidebar-primary-foreground: var(--color-brand-main-950);
-	--sidebar-accent: var(--color-brand-main-900);
-	--sidebar-accent-foreground: var(--color-brand-main-100);
-	--sidebar-border: var(--color-brand-main-800);
-	--sidebar-ring: var(--color-brand-main-400);
+  /* Dark theme - References brand main variables */
+  --background: var(--color-brand-main-950);
+  --foreground: var(--color-brand-main-50);
+  --card: var(--color-brand-main-900);
+  --card-foreground: var(--color-brand-main-50);
+  --popover: var(--color-brand-main-900);
+  --popover-foreground: var(--color-brand-main-50);
+  --primary: var(--color-brand-main-400);
+  --primary-foreground: var(--color-brand-main-950);
+  --secondary: var(--color-brand-main-900);
+  --secondary-foreground: var(--color-brand-main-100);
+  --muted: var(--color-brand-main-900);
+  --muted-foreground: var(--color-brand-main-500);
+  --accent: var(--color-brand-main-800);
+  --accent-foreground: var(--color-brand-main-100);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e7e6e6;
+  --input: #e7e6e6;
+  --placeholder: #efefef;
+  --ring: var(--color-brand-main-400);
+  --chart-1: var(--color-brand-main-400);
+  --chart-2: var(--color-brand-main-500);
+  --chart-3: var(--color-brand-main-200);
+  --chart-4: var(--color-brand-main-600);
+  --chart-5: var(--color-brand-main-800);
+  --sidebar: var(--color-brand-main-900);
+  --sidebar-foreground: var(--color-brand-main-50);
+  --sidebar-primary: var(--color-brand-main-400);
+  --sidebar-primary-foreground: var(--color-brand-main-950);
+  --sidebar-accent: var(--color-brand-main-900);
+  --sidebar-accent-foreground: var(--color-brand-main-100);
+  --sidebar-border: var(--color-brand-main-800);
+  --sidebar-ring: var(--color-brand-main-400);
 }
 
 @theme inline {
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-	--color-brand-main-50: var(--color-brand-main-50);
-	--color-brand-main-100: var(--color-brand-main-100);
-	--color-brand-main-200: var(--color-brand-main-200);
-	--color-brand-main-300: var(--color-brand-main-300);
-	--color-brand-main-400: var(--color-brand-main-400);
-	--color-brand-main-500: var(--color-brand-main-500);
-	--color-brand-main-600: var(--color-brand-main-600);
-	--color-brand-main-700: var(--color-brand-main-700);
-	--color-brand-main-800: var(--color-brand-main-800);
-	--color-brand-main-900: var(--color-brand-main-900);
-	--color-brand-main-950: var(--color-brand-main-950);
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-destructive-foreground: var(--destructive-foreground);
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-brand-main-50: var(--color-brand-main-50);
+  --color-brand-main-100: var(--color-brand-main-100);
+  --color-brand-main-200: var(--color-brand-main-200);
+  --color-brand-main-300: var(--color-brand-main-300);
+  --color-brand-main-400: var(--color-brand-main-400);
+  --color-brand-main-500: var(--color-brand-main-500);
+  --color-brand-main-600: var(--color-brand-main-600);
+  --color-brand-main-700: var(--color-brand-main-700);
+  --color-brand-main-800: var(--color-brand-main-800);
+  --color-brand-main-900: var(--color-brand-main-900);
+  --color-brand-main-950: var(--color-brand-main-950);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

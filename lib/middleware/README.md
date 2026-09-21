@@ -1,169 +1,97 @@
-# Authentication Middleware
+# Middleware & Error Handling
 
-This module provides authentication and authorization middleware for Next.js API routes.
+## Authentication Middleware (`lib/middleware/auth.ts`)
 
-## Usage
+### `requireAuth(request)`
+Validates the `auth-token` cookie, verifies the JWT, and checks the session exists in the DB. Returns `{ request: AuthenticatedRequest }` on success or a `NextResponse` error on failure. Also blocks `BLOCKED` users at this layer.
 
-### Basic Authentication
-
-To protect a route and require authentication:
+### `requireRoles(roles[])` / helpers
+Factory that returns a role-check function. Returns `null` if the user has a matching role, or a `403 NextResponse` otherwise.
 
 ```typescript
-import { NextRequest } from "next/server";
-import { requireAuth } from "@/lib/middleware";
-
-export async function GET(request: NextRequest) {
-	// Require authentication
-	const authResult = await requireAuth(request);
-
-	// Check if authentication failed
-	if (authResult instanceof Response) {
-		return authResult; // Return error response
-	}
-
-	// Extract authenticated request
-	const { request: authenticatedRequest } = authResult;
-
-	// Access user information
-	const user = authenticatedRequest.user;
-	console.log(user.id, user.email, user.roles);
-
-	// Your route logic here
-	return Response.json({ message: "Success", user });
-}
+requireSuperAdmin()       // SUPERADMIN only
+requireManager()          // SUPERADMIN | MANAGER
+requireCategoryManager()  // SUPERADMIN | MANAGER | ADMIN
+requireCustomerManager()  // SUPERADMIN | MANAGER | ADMIN
+requireAnyRole()          // any authenticated role
 ```
 
-### Role-Based Authorization
-
-To require specific roles:
+### Route protection pattern
 
 ```typescript
-import { NextRequest } from "next/server";
-import { requireAuth, requireRoles } from "@/lib/middleware";
-import { UserRole } from "@/generated/prisma/client";
-
 export async function POST(request: NextRequest) {
-	// Require authentication
-	const authResult = await requireAuth(request);
-	if (authResult instanceof Response) {
-		return authResult;
-	}
+  // 1. Auth
+  const authResult = await requireAuth(request);
+  if (authResult instanceof NextResponse) return authResult;
 
-	const { request: authenticatedRequest } = authResult;
+  // 2. Role (if needed)
+  const roleCheck = requireSuperAdmin()(authResult.request);
+  if (roleCheck) return roleCheck;
 
-	// Require MANAGER role or higher
-	const roleCheck = requireRoles([
-		UserRole.SUPERADMIN,
-		UserRole.ADMIN,
-		UserRole.MANAGER,
-	])(authenticatedRequest);
+  // 3. Mutation status (blocks SUSPENDED users from writes)
+  const statusCheck = await requireActiveMutation(authResult.request.user.id);
+  if (statusCheck) return statusCheck;
 
-	if (roleCheck) {
-		return roleCheck; // Return forbidden response
-	}
-
-	// User has required role, proceed with logic
-	return Response.json({ message: "Authorized" });
+  // ... route logic
 }
 ```
 
-### Using Helper Functions
+## User Status Middleware (`lib/middleware/user-status.ts`)
 
-For common role requirements:
+| Function | Blocks |
+|---|---|
+| `requireActiveMutation(userId)` | SUSPENDED + BLOCKED users (use on POST/PUT/DELETE) |
+| `requireActiveAccess(userId)` | BLOCKED users only (use on GET if needed) |
+
+## Error Handling (`lib/errors.ts`)
+
+All errors follow this response shape:
+```json
+{ "error": { "message": "...", "code": "ERROR_CODE", "details": {} } }
+```
+
+### `handleError(error, context)` — recommended catch-all
+
+Automatically detects Zod errors, Prisma errors, and generic errors:
+```typescript
+} catch (error) {
+  return handleError(error, "POST /api/users");
+}
+```
+
+### `withErrorHandling(handler, context)` — wrapper
 
 ```typescript
-import { NextRequest } from "next/server";
-import {
-	requireAuth,
-	requireSuperAdmin,
-	requireManager,
-} from "@/lib/middleware";
-
-// SUPERADMIN only endpoint
-export async function DELETE(request: NextRequest) {
-	const authResult = await requireAuth(request);
-	if (authResult instanceof Response) return authResult;
-
-	const { request: authenticatedRequest } = authResult;
-
-	const roleCheck = requireSuperAdmin()(authenticatedRequest);
-	if (roleCheck) return roleCheck;
-
-	// Only SUPERADMIN can reach here
-	return Response.json({ message: "Admin action completed" });
-}
-
-// MANAGER or higher endpoint
-export async function PUT(request: NextRequest) {
-	const authResult = await requireAuth(request);
-	if (authResult instanceof Response) return authResult;
-
-	const { request: authenticatedRequest } = authResult;
-
-	const roleCheck = requireManager()(authenticatedRequest);
-	if (roleCheck) return roleCheck;
-
-	// MANAGER, ADMIN, or SUPERADMIN can reach here
-	return Response.json({ message: "Manager action completed" });
-}
+export const POST = withErrorHandling(async (request) => {
+  // errors caught automatically
+}, "POST /api/users");
 ```
 
-## Error Responses
+### Specific handlers
 
-### 401 Unauthorized
-
-Returned when:
-
-- No authentication token is provided
-- Token is invalid or expired
-- Session not found in database
-- User no longer exists
-
-Example response:
-
-```json
-{
-	"error": {
-		"message": "Authentication required",
-		"code": "UNAUTHORIZED"
-	}
-}
+```typescript
+handleValidationError(zodError)
+handlePrismaError(prismaError, context)
+handleNotFoundError("User", id)          // → 404
+handleAuthenticationError("message")     // → 401
+handleAuthorizationError("message")      // → 403
+handleBusinessRuleError("message", data) // → 422
 ```
 
-### 403 Forbidden
+### Error codes
 
-Returned when:
+| Code | Status | Meaning |
+|---|---|---|
+| `VALIDATION_ERROR` | 400 | Zod schema failure |
+| `UNAUTHORIZED` | 401 | Not authenticated |
+| `INVALID_CREDENTIALS` | 401 | Wrong email/password |
+| `FORBIDDEN` | 403 | Insufficient role |
+| `USER_BLOCKED` | 403 | Account blocked |
+| `USER_SUSPENDED` | 403 | Account suspended (mutations only) |
+| `NOT_FOUND` | 404 | Resource not found |
+| `CONFLICT` | 409 | Unique constraint violation |
+| `BUSINESS_RULE_VIOLATION` | 422 | Domain logic failure |
+| `INSUFFICIENT_STOCK` | 422 | Not enough inventory |
+| `INTERNAL_ERROR` | 500 | Unexpected server error |
 
-- User is authenticated but lacks required role permissions
-
-Example response:
-
-```json
-{
-	"error": {
-		"message": "Insufficient permissions",
-		"code": "FORBIDDEN",
-		"details": {
-			"required": ["SUPERADMIN"],
-			"current": ["CASHIER"]
-		}
-	}
-}
-```
-
-## Available Helper Functions
-
-- `requireAuth(request)` - Validates JWT and session, returns authenticated request
-- `requireRoles(roles)` - Factory function that returns role checker middleware
-- `requireSuperAdmin()` - Shorthand for requiring SUPERADMIN role
-- `requireManager()` - Shorthand for requiring MANAGER, ADMIN, or SUPERADMIN
-- `requireAnyRole()` - Shorthand for requiring any authenticated user
-
-## Security Features
-
-- JWT token validation
-- Session verification against database
-- User existence check
-- Automatic expired session cleanup
-- HTTP-only cookie extraction
-- Detailed error responses with appropriate status codes
+Internal errors are logged server-side with full context but return only a generic message to the client.

@@ -15,6 +15,7 @@ import {
 	type ChartConfig,
 } from "@/components/ui/chart";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface RevenueChartProps {
 	data: Array<{
@@ -26,12 +27,13 @@ interface RevenueChartProps {
 
 const chartConfig = {
 	revenue: {
-		label: "Revenue (₦)",
+		label: "Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 } satisfies ChartConfig;
 
 export function RevenueChart({ data }: RevenueChartProps) {
+	const c = useCurrencySymbol();
 	return (
 		<div className='h-[550px]'>
 			<ChartContainer
@@ -55,13 +57,13 @@ export function RevenueChart({ data }: RevenueChartProps) {
 						axisLine={false}
 						width={80}
 						className='text-brand-main-600'
-						tickFormatter={(value) => `₦${formatCurrency(value)}`}
+						tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 					/>
 					<ChartTooltip
 						content={<ChartTooltipContent />}
 						formatter={(value) => [
 							"Revenue: ",
-							`₦${formatCurrency(Number(value))}`,
+							`${c}${formatCurrency(Number(value))}`,
 						]}
 					/>
 					<Line

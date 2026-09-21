@@ -28,6 +28,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { PaymentBreakdownResult, PaymentMethod } from "@/lib/types";
 import {
 	CreditCard,
@@ -55,7 +56,7 @@ type MetricType = "amount" | "count";
 
 const chartConfig = {
 	totalAmount: {
-		label: "Amount (₦)",
+		label: "Amount",
 		color: "var(--color-brand-main-600)",
 	},
 	transactionCount: {
@@ -100,6 +101,7 @@ export function PaymentMethodChart({
 	data,
 	onPaymentMethodClick,
 }: PaymentMethodChartProps) {
+	const c = useCurrencySymbol();
 	const [viewMode, setViewMode] = useState<ViewMode>("chart");
 	const [metricType, setMetricType] = useState<MetricType>("amount");
 	const [sortField, setSortField] = useState<SortField>("totalAmount");
@@ -160,7 +162,7 @@ export function PaymentMethodChart({
 					<p className='font-semibold text-sm mb-2'>{label}</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
-							<span className='font-medium'>Total Amount:</span> ₦
+							<span className='font-medium'>Total Amount:</span> {c}
 							{formatCurrency(data.totalAmount)}
 						</p>
 						<p className='text-sm'>
@@ -172,7 +174,7 @@ export function PaymentMethodChart({
 							{data.percentageOfTotal.toFixed(1)}%
 						</p>
 						<p className='text-sm'>
-							<span className='font-medium'>Avg per Transaction:</span> ₦
+							<span className='font-medium'>Avg per Transaction:</span> {c}
 							{formatCurrency(data.totalAmount / data.transactionCount)}
 						</p>
 					</div>
@@ -277,7 +279,7 @@ export function PaymentMethodChart({
 							</Badge>
 						</div>
 						<span className='text-nowrap'>
-							Total Amount: <b>₦{formatCurrency(data.totalAmount)}</b>
+							Total Amount: <b>{c}{formatCurrency(data.totalAmount)}</b>
 						</span>
 						<span className='text-nowrap'>
 							Total Transactions: <b>{totalTransactions.toLocaleString()}</b>
@@ -291,7 +293,7 @@ export function PaymentMethodChart({
 						<div className='flex items-center gap-4 flex-wrap'>
 							<span className='text-nowrap'>
 								Avg Transaction:{" "}
-								<b>₦{formatCurrency(averageTransactionValue)}</b>
+								<b>{c}{formatCurrency(averageTransactionValue)}</b>
 							</span>
 							{data.paymentMethods.length > 0 && (
 								<span className='text-nowrap'>
@@ -357,7 +359,7 @@ export function PaymentMethodChart({
 										className='text-brand-main-600'
 										tickFormatter={(value) =>
 											metricType === "amount"
-												? `₦${formatCurrency(value)}`
+												? `${c}${formatCurrency(value)}`
 												: value.toLocaleString()
 										}
 									/>
@@ -379,7 +381,7 @@ export function PaymentMethodChart({
 											fontSize={12}
 											formatter={(value) =>
 												metricType === "amount"
-													? `₦${formatCurrency(value as unknown as number)}`
+													? `${c}${formatCurrency(value as unknown as number)}`
 													: value
 											}
 										/>
@@ -436,7 +438,7 @@ export function PaymentMethodChart({
 												</div>
 											</TableCell>
 											<TableCell className='text-right font-medium'>
-												₦{formatCurrency(method.totalAmount)}
+												{c}{formatCurrency(method.totalAmount)}
 											</TableCell>
 											<TableCell className='text-right'>
 												{method.transactionCount.toLocaleString()}
@@ -447,7 +449,7 @@ export function PaymentMethodChart({
 												</Badge>
 											</TableCell>
 											<TableCell className='text-right'>
-												₦{formatCurrency(avgPerTransaction)}
+												{c}{formatCurrency(avgPerTransaction)}
 											</TableCell>
 										</TableRow>
 									);

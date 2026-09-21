@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Users, Loader2 } from "lucide-react";
@@ -241,25 +241,25 @@ export default function UsersPage() {
 		<div className='space-y-6 p-6'>
 			<div className='flex items-center justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-800'>
+					<h1 className='text-3xl font-bold text-brand-main-900'>
 						User Management
 					</h1>
-					<p className='text-brand-main-600 mt-1'>
+					<p className='text-brand-main-800 mt-1'>
 						Manage store users and their permissions
 					</p>
 				</div>
 				<Button
 					onClick={() => setShowAddDialog(true)}
-					className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+					className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 					<Plus className='h-4 w-4 mr-2' />
 					Add User
 				</Button>
 			</div>
 
 			<div className='grid gap-4 md:grid-cols-3'>
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Total Users
 						</CardTitle>
 						<Users className='h-4 w-4 text-brand-main-600' />
@@ -268,13 +268,13 @@ export default function UsersPage() {
 						<div className='text-2xl font-bold text-brand-main-800'>
 							{usersData?.count}
 						</div>
-						<p className='text-xs text-brand-main-600'>Active users</p>
+						<CardDescription>Active users</CardDescription>
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Morning Shift
 						</CardTitle>
 						<Users className='h-4 w-4 text-brand-main-600' />
@@ -283,15 +283,15 @@ export default function UsersPage() {
 						<div className='text-2xl font-bold text-brand-main-800'>
 							{morningShiftUsers}
 						</div>
-						<p className='text-xs text-brand-main-600'>
+						<CardDescription>
 							Users on morning shift
-						</p>
+						</CardDescription>
 					</CardContent>
 				</Card>
 
-				<Card className='border-brand-main-200'>
+				<Card className=' '>
 					<CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-						<CardTitle className='text-sm font-medium text-brand-main-700'>
+						<CardTitle>
 							Evening Shift
 						</CardTitle>
 						<Users className='h-4 w-4 text-brand-main-600' />
@@ -300,14 +300,14 @@ export default function UsersPage() {
 						<div className='text-2xl font-bold text-brand-main-800'>
 							{eveningShiftUsers}
 						</div>
-						<p className='text-xs text-brand-main-600'>
+						<CardDescription>
 							Users on evening shift
-						</p>
+						</CardDescription>
 					</CardContent>
 				</Card>
 			</div>
 
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800'>Users</CardTitle>
 					<div className='flex gap-4 mt-4 w-full'>
@@ -320,12 +320,12 @@ export default function UsersPage() {
 								</label>
 								{isFetching ? (
 									<Spinner
-										className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+										className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 										aria-label='Loading users'
 									/>
 								) : (
 									<Search
-										className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500'
+										className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground'
 										aria-hidden='true'
 									/>
 								)}
@@ -335,7 +335,7 @@ export default function UsersPage() {
 									placeholder='Search users...'
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+									className='pl-8   focus:border-brand-main-400'
 									aria-label='Search customers'
 								/>
 							</div>
@@ -344,7 +344,7 @@ export default function UsersPage() {
 						<Select
 							value={roleFilter}
 							onValueChange={(value) => setRoleFilter(value)}>
-							<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-40'>
+							<SelectTrigger className='  focus:border-brand-main-400 w-40'>
 								<SelectValue placeholder='Select role' />
 							</SelectTrigger>
 							<SelectContent>
@@ -409,7 +409,7 @@ export default function UsersPage() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+						<AlertDialogCancel className='  text-brand-main-700 hover:bg-brand-main-50'>
 							Cancel
 						</AlertDialogCancel>
 						<AlertDialogAction

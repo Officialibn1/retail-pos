@@ -7,10 +7,10 @@ import {
 	generateStoreFooterText,
 } from "../store-info";
 
-export function generatePurchaseReceiptEmail(data: PurchaseEmailData): {
+export async function generatePurchaseReceiptEmail(data: PurchaseEmailData): Promise<{
 	html: string;
 	text: string;
-} {
+}> {
 	const {
 		customerName,
 		saleId,
@@ -22,7 +22,7 @@ export function generatePurchaseReceiptEmail(data: PurchaseEmailData): {
 		paymentMethod,
 		date,
 	} = data;
-	const storeInfo = getStoreInfo();
+	const storeInfo = await getStoreInfo();
 	const storeHeader = generateStoreHeader(storeInfo);
 	const storeFooter = generateStoreFooterText(storeInfo);
 

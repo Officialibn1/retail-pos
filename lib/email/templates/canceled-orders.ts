@@ -3,12 +3,12 @@
 import { getStoreInfo } from "../store-info";
 import { CanceledOrdersEmailData } from "../types";
 
-export function generateCanceledOrdersEmail(data: CanceledOrdersEmailData): {
+export async function generateCanceledOrdersEmail(data: CanceledOrdersEmailData): Promise<{
 	html: string;
 	text: string;
-} {
+}> {
 	const { canceledOrders, totalAmount, date } = data;
-	const store = getStoreInfo();
+	const store = await getStoreInfo();
 
 	const formattedDate = new Date(date).toLocaleString("en-NG", {
 		dateStyle: "full",

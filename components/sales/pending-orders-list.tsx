@@ -8,12 +8,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Package } from "lucide-react";
 import { useGetSalesQuery, useCancelSaleMutation } from "@/lib/store/api";
 import { toast } from "sonner";
+import type { SaleWithDetails } from "@/lib/services/sale.service";
 
 interface PendingOrdersListProps {
 	userId: string;
 	userRoles: string[];
 	onComplete?: (saleId: string, saleTotal: number) => void;
 	onCancel?: (saleId: string) => void;
+	onEdit?: (sale: SaleWithDetails) => void;
 }
 
 export function PendingOrdersList({
@@ -21,6 +23,7 @@ export function PendingOrdersList({
 	userRoles,
 	onComplete,
 	onCancel,
+	onEdit,
 }: PendingOrdersListProps) {
 	const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 	const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -85,7 +88,7 @@ export function PendingOrdersList({
 	// Loading state
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />
@@ -124,7 +127,7 @@ export function PendingOrdersList({
 	// Empty state
 	if (pendingSales.length === 0) {
 		return (
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />
@@ -133,8 +136,8 @@ export function PendingOrdersList({
 				</CardHeader>
 				<CardContent>
 					<div className='text-center py-8'>
-						<Package className='h-12 w-12 mx-auto text-brand-main-300 mb-3' />
-						<p className='text-brand-main-600 text-sm'>
+						<Package className='h-12 w-12 mx-auto text-brand-main-800 mb-3' />
+						<p className='text-slate-600 text-sm'>
 							No pending orders at the moment
 						</p>
 					</div>
@@ -145,7 +148,7 @@ export function PendingOrdersList({
 
 	return (
 		<>
-			<Card className='border-brand-main-200'>
+			<Card className=' '>
 				<CardHeader>
 					<CardTitle className='text-brand-main-800 flex items-center gap-2'>
 						<Package className='h-5 w-5' />
@@ -162,6 +165,7 @@ export function PendingOrdersList({
 							sale={sale}
 							onComplete={handleComplete}
 							onCancel={handleCancelClick}
+							onEdit={(s) => onEdit?.(s)}
 							isProcessing={isCancelling && selectedSaleId === sale.id}
 							showCreatorName={isManagerOrHigher}
 						/>

@@ -100,7 +100,7 @@ export function AddUserDialog({
 										<Input
 											{...field}
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., John Doe'
 										/>
 									</FormControl>
@@ -121,7 +121,7 @@ export function AddUserDialog({
 										<Input
 											{...field}
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., johndoe'
 										/>
 									</FormControl>
@@ -143,7 +143,7 @@ export function AddUserDialog({
 											{...field}
 											type='email'
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., john@example.com'
 										/>
 									</FormControl>
@@ -168,7 +168,7 @@ export function AddUserDialog({
 											defaultValue={field.value?.[0]}
 											disabled={isCreating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select role' />
 												</SelectTrigger>
 											</FormControl>
@@ -203,7 +203,7 @@ export function AddUserDialog({
 											defaultValue={field.value}
 											disabled={isCreating}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select shift' />
 												</SelectTrigger>
 											</FormControl>
@@ -227,13 +227,13 @@ export function AddUserDialog({
 								disabled={isCreating}
 								variant='outline'
 								onClick={() => onOpenChange(false)}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isCreating}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isCreating ? <Spinner /> : "Add User"}
 							</Button>
 						</DialogFooter>

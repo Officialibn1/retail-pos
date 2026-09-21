@@ -105,10 +105,10 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   token: 'token',
   userId: 'userId',
-  otp: 'otp',
-  type: 'type',
   expires: 'expires',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  otp: 'otp',
+  type: 'type'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -118,10 +118,10 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   password: 'password',
   roles: 'roles',
-  status: 'status',
   shift: 'shift',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  status: 'status'
 };
 
 exports.Prisma.ActivityLogScalarFieldEnum = {
@@ -129,6 +129,7 @@ exports.Prisma.ActivityLogScalarFieldEnum = {
   userId: 'userId',
   action: 'action',
   details: 'details',
+  metadata: 'metadata',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   createdAt: 'createdAt'
@@ -153,13 +154,46 @@ exports.Prisma.InventoryItemScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
+  cost: 'cost',
   stock: 'stock',
+  reorderLevel: 'reorderLevel',
   sku: 'sku',
   barcode: 'barcode',
   categoryId: 'categoryId',
+  supplierId: 'supplierId',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  status: 'status',
+  notes: 'notes',
+  totalCost: 'totalCost',
+  receivedAt: 'receivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderItemScalarFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  inventoryItemId: 'inventoryItemId',
+  quantity: 'quantity',
+  unitCost: 'unitCost'
 };
 
 exports.Prisma.StockMovementScalarFieldEnum = {
@@ -173,33 +207,113 @@ exports.Prisma.StockMovementScalarFieldEnum = {
 
 exports.Prisma.SaleScalarFieldEnum = {
   id: 'id',
-  subTotal: 'subTotal',
   total: 'total',
   status: 'status',
   paymentMethod: 'paymentMethod',
   amountPaid: 'amountPaid',
   changeGiven: 'changeGiven',
-  taxAmount: 'taxAmount',
-  discountAmount: 'discountAmount',
   completedAt: 'completedAt',
   cancelledAt: 'cancelledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  customerId: 'customerId'
+  customerId: 'customerId',
+  discountAmount: 'discountAmount',
+  taxAmount: 'taxAmount',
+  subTotal: 'subTotal',
+  promotionId: 'promotionId'
+};
+
+exports.Prisma.PromotionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  description: 'description',
+  type: 'type',
+  value: 'value',
+  scope: 'scope',
+  targetId: 'targetId',
+  isActive: 'isActive',
+  expiresAt: 'expiresAt',
+  usageLimit: 'usageLimit',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SaleItemScalarFieldEnum = {
   id: 'id',
   quantity: 'quantity',
   price: 'price',
+  note: 'note',
   saleId: 'saleId',
   inventoryItemId: 'inventoryItemId'
+};
+
+exports.Prisma.SaleReturnScalarFieldEnum = {
+  id: 'id',
+  saleId: 'saleId',
+  reason: 'reason',
+  refundAmount: 'refundAmount',
+  refundMethod: 'refundMethod',
+  processedById: 'processedById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SaleReturnItemScalarFieldEnum = {
+  id: 'id',
+  returnId: 'returnId',
+  inventoryItemId: 'inventoryItemId',
+  quantity: 'quantity',
+  price: 'price'
+};
+
+exports.Prisma.CashDrawerSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  openingFloat: 'openingFloat',
+  declaredClose: 'declaredClose',
+  expectedClose: 'expectedClose',
+  variance: 'variance',
+  openedAt: 'openedAt',
+  closedAt: 'closedAt',
+  notes: 'notes'
+};
+
+exports.Prisma.ExpenseScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  amount: 'amount',
+  category: 'category',
+  description: 'description',
+  date: 'date',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StoreInfoScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  email: 'email',
+  taxRate: 'taxRate',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  logoUrl: 'logoUrl',
+  currencySymbol: 'currencySymbol',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -211,6 +325,30 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
+  PENDING: 'PENDING',
+  ORDERED: 'ORDERED',
+  RECEIVED: 'RECEIVED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.PromotionType = exports.$Enums.PromotionType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED'
+};
+
+exports.PromotionScope = exports.$Enums.PromotionScope = {
+  ALL: 'ALL',
+  CATEGORY: 'CATEGORY',
+  ITEM: 'ITEM'
+};
+
 exports.ResetType = exports.$Enums.ResetType = {
   LINK: 'LINK',
   OTP: 'OTP'
@@ -248,6 +386,16 @@ exports.PaymentMethod = exports.$Enums.PaymentMethod = {
   BANK_TRANSFER: 'BANK_TRANSFER'
 };
 
+exports.ExpenseCategory = exports.$Enums.ExpenseCategory = {
+  RENT: 'RENT',
+  SALARIES: 'SALARIES',
+  UTILITIES: 'UTILITIES',
+  RESTOCKING: 'RESTOCKING',
+  MAINTENANCE: 'MAINTENANCE',
+  MARKETING: 'MARKETING',
+  OTHER: 'OTHER'
+};
+
 exports.Prisma.ModelName = {
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
@@ -256,9 +404,18 @@ exports.Prisma.ModelName = {
   Customer: 'Customer',
   InventoryItemCategory: 'InventoryItemCategory',
   InventoryItem: 'InventoryItem',
+  Supplier: 'Supplier',
+  PurchaseOrder: 'PurchaseOrder',
+  PurchaseOrderItem: 'PurchaseOrderItem',
   StockMovement: 'StockMovement',
   Sale: 'Sale',
-  SaleItem: 'SaleItem'
+  Promotion: 'Promotion',
+  SaleItem: 'SaleItem',
+  SaleReturn: 'SaleReturn',
+  SaleReturnItem: 'SaleReturnItem',
+  CashDrawerSession: 'CashDrawerSession',
+  Expense: 'Expense',
+  StoreInfo: 'StoreInfo'
 };
 /**
  * Create the Client
@@ -268,10 +425,10 @@ const config = {
   "clientVersion": "7.0.1",
   "engineVersion": "f09f2815f091dbba658cdcd2264306d88bb5bda6",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Session {\n  id        String   @id @default(cuid())\n  userId    String\n  token     String   @unique\n  expires   DateTime\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"sessions\")\n}\n\nmodel PasswordResetToken {\n  id        String    @id @default(cuid())\n  token     String    @unique\n  userId    String\n  otp       String?\n  type      ResetType @default(LINK)\n  expires   DateTime\n  createdAt DateTime  @default(now())\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([otp])\n  @@map(\"password_reset_tokens\")\n}\n\nenum ResetType {\n  LINK\n  OTP\n}\n\nmodel User {\n  id        String     @id @default(cuid())\n  email     String     @unique\n  username  String     @unique\n  name      String\n  password  String\n  roles     UserRole[] @default([CASHIER])\n  status    UserStatus @default(ACTIVE)\n  shift     Shift      @default(MORNING)\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @updatedAt\n\n  sessions            Session[]\n  passwordResetTokens PasswordResetToken[]\n  sales               Sale[]\n  activityLogs        ActivityLog[]\n\n  @@map(\"users\")\n}\n\nmodel ActivityLog {\n  id        String   @id @default(cuid())\n  userId    String\n  action    String\n  details   String\n  ipAddress String?\n  userAgent String?\n  createdAt DateTime @default(now())\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([createdAt])\n  @@index([action])\n  @@map(\"activity_logs\")\n}\n\nmodel Customer {\n  id        String   @id @default(cuid())\n  name      String?\n  phone     String   @unique\n  email     String?  @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  sales Sale[]\n\n  @@index([phone, name])\n  @@index([createdAt])\n  @@map(\"customers\")\n}\n\nmodel InventoryItemCategory {\n  id   String @id @default(cuid())\n  name String @unique\n\n  inventoryItems InventoryItem[]\n\n  @@map(\"inventory_item_categories\")\n}\n\nmodel InventoryItem {\n  id          String    @id @default(cuid())\n  name        String\n  description String?\n  price       Decimal   @db.Decimal(10, 2)\n  stock       Int       @default(0)\n  sku         String    @unique\n  barcode     String?   @unique\n  categoryId  String\n  deletedAt   DateTime?\n  createdAt   DateTime  @default(now())\n  updatedAt   DateTime  @updatedAt\n\n  saleItems      SaleItem[]\n  category       InventoryItemCategory @relation(fields: [categoryId], references: [id])\n  stockMovements StockMovement[]\n\n  @@index([categoryId])\n  @@index([barcode])\n  @@index([deletedAt])\n  @@index([categoryId, deletedAt])\n  @@index([stock, deletedAt])\n  @@index([price, stock])\n  @@map(\"inventory_items\")\n}\n\nmodel StockMovement {\n  id              String   @id @default(cuid())\n  inventoryItemId String\n  quantity        Int\n  reason          String\n  notes           String?\n  createdAt       DateTime @default(now())\n\n  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])\n\n  @@index([inventoryItemId])\n  @@index([createdAt])\n  @@index([createdAt, reason])\n  @@map(\"stock_movements\")\n}\n\nmodel Sale {\n  id             String         @id @default(cuid())\n  subTotal       Decimal        @db.Decimal(10, 2)\n  total          Decimal        @db.Decimal(10, 2)\n  status         SaleStatus     @default(PENDING)\n  paymentMethod  PaymentMethod?\n  amountPaid     Decimal?       @db.Decimal(10, 2)\n  changeGiven    Decimal?       @db.Decimal(10, 2)\n  taxAmount      Int?\n  discountAmount Int?\n  completedAt    DateTime?\n  cancelledAt    DateTime?\n  createdAt      DateTime       @default(now())\n  updatedAt      DateTime       @updatedAt\n\n  userId     String\n  user       User      @relation(fields: [userId], references: [id])\n  customerId String?\n  customer   Customer? @relation(fields: [customerId], references: [id])\n\n  items SaleItem[]\n\n  @@index([userId])\n  @@index([customerId])\n  @@index([status])\n  @@index([createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status, createdAt])\n  @@index([customerId, status, createdAt])\n  @@index([paymentMethod, status])\n  @@index([completedAt])\n  @@map(\"sales\")\n}\n\nmodel SaleItem {\n  id       String  @id @default(cuid())\n  quantity Int\n  price    Decimal @db.Decimal(10, 2)\n\n  saleId String\n  sale   Sale   @relation(fields: [saleId], references: [id])\n\n  inventoryItemId String\n  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])\n\n  @@index([inventoryItemId, saleId])\n  @@index([quantity, price])\n  @@map(\"sale_items\")\n}\n\nenum UserRole {\n  SUPERADMIN\n  ADMIN\n  MANAGER\n  CASHIER\n}\n\nenum UserStatus {\n  ACTIVE\n  BLOCKED\n  SUSPENDED\n}\n\nenum SaleStatus {\n  PENDING\n  COMPLETED\n  CANCELLED\n}\n\nenum Shift {\n  MORNING\n  EVENING\n  FULLTIME\n}\n\nenum PaymentMethod {\n  CASH\n  CARD\n  MOBILE_MONEY\n  BANK_TRANSFER\n}\n"
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Session {\n  id        String   @id @default(cuid())\n  userId    String\n  token     String   @unique\n  expires   DateTime\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"sessions\")\n}\n\nmodel PasswordResetToken {\n  id        String    @id @default(cuid())\n  token     String    @unique\n  userId    String\n  expires   DateTime\n  createdAt DateTime  @default(now())\n  otp       String?\n  type      ResetType @default(LINK)\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([otp])\n  @@map(\"password_reset_tokens\")\n}\n\nmodel User {\n  id                  String               @id @default(cuid())\n  email               String               @unique\n  username            String               @unique\n  name                String\n  password            String\n  roles               UserRole[]           @default([CASHIER])\n  shift               Shift                @default(MORNING)\n  createdAt           DateTime             @default(now())\n  updatedAt           DateTime             @updatedAt\n  status              UserStatus           @default(ACTIVE)\n  activityLogs        ActivityLog[]\n  cashDrawerSessions  CashDrawerSession[]\n  expenses            Expense[]\n  passwordResetTokens PasswordResetToken[]\n  sales               Sale[]\n  saleReturns         SaleReturn[]\n  sessions            Session[]\n\n  @@map(\"users\")\n}\n\nmodel ActivityLog {\n  id        String   @id @default(cuid())\n  userId    String\n  action    String\n  details   String\n  metadata  Json?\n  ipAddress String?\n  userAgent String?\n  createdAt DateTime @default(now())\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([createdAt])\n  @@index([action])\n  @@map(\"activity_logs\")\n}\n\nmodel Customer {\n  id        String   @id @default(cuid())\n  name      String?\n  phone     String   @unique\n  email     String?  @unique\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  sales     Sale[]\n\n  @@index([phone, name])\n  @@index([createdAt])\n  @@map(\"customers\")\n}\n\nmodel InventoryItemCategory {\n  id             String          @id @default(cuid())\n  name           String          @unique\n  inventoryItems InventoryItem[]\n\n  @@map(\"inventory_item_categories\")\n}\n\nmodel InventoryItem {\n  id                 String                @id @default(cuid())\n  name               String\n  description        String?\n  price              Decimal               @db.Decimal(10, 2)\n  cost               Decimal?              @db.Decimal(10, 2)\n  stock              Int                   @default(0)\n  reorderLevel       Int                   @default(10)\n  sku                String                @unique\n  barcode            String?               @unique\n  categoryId         String\n  supplierId         String?\n  deletedAt          DateTime?\n  createdAt          DateTime              @default(now())\n  updatedAt          DateTime              @updatedAt\n  category           InventoryItemCategory @relation(fields: [categoryId], references: [id])\n  supplier           Supplier?             @relation(fields: [supplierId], references: [id])\n  saleItems          SaleItem[]\n  saleReturnItems    SaleReturnItem[]\n  stockMovements     StockMovement[]\n  purchaseOrderItems PurchaseOrderItem[]\n\n  @@index([categoryId])\n  @@index([supplierId])\n  @@index([barcode])\n  @@index([deletedAt])\n  @@index([categoryId, deletedAt])\n  @@index([stock, deletedAt])\n  @@index([price, stock])\n  @@map(\"inventory_items\")\n}\n\nmodel Supplier {\n  id             String          @id @default(cuid())\n  name           String\n  phone          String?         @unique\n  email          String?         @unique\n  address        String?\n  notes          String?\n  createdAt      DateTime        @default(now())\n  updatedAt      DateTime        @updatedAt\n  inventoryItems InventoryItem[]\n  purchaseOrders PurchaseOrder[]\n\n  @@index([name])\n  @@map(\"suppliers\")\n}\n\nmodel PurchaseOrder {\n  id         String              @id @default(cuid())\n  supplierId String\n  status     PurchaseOrderStatus @default(PENDING)\n  notes      String?\n  totalCost  Decimal             @db.Decimal(10, 2)\n  receivedAt DateTime?\n  createdAt  DateTime            @default(now())\n  updatedAt  DateTime            @updatedAt\n  supplier   Supplier            @relation(fields: [supplierId], references: [id])\n  items      PurchaseOrderItem[]\n\n  @@index([supplierId])\n  @@index([status])\n  @@index([createdAt])\n  @@map(\"purchase_orders\")\n}\n\nmodel PurchaseOrderItem {\n  id              String        @id @default(cuid())\n  purchaseOrderId String\n  inventoryItemId String\n  quantity        Int\n  unitCost        Decimal       @db.Decimal(10, 2)\n  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)\n  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])\n\n  @@index([purchaseOrderId])\n  @@index([inventoryItemId])\n  @@map(\"purchase_order_items\")\n}\n\nmodel StockMovement {\n  id              String        @id @default(cuid())\n  inventoryItemId String\n  quantity        Int\n  reason          String\n  notes           String?\n  createdAt       DateTime      @default(now())\n  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])\n\n  @@index([inventoryItemId])\n  @@index([createdAt])\n  @@index([createdAt, reason])\n  @@map(\"stock_movements\")\n}\n\nmodel Sale {\n  id             String         @id @default(cuid())\n  total          Decimal        @db.Decimal(10, 2)\n  status         SaleStatus     @default(PENDING)\n  paymentMethod  PaymentMethod?\n  amountPaid     Decimal?       @db.Decimal(10, 2)\n  changeGiven    Decimal?       @db.Decimal(10, 2)\n  completedAt    DateTime?\n  cancelledAt    DateTime?\n  createdAt      DateTime       @default(now())\n  updatedAt      DateTime       @updatedAt\n  userId         String\n  customerId     String?\n  discountAmount Int?\n  taxAmount      Int?\n  subTotal       Decimal        @db.Decimal(10, 2)\n  promotionId    String?\n  items          SaleItem[]\n  returns        SaleReturn[]\n  customer       Customer?      @relation(fields: [customerId], references: [id])\n  user           User           @relation(fields: [userId], references: [id])\n  promotion      Promotion?     @relation(fields: [promotionId], references: [id])\n\n  @@index([userId])\n  @@index([customerId])\n  @@index([status])\n  @@index([createdAt])\n  @@index([status, createdAt])\n  @@index([userId, status, createdAt])\n  @@index([customerId, status, createdAt])\n  @@index([paymentMethod, status])\n  @@index([completedAt])\n  @@index([promotionId])\n  @@map(\"sales\")\n}\n\nmodel Promotion {\n  id          String         @id @default(cuid())\n  code        String         @unique\n  description String?\n  type        PromotionType\n  value       Decimal        @db.Decimal(10, 4)\n  scope       PromotionScope\n  targetId    String? // categoryId or inventoryItemId when scope != ALL\n  isActive    Boolean        @default(true)\n  expiresAt   DateTime?\n  usageLimit  Int?\n  usageCount  Int            @default(0)\n  createdAt   DateTime       @default(now())\n  updatedAt   DateTime       @updatedAt\n  sales       Sale[]\n\n  @@index([code])\n  @@index([isActive, expiresAt])\n  @@map(\"promotions\")\n}\n\nmodel SaleItem {\n  id              String        @id @default(cuid())\n  quantity        Int\n  price           Decimal       @db.Decimal(10, 2)\n  note            String?\n  saleId          String\n  inventoryItemId String\n  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])\n  sale            Sale          @relation(fields: [saleId], references: [id])\n\n  @@index([inventoryItemId, saleId])\n  @@index([quantity, price])\n  @@map(\"sale_items\")\n}\n\nmodel SaleReturn {\n  id            String           @id @default(cuid())\n  saleId        String\n  reason        String\n  refundAmount  Decimal          @db.Decimal(10, 2)\n  refundMethod  PaymentMethod\n  processedById String\n  createdAt     DateTime         @default(now())\n  items         SaleReturnItem[]\n  sale          Sale             @relation(fields: [saleId], references: [id])\n  processedBy   User             @relation(fields: [processedById], references: [id])\n\n  @@index([saleId])\n  @@index([processedById])\n  @@index([createdAt])\n  @@map(\"sale_returns\")\n}\n\nmodel SaleReturnItem {\n  id              String        @id @default(cuid())\n  returnId        String\n  inventoryItemId String\n  quantity        Int\n  price           Decimal       @db.Decimal(10, 2)\n  saleReturn      SaleReturn    @relation(fields: [returnId], references: [id])\n  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])\n\n  @@index([returnId])\n  @@index([inventoryItemId])\n  @@map(\"sale_return_items\")\n}\n\nmodel CashDrawerSession {\n  id            String    @id @default(cuid())\n  userId        String\n  openingFloat  Decimal   @db.Decimal(10, 2)\n  declaredClose Decimal?  @db.Decimal(10, 2)\n  expectedClose Decimal?  @db.Decimal(10, 2)\n  variance      Decimal?  @db.Decimal(10, 2)\n  openedAt      DateTime  @default(now())\n  closedAt      DateTime?\n  notes         String?\n  user          User      @relation(fields: [userId], references: [id])\n\n  @@index([userId])\n  @@index([openedAt])\n  @@index([closedAt])\n  @@map(\"cash_drawer_sessions\")\n}\n\nmodel Expense {\n  id           String          @id @default(cuid())\n  title        String\n  amount       Decimal         @db.Decimal(10, 2)\n  category     ExpenseCategory\n  description  String?\n  date         DateTime        @default(now())\n  recordedById String\n  createdAt    DateTime        @default(now())\n  updatedAt    DateTime        @updatedAt\n  recordedBy   User            @relation(fields: [recordedById], references: [id])\n\n  @@index([recordedById])\n  @@index([date])\n  @@index([category])\n  @@index([date, category])\n  @@map(\"expenses\")\n}\n\nmodel StoreInfo {\n  id             String   @id @default(\"singleton\")\n  name           String   @default(\"POS Store\")\n  address        String   @default(\"\")\n  phone          String   @default(\"\")\n  email          String?\n  taxRate        Decimal  @default(0.1) @db.Decimal(5, 4)\n  primaryColor   String   @default(\"#7c3aed\")\n  secondaryColor String   @default(\"#a78bfa\")\n  logoUrl        String   @default(\"/pos_logo.png\")\n  currencySymbol String   @default(\"₦\")\n  createdAt      DateTime @default(now())\n  updatedAt      DateTime @updatedAt\n\n  @@map(\"store_info\")\n}\n\nenum PurchaseOrderStatus {\n  PENDING\n  ORDERED\n  RECEIVED\n  CANCELLED\n}\n\nenum PromotionType {\n  PERCENTAGE\n  FIXED\n}\n\nenum PromotionScope {\n  ALL\n  CATEGORY\n  ITEM\n}\n\nenum ResetType {\n  LINK\n  OTP\n}\n\nenum UserRole {\n  SUPERADMIN\n  ADMIN\n  MANAGER\n  CASHIER\n}\n\nenum UserStatus {\n  ACTIVE\n  BLOCKED\n  SUSPENDED\n}\n\nenum SaleStatus {\n  PENDING\n  COMPLETED\n  CANCELLED\n}\n\nenum Shift {\n  MORNING\n  EVENING\n  FULLTIME\n}\n\nenum PaymentMethod {\n  CASH\n  CARD\n  MOBILE_MONEY\n  BANK_TRANSFER\n}\n\nenum ExpenseCategory {\n  RENT\n  SALARIES\n  UTILITIES\n  RESTOCKING\n  MAINTENANCE\n  MARKETING\n  OTHER\n}\n"
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"sessions\"},\"PasswordResetToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"otp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ResetType\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PasswordResetTokenToUser\"}],\"dbName\":\"password_reset_tokens\"},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"roles\",\"kind\":\"enum\",\"type\":\"UserRole\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"UserStatus\"},{\"name\":\"shift\",\"kind\":\"enum\",\"type\":\"Shift\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"passwordResetTokens\",\"kind\":\"object\",\"type\":\"PasswordResetToken\",\"relationName\":\"PasswordResetTokenToUser\"},{\"name\":\"sales\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToUser\"},{\"name\":\"activityLogs\",\"kind\":\"object\",\"type\":\"ActivityLog\",\"relationName\":\"ActivityLogToUser\"}],\"dbName\":\"users\"},\"ActivityLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"details\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ActivityLogToUser\"}],\"dbName\":\"activity_logs\"},\"Customer\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sales\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"CustomerToSale\"}],\"dbName\":\"customers\"},\"InventoryItemCategory\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItems\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToInventoryItemCategory\"}],\"dbName\":\"inventory_item_categories\"},\"InventoryItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"stock\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sku\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"barcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"saleItems\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"InventoryItemToSaleItem\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"InventoryItemCategory\",\"relationName\":\"InventoryItemToInventoryItemCategory\"},{\"name\":\"stockMovements\",\"kind\":\"object\",\"type\":\"StockMovement\",\"relationName\":\"InventoryItemToStockMovement\"}],\"dbName\":\"inventory_items\"},\"StockMovement\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToStockMovement\"}],\"dbName\":\"stock_movements\"},\"Sale\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subTotal\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"total\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"SaleStatus\"},{\"name\":\"paymentMethod\",\"kind\":\"enum\",\"type\":\"PaymentMethod\"},{\"name\":\"amountPaid\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"changeGiven\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"taxAmount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"discountAmount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"completedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cancelledAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SaleToUser\"},{\"name\":\"customerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"customer\",\"kind\":\"object\",\"type\":\"Customer\",\"relationName\":\"CustomerToSale\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"SaleToSaleItem\"}],\"dbName\":\"sales\"},\"SaleItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"saleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sale\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToSaleItem\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToSaleItem\"}],\"dbName\":\"sale_items\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"sessions\"},\"PasswordResetToken\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"otp\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ResetType\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PasswordResetTokenToUser\"}],\"dbName\":\"password_reset_tokens\"},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"roles\",\"kind\":\"enum\",\"type\":\"UserRole\"},{\"name\":\"shift\",\"kind\":\"enum\",\"type\":\"Shift\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"UserStatus\"},{\"name\":\"activityLogs\",\"kind\":\"object\",\"type\":\"ActivityLog\",\"relationName\":\"ActivityLogToUser\"},{\"name\":\"cashDrawerSessions\",\"kind\":\"object\",\"type\":\"CashDrawerSession\",\"relationName\":\"CashDrawerSessionToUser\"},{\"name\":\"expenses\",\"kind\":\"object\",\"type\":\"Expense\",\"relationName\":\"ExpenseToUser\"},{\"name\":\"passwordResetTokens\",\"kind\":\"object\",\"type\":\"PasswordResetToken\",\"relationName\":\"PasswordResetTokenToUser\"},{\"name\":\"sales\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToUser\"},{\"name\":\"saleReturns\",\"kind\":\"object\",\"type\":\"SaleReturn\",\"relationName\":\"SaleReturnToUser\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"users\"},\"ActivityLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"details\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"metadata\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ActivityLogToUser\"}],\"dbName\":\"activity_logs\"},\"Customer\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sales\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"CustomerToSale\"}],\"dbName\":\"customers\"},\"InventoryItemCategory\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItems\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToInventoryItemCategory\"}],\"dbName\":\"inventory_item_categories\"},\"InventoryItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"cost\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"stock\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"reorderLevel\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sku\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"barcode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"supplierId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"InventoryItemCategory\",\"relationName\":\"InventoryItemToInventoryItemCategory\"},{\"name\":\"supplier\",\"kind\":\"object\",\"type\":\"Supplier\",\"relationName\":\"InventoryItemToSupplier\"},{\"name\":\"saleItems\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"InventoryItemToSaleItem\"},{\"name\":\"saleReturnItems\",\"kind\":\"object\",\"type\":\"SaleReturnItem\",\"relationName\":\"InventoryItemToSaleReturnItem\"},{\"name\":\"stockMovements\",\"kind\":\"object\",\"type\":\"StockMovement\",\"relationName\":\"InventoryItemToStockMovement\"},{\"name\":\"purchaseOrderItems\",\"kind\":\"object\",\"type\":\"PurchaseOrderItem\",\"relationName\":\"InventoryItemToPurchaseOrderItem\"}],\"dbName\":\"inventory_items\"},\"Supplier\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"inventoryItems\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToSupplier\"},{\"name\":\"purchaseOrders\",\"kind\":\"object\",\"type\":\"PurchaseOrder\",\"relationName\":\"PurchaseOrderToSupplier\"}],\"dbName\":\"suppliers\"},\"PurchaseOrder\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"supplierId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"PurchaseOrderStatus\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalCost\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"receivedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"supplier\",\"kind\":\"object\",\"type\":\"Supplier\",\"relationName\":\"PurchaseOrderToSupplier\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"PurchaseOrderItem\",\"relationName\":\"PurchaseOrderToPurchaseOrderItem\"}],\"dbName\":\"purchase_orders\"},\"PurchaseOrderItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"purchaseOrderId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"unitCost\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"purchaseOrder\",\"kind\":\"object\",\"type\":\"PurchaseOrder\",\"relationName\":\"PurchaseOrderToPurchaseOrderItem\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToPurchaseOrderItem\"}],\"dbName\":\"purchase_order_items\"},\"StockMovement\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToStockMovement\"}],\"dbName\":\"stock_movements\"},\"Sale\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"total\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"SaleStatus\"},{\"name\":\"paymentMethod\",\"kind\":\"enum\",\"type\":\"PaymentMethod\"},{\"name\":\"amountPaid\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"changeGiven\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"completedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"cancelledAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"customerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"discountAmount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"taxAmount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"subTotal\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"promotionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"SaleItem\",\"relationName\":\"SaleToSaleItem\"},{\"name\":\"returns\",\"kind\":\"object\",\"type\":\"SaleReturn\",\"relationName\":\"SaleToSaleReturn\"},{\"name\":\"customer\",\"kind\":\"object\",\"type\":\"Customer\",\"relationName\":\"CustomerToSale\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SaleToUser\"},{\"name\":\"promotion\",\"kind\":\"object\",\"type\":\"Promotion\",\"relationName\":\"PromotionToSale\"}],\"dbName\":\"sales\"},\"Promotion\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"PromotionType\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"scope\",\"kind\":\"enum\",\"type\":\"PromotionScope\"},{\"name\":\"targetId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"usageLimit\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"usageCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sales\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"PromotionToSale\"}],\"dbName\":\"promotions\"},\"SaleItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"saleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToSaleItem\"},{\"name\":\"sale\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToSaleItem\"}],\"dbName\":\"sale_items\"},\"SaleReturn\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"saleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"reason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refundAmount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"refundMethod\",\"kind\":\"enum\",\"type\":\"PaymentMethod\"},{\"name\":\"processedById\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"SaleReturnItem\",\"relationName\":\"SaleReturnToSaleReturnItem\"},{\"name\":\"sale\",\"kind\":\"object\",\"type\":\"Sale\",\"relationName\":\"SaleToSaleReturn\"},{\"name\":\"processedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SaleReturnToUser\"}],\"dbName\":\"sale_returns\"},\"SaleReturnItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"returnId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inventoryItemId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"saleReturn\",\"kind\":\"object\",\"type\":\"SaleReturn\",\"relationName\":\"SaleReturnToSaleReturnItem\"},{\"name\":\"inventoryItem\",\"kind\":\"object\",\"type\":\"InventoryItem\",\"relationName\":\"InventoryItemToSaleReturnItem\"}],\"dbName\":\"sale_return_items\"},\"CashDrawerSession\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"openingFloat\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"declaredClose\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"expectedClose\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"variance\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"openedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"closedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CashDrawerSessionToUser\"}],\"dbName\":\"cash_drawer_sessions\"},\"Expense\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"category\",\"kind\":\"enum\",\"type\":\"ExpenseCategory\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"recordedById\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"recordedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ExpenseToUser\"}],\"dbName\":\"expenses\"},\"StoreInfo\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"taxRate\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"primaryColor\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"secondaryColor\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"logoUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"currencySymbol\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"store_info\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.compilerWasm = {
   getRuntime: async () => require('./query_compiler_bg.js'),

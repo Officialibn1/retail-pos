@@ -63,7 +63,7 @@ export function InventoryTable({
 	};
 
 	return (
-		<Card className='border-brand-main-200'>
+		<Card className=' '>
 			<CardHeader>
 				<CardTitle className='text-brand-main-800'>Inventory Items</CardTitle>
 				<div className='flex gap-4 mt-4'>
@@ -78,13 +78,13 @@ export function InventoryTable({
 							placeholder='Search items...'
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+							className='pl-8   focus:border-brand-main-400'
 						/>
 					</div>
 					<select
 						value={categoryFilter}
 						onChange={(e) => setCategoryFilter(e.target.value)}
-						className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
+						className='px-3 py-2 border   rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
 						<option value='all'>All Categories</option>
 						{categories.map((category) => (
 							<option
@@ -99,7 +99,7 @@ export function InventoryTable({
 			<CardContent>
 				<Table>
 					<TableHeader>
-						<TableRow className='border-brand-main-200'>
+						<TableRow className=' '>
 							<TableHead className='text-brand-main-700'>Product</TableHead>
 							<TableHead className='text-brand-main-700'>SKU</TableHead>
 							<TableHead className='text-brand-main-700'>Category</TableHead>

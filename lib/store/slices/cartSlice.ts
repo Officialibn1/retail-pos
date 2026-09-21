@@ -14,6 +14,7 @@ export interface CartItem {
 	inventoryItemId: string;
 	quantity: number;
 	price: Prisma.Decimal;
+	note?: string;
 	product: InventoryItemWithCategory;
 }
 
@@ -62,9 +63,10 @@ export const cartSlice = createSlice({
 			action: PayloadAction<{
 				product: InventoryItemWithCategory;
 				quantity: number;
+				note?: string;
 			}>,
 		) => {
-			const { product, quantity } = action.payload;
+			const { product, quantity, note } = action.payload;
 			const existingItem = state.items.find(
 				(item) => item.inventoryItemId === product.id,
 			);
@@ -76,6 +78,8 @@ export const cartSlice = createSlice({
 					product.stock,
 				);
 				existingItem.quantity = newQuantity;
+				// Update note only if explicitly provided
+				if (note !== undefined) existingItem.note = note || undefined;
 			} else {
 				// Add new item to cart
 				const newItem: CartItem = {
@@ -83,6 +87,7 @@ export const cartSlice = createSlice({
 					inventoryItemId: product.id,
 					quantity: Math.min(quantity, product.stock),
 					price: product.price,
+					note: note || undefined,
 					product,
 				};
 				state.items.push(newItem);
@@ -157,6 +162,20 @@ export const cartSlice = createSlice({
 		},
 
 		/**
+		 * Set a per-line note for a cart item
+		 */
+		setItemNote: (
+			state,
+			action: PayloadAction<{ itemId: string; note: string }>,
+		) => {
+			const { itemId, note } = action.payload;
+			const item = state.items.find((i) => i.id === itemId);
+			if (item) {
+				item.note = note || undefined;
+			}
+		},
+
+		/**
 		 * Clear all items, discount, and customer from cart
 		 *
 		 * @param state - Current cart state
@@ -226,6 +245,7 @@ export const {
 	updateQuantity,
 	removeItem,
 	setDiscount,
+	setItemNote,
 	setCustomer,
 	clearCustomer,
 	clearCart,

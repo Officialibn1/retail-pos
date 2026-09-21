@@ -107,9 +107,10 @@ export function canAccessCustomerAnalytics(userRoles: UserRole[]): boolean {
 }
 
 /**
- * Check if user can access inventory analytics
- * All roles can access inventory analytics
+ * Check if user can manage suppliers and purchase orders
+ * Only SUPERADMIN and MANAGER
  */
-export function canAccessInventoryAnalytics(userRoles: UserRole[]): boolean {
-	return canAccessAnalytics(userRoles);
+export function canManageSuppliers(userRoles: UserRole[]): boolean {
+	return userRoles.some((role) => role === "SUPERADMIN" || role === "MANAGER");
 }
+

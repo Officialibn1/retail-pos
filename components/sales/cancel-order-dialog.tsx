@@ -48,7 +48,7 @@ export function CancelOrderDialog({
 				</DialogHeader>
 
 				<div className='space-y-4 py-4'>
-					<div className='bg-brand-main-50 p-4 rounded-lg border border-brand-main-200'>
+					<div className='bg-brand-main-50 p-4 rounded-lg border  '>
 						<div className='flex justify-between items-center'>
 							<span className='text-sm font-medium text-brand-main-700'>
 								Order Total:
@@ -70,7 +70,7 @@ export function CancelOrderDialog({
 						type='button'
 						variant='outline'
 						onClick={() => onOpenChange(false)}
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'
+						className='  text-brand-main-700 hover:bg-brand-main-50'
 						disabled={isProcessing}>
 						Keep Order
 					</Button>

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import {
+	createCustomerUISchema,
 	customerSchema,
 	type CustomerInput,
 } from "@/lib/validations/customer.schema";
@@ -41,7 +42,7 @@ export function AddCustomerDialog({
 	isCreating,
 }: AddCustomerDialogProps) {
 	const form = useForm<CustomerInput>({
-		resolver: zodResolver(customerSchema),
+		resolver: zodResolver(createCustomerUISchema),
 		defaultValues: {
 			name: "",
 			email: "",
@@ -73,10 +74,10 @@ export function AddCustomerDialog({
 			onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[500px]'>
 				<DialogHeader>
-					<DialogTitle className='text-brand-main-800'>
+					<DialogTitle className='text-brand-main-950'>
 						Add New Customer
 					</DialogTitle>
-					<DialogDescription className='text-brand-main-600'>
+					<DialogDescription className='text-slate-600'>
 						Create a new customer record. Phone number is required.
 					</DialogDescription>
 				</DialogHeader>
@@ -90,15 +91,15 @@ export function AddCustomerDialog({
 							name='name'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
-										Customer Name
+									<FormLabel>
+										Customer Name <span className='text-red-500'>*</span>
 									</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
 											value={field.value || ""}
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='focus:border-brand-main-400'
 											placeholder='e.g., John Doe'
 										/>
 									</FormControl>
@@ -112,7 +113,7 @@ export function AddCustomerDialog({
 							name='email'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Email Address
 									</FormLabel>
 									<FormControl>
@@ -121,7 +122,7 @@ export function AddCustomerDialog({
 											value={field.value || ""}
 											type='email'
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., john@example.com'
 										/>
 									</FormControl>
@@ -135,7 +136,7 @@ export function AddCustomerDialog({
 							name='phone'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Phone Number *
 									</FormLabel>
 									<FormControl>
@@ -144,7 +145,7 @@ export function AddCustomerDialog({
 											value={field.value || ""}
 											type='tel'
 											disabled={isCreating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., +2348012345678'
 										/>
 									</FormControl>
@@ -159,13 +160,13 @@ export function AddCustomerDialog({
 								disabled={isCreating}
 								variant='outline'
 								onClick={handleCancel}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isCreating}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isCreating ? <Spinner /> : "Add Customer"}
 							</Button>
 						</DialogFooter>

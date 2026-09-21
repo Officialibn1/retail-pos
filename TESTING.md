@@ -1,171 +1,78 @@
-# Testing Setup
+# Testing
 
-This document describes the testing configuration for the project.
+## Test Credentials
+
+After seeding the database (`pnpm db:seed`), use these accounts:
+
+| Role       | Email                  | Password    | Permissions                                        |
+| ---------- | ---------------------- | ----------- | -------------------------------------------------- |
+| SUPERADMIN | superadmin@pos.com     | password123 | Full access, user management                       |
+| MANAGER    | manager@pos.com        | password123 | All data, inventory, analytics, activity logs      |
+| ADMIN      | admin@pos.com          | password123 | Own sales, categories, customers                   |
+| CASHIER    | cashier@pos.com        | password123 | Own sales and checkout only                        |
+
+> ⚠️ These credentials are for development only. Never use them in production.
+
+See `prisma/SEED_README.md` to understand what data gets seeded.
+
+---
 
 ## Test Framework
 
-The project uses **Jest** as the testing framework with the following setup:
+The project uses **Jest** with `@testing-library/react`.
 
-### Installed Packages
-
-```bash
-pnpm add -D jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-environment-jsdom ts-jest
-```
-
-### Configuration Files
-
-1. **jest.config.js** - Main Jest configuration
-
-   - Uses Next.js Jest configuration
-   - Test environment: jsdom
-   - Module path aliases (@/ → root)
-   - Excludes verification scripts from test runs
-
-2. **jest.setup.js** - Test environment setup
-   - Imports @testing-library/jest-dom for DOM matchers
-   - Polyfills TextEncoder/TextDecoder for Prisma compatibility
-   - Mocks Next.js router (useRouter, usePathname, useSearchParams)
-   - Mocks window.matchMedia for responsive design tests
-   - Mocks localStorage for persistence tests
-
-## Running Tests
-
-### Available Commands
+### Commands
 
 ```bash
-# Run all tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests with coverage
-pnpm test:coverage
-
-# Run specific test file
-pnpm test -- path/to/test.test.ts
-
-# Run tests silently (less output)
-pnpm test -- --silent
+pnpm test              # Run all tests
+pnpm test:watch        # Watch mode
+pnpm test:coverage     # Coverage report (output in coverage/)
 ```
 
-### Test File Patterns
+### Configuration
 
-Jest will run files matching these patterns:
+- `jest.config.js` — Next.js Jest config, jsdom environment, `@/` path alias
+- `jest.setup.js` — jest-dom matchers, TextEncoder polyfill, Next.js router mocks, localStorage mock
 
-- `**/__tests__/**/*.test.[jt]s?(x)`
-- `**/?(*.)+(spec|test).[jt]s?(x)`
+### Test file locations
 
-**Note:** Verification scripts (`verify-*.ts`) are excluded from test runs.
+| Type | Pattern | Example |
+|---|---|---|
+| Unit tests | `__tests__/*.test.ts(x)` | `lib/store/slices/__tests__/authSlice.test.ts` |
+| Verification scripts (manual) | `__tests__/verify-*.ts` | `lib/store/api/__tests__/verify-user-endpoints.ts` |
 
-## Test Structure
-
-### Unit Tests
-
-Located in `__tests__` directories next to the code they test:
-
-- `lib/store/slices/__tests__/authSlice.test.ts`
-- `lib/store/slices/__tests__/cartSlice.test.ts`
-
-### Verification Scripts
-
-TypeScript scripts that can be run directly with `tsx`:
-
-- `lib/store/api/__tests__/verify-auth-endpoints.ts`
-- `lib/store/api/__tests__/verify-sales-endpoints.ts`
-- `lib/store/api/__tests__/verify-user-endpoints.ts`
-
-Run verification scripts with:
-
+Verification scripts are excluded from Jest runs. Run them manually with:
 ```bash
-npx tsx path/to/verify-script.ts
+npx tsx lib/store/api/__tests__/verify-user-endpoints.ts
 ```
 
-## Known Issues
-
-### Redux Serialization Warnings
-
-When testing Redux slices with Date objects, you may see warnings about non-serializable values:
-
-```
-A non-serializable value was detected in the state, in the path: `auth.user.createdAt`
-```
-
-These warnings are expected in tests and can be safely ignored. In production, dates should be stored as ISO strings.
-
-## Writing Tests
-
-### Example Test Structure
+### Writing tests
 
 ```typescript
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../authSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer, { setUser } from "../authSlice";
 
-describe('Auth Slice', () => {
-  const createTestStore = () => {
-    return configureStore({
-      reducer: {
-        auth: authReducer,
-      },
-    });
-  };
-
-  it('should handle setUser', () => {
-    const store = createTestStore();
-    const mockUser = { id: '1', email: 'test@example.com', ... };
-
-    store.dispatch(setUser(mockUser));
-    const state = store.getState().auth;
-
-    expect(state.user).toEqual(mockUser);
+describe("Auth Slice", () => {
+  it("should set user", () => {
+    const store = configureStore({ reducer: { auth: authReducer } });
+    store.dispatch(setUser({ id: "1", email: "test@example.com", /* ... */ }));
+    expect(store.getState().auth.user?.email).toBe("test@example.com");
   });
 });
 ```
 
-### Best Practices
+### Known issue — Redux Date serialization warnings
 
-1. **Isolate tests** - Each test should create its own store instance
-2. **Test behavior** - Focus on what the code does, not how it does it
-3. **Use descriptive names** - Test names should clearly describe what they test
-4. **Mock external dependencies** - Use Jest mocks for API calls, timers, etc.
-5. **Keep tests simple** - One assertion per test when possible
-
-## Coverage
-
-To generate a coverage report:
-
-```bash
-pnpm test:coverage
+Tests that put `Date` objects in Redux state will show:
 ```
-
-Coverage reports will be generated in the `coverage/` directory.
-
-## Troubleshooting
-
-### TextEncoder is not defined
-
-If you see this error, ensure `jest.setup.js` includes the TextEncoder polyfill:
-
-```javascript
-import { TextEncoder, TextDecoder } from "util";
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
+A non-serializable value was detected in the state, in the path: `auth.user.createdAt`
 ```
+This is expected in tests. In production, dates are serialized as ISO strings.
 
-### Module not found errors
+### Troubleshooting
 
-Check that path aliases are correctly configured in `jest.config.js`:
-
-```javascript
-moduleNameMapper: {
-  '^@/(.*)$': '<rootDir>/$1',
-}
-```
-
-### Tests timing out
-
-Increase the test timeout in your test file:
-
-```typescript
-jest.setTimeout(10000); // 10 seconds
-```
+| Error | Fix |
+|---|---|
+| `TextEncoder is not defined` | Ensure `jest.setup.js` includes the `util` polyfill |
+| Module not found `@/...` | Check `moduleNameMapper` in `jest.config.js` |
+| Tests timing out | Add `jest.setTimeout(10000)` at the top of the test file |

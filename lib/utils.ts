@@ -42,8 +42,8 @@ export function formatLargeNumber(amount: number): string {
 	return amount.toString();
 }
 
-export function formatNaira(amount: number): string {
-	return `₦${formatCurrency(amount)}`;
+export function formatNaira(amount: number, currencySymbol = "₦"): string {
+	return `${currencySymbol}${formatCurrency(amount)}`;
 }
 
 export const dateTimeFormatter = (
@@ -115,9 +115,12 @@ export const downloadComponentAsPDF = async (
 	}
 };
 
-export const getStockStatus = (stock: number) => {
+export const getStockStatus = (stock: number, reorderLevel: number = 10) => {
 	if (stock === 0)
 		return { label: "Out of Stock", variant: "destructive" as const };
-	if (stock < 10) return { label: "Low Stock", variant: "secondary" as const };
+	if (stock <= reorderLevel) return { label: "Low Stock", variant: "secondary" as const };
 	return { label: "In Stock", variant: "default" as const };
 };
+
+// Re-export spending tier helpers from their dedicated module
+export { getSpendingTier, type SpendingTier, type TierInfo } from "@/lib/spending-tier";

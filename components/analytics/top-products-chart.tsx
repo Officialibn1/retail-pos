@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { TopProductsResult } from "@/lib/types";
 import { TrendingUp, Package, DollarSign, BarChart3 } from "lucide-react";
 
@@ -34,7 +35,7 @@ type ChartType = "bar" | "trend";
 
 const chartConfig = {
 	revenue: {
-		label: "Revenue (₦)",
+		label: "Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 	quantity: {
@@ -42,7 +43,7 @@ const chartConfig = {
 		color: "var(--color-brand-main-500)",
 	},
 	totalRevenue: {
-		label: "Total Revenue (₦)",
+		label: "Total Revenue",
 		color: "var(--color-brand-main-600)",
 	},
 	unitsSold: {
@@ -55,6 +56,7 @@ export function TopProductsChart({
 	data,
 	onProductClick,
 }: TopProductsChartProps) {
+	const c = useCurrencySymbol();
 	const [viewMode, setViewMode] = useState<ViewMode>("revenue");
 	const [chartType, setChartType] = useState<ChartType>("bar");
 
@@ -86,7 +88,7 @@ export function TopProductsChart({
 					</p>
 					<div className='space-y-1'>
 						<p className='text-sm'>
-							<span className='font-medium'>Revenue:</span> ₦
+							<span className='font-medium'>Revenue:</span> {c}
 							{formatCurrency(data.totalRevenue)}
 						</p>
 						<p className='text-sm'>
@@ -94,7 +96,7 @@ export function TopProductsChart({
 							{data.unitsSold.toLocaleString()}
 						</p>
 						<p className='text-sm'>
-							<span className='font-medium'>Avg Price:</span> ₦
+							<span className='font-medium'>Avg Price:</span> {c}
 							{formatCurrency(data.averageSellingPrice)}
 						</p>
 					</div>
@@ -121,7 +123,7 @@ export function TopProductsChart({
 								style={{ color: entry.color }}>
 								<span className='font-medium'>{entry.name}:</span>{" "}
 								{entry.dataKey === "revenue"
-									? `₦${formatCurrency(entry.value)}`
+									? `${c}${formatCurrency(entry.value)}`
 									: entry.value.toLocaleString()}
 							</p>
 						))}
@@ -199,7 +201,7 @@ export function TopProductsChart({
 					{data.products.length > 0 && (
 						<div className='flex items-center gap-4'>
 							<span>
-								Top Revenue: ₦
+								Top Revenue: {c}
 								{formatCurrency(data.products[0]?.totalRevenue || 0)}
 							</span>
 							<span>
@@ -249,7 +251,7 @@ export function TopProductsChart({
 										className='text-brand-main-600'
 										tickFormatter={(value) =>
 											viewMode === "revenue"
-												? `₦${formatCurrency(value)}`
+												? `${c}${formatCurrency(value)}`
 												: value.toLocaleString()
 										}
 									/>
@@ -296,7 +298,7 @@ export function TopProductsChart({
 											tickLine={false}
 											axisLine={false}
 											className='text-brand-main-600'
-											tickFormatter={(value) => `₦${formatCurrency(value)}`}
+											tickFormatter={(value) => `${c}${formatCurrency(value)}`}
 										/>
 										<YAxis
 											yAxisId='quantity'

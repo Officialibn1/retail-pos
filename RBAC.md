@@ -34,7 +34,9 @@ enum UserRole {
 - ✅ Access dashboard and analytics
 - ✅ View activity logs
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds
 - ✅ Export database backups
+- ✅ View all cash drawer sessions across all users
 - ✅ Cannot be blocked or suspended (protected status)
 
 ### 2. MANAGER
@@ -48,6 +50,8 @@ enum UserRole {
 - ✅ Access dashboard and analytics
 - ✅ View activity logs
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds
+- ✅ View all cash drawer sessions across all users
 - ❌ Cannot manage users
 
 ### 3. ADMIN
@@ -59,11 +63,15 @@ enum UserRole {
 - ✅ Manage customers (create, read, update, delete)
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
+- ✅ Process sale returns and refunds (own sales only)
+- ✅ Open and close own cash drawer sessions
+- ✅ View own cash drawer sessions
 - ❌ Cannot access analytics page
 - ❌ Cannot view all data
 - ❌ Cannot manage inventory
 - ❌ Cannot manage users
 - ❌ Cannot view activity logs
+- ❌ Cannot view other users' cash drawer sessions
 
 ### 4. CASHIER
 
@@ -73,6 +81,10 @@ enum UserRole {
 - ✅ Create customers only
 - ✅ Access dashboard (own data only)
 - ✅ Process sales and checkout
+- ✅ View returns they personally processed (scoped to `processedById`)
+- ✅ Open and close own cash drawer sessions
+- ✅ View own cash drawer sessions
+- ❌ Cannot process sale returns (no refund capability)
 - ❌ Cannot access analytics page
 - ❌ Cannot update or delete customers
 - ❌ Cannot manage categories
@@ -80,6 +92,7 @@ enum UserRole {
 - ❌ Cannot manage users
 - ❌ Cannot view all data
 - ❌ Cannot view activity logs
+- ❌ Cannot view other users' cash drawer sessions
 
 ## User Shifts
 
@@ -169,6 +182,10 @@ enum UserStatus {
 | Create Sale                | ✅         | ✅      | ✅    | ✅      |
 | Complete Sale              | ✅         | ✅      | ✅    | ✅      |
 | Cancel Sale                | ✅         | ✅      | ✅    | ✅      |
+| **Sale Returns**           |
+| View All Returns           | ✅         | ✅      | ❌    | ❌      |
+| View Own Returns           | ✅         | ✅      | ✅    | ✅      |
+| Process Return (refund)    | ✅         | ✅      | ✅    | ❌      |
 | **Inventory**              |
 | View Inventory             | ✅         | ✅      | ✅    | ✅      |
 | Create Item                | ✅         | ✅      | ❌    | ❌      |
@@ -193,6 +210,11 @@ enum UserStatus {
 | Change User Status         | ✅         | ❌      | ❌    | ❌      |
 | **Backup**                 |
 | Export Database Backup     | ✅         | ❌      | ❌    | ❌      |
+| **Cash Drawer**            |
+| View All Sessions          | ✅         | ✅      | ❌    | ❌      |
+| View Own Sessions          | ✅         | ✅      | ✅    | ✅      |
+| Open Drawer Session        | ✅         | ✅      | ✅    | ✅      |
+| Close Drawer Session       | ✅         | ✅      | ✅    | ✅      |
 | **Analytics**              |
 | Access Dashboard Page      | ✅         | ✅      | ✅    | ✅      |
 | View Dashboard Stats (Own) | ✅         | ✅      | ✅    | ✅      |
@@ -351,6 +373,25 @@ if (
 }
 ```
 
+### Sale Returns
+
+- **SUPERADMIN & MANAGER**: See all returns across all users
+- **ADMIN & CASHIER**: See only returns they personally processed (scoped by `processedById`)
+
+Implementation in services:
+
+```typescript
+// Only SUPERADMIN and MANAGER can see all returns
+if (
+	userId &&
+	userRoles &&
+	!userRoles.includes(UserRole.SUPERADMIN) &&
+	!userRoles.includes(UserRole.MANAGER)
+) {
+	whereClause.processedById = userId; // Filter to returns processed by this user
+}
+```
+
 ### Activity Logs
 
 - **SUPERADMIN & MANAGER**: See all activity logs
@@ -373,10 +414,12 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  sessions            Session[]
-  passwordResetTokens PasswordResetToken[]
-  sales               Sale[]
-  activityLogs        ActivityLog[]
+  sessions              Session[]
+  passwordResetTokens   PasswordResetToken[]
+  sales                 Sale[]
+  saleReturns           SaleReturn[]
+  activityLogs          ActivityLog[]
+  cashDrawerSessions    CashDrawerSession[]
 
   @@map("users")
 }
@@ -387,9 +430,82 @@ Key fields:
 - **roles**: Array of UserRole enums (supports multiple roles)
 - **status**: UserStatus enum (ACTIVE, BLOCKED, SUSPENDED)
 - **shift**: Shift enum (MORNING, EVENING, FULLTIME)
+- **saleReturns**: Returns processed by this user (via `processedById`)
+- **cashDrawerSessions**: Drawer sessions opened by this user
 - Default role: CASHIER
 - Default status: ACTIVE
 - Default shift: MORNING
+
+### Sale Return Models
+
+```prisma
+model SaleReturn {
+  id            String           @id @default(cuid())
+  saleId        String
+  reason        String
+  refundAmount  Decimal          @db.Decimal(10, 2)
+  refundMethod  PaymentMethod
+  processedById String
+  createdAt     DateTime         @default(now())
+  items         SaleReturnItem[]
+  sale          Sale             @relation(fields: [saleId], references: [id])
+  processedBy   User             @relation(fields: [processedById], references: [id])
+
+  @@map("sale_returns")
+}
+
+model SaleReturnItem {
+  id              String        @id @default(cuid())
+  returnId        String
+  inventoryItemId String
+  quantity        Int
+  price           Decimal       @db.Decimal(10, 2)
+  saleReturn      SaleReturn    @relation(fields: [returnId], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@map("sale_return_items")
+}
+```
+
+Key fields:
+
+- **processedById**: The user who processed the return — used for role-based attribution and audit trail
+- **refundMethod**: Uses the existing `PaymentMethod` enum (CASH, CARD, MOBILE_MONEY, BANK_TRANSFER)
+- **reason**: Free-text explanation for the return
+
+### Cash Drawer Session Model
+
+```prisma
+model CashDrawerSession {
+  id             String    @id @default(cuid())
+  userId         String
+  openingFloat   Decimal   @db.Decimal(10, 2)
+  declaredClose  Decimal?  @db.Decimal(10, 2)
+  expectedClose  Decimal?  @db.Decimal(10, 2)
+  variance       Decimal?  @db.Decimal(10, 2)
+  openedAt       DateTime  @default(now())
+  closedAt       DateTime?
+  notes          String?
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([openedAt])
+  @@index([closedAt])
+  @@map("cash_drawer_sessions")
+}
+```
+
+Key fields:
+
+- **userId**: The user who owns this drawer session — used for role-based scoping
+- **openingFloat**: Cash amount placed in the drawer when the session opens
+- **declaredClose**: Cash amount the user declares at session close
+- **expectedClose**: System-calculated expected closing balance (openingFloat + cash sales)
+- **variance**: Difference between `declaredClose` and `expectedClose` — used for reconciliation
+- **openedAt / closedAt**: Session timestamps; `closedAt` is null for active sessions
+- **notes**: Optional free-text for discrepancy explanations
+
+> **Note**: The `User` model must include a `cashDrawerSessions CashDrawerSession[]` relation field for this model to pass Prisma validation.
 
 ## API Route Protection
 
@@ -402,6 +518,12 @@ All API routes follow a consistent protection pattern using authentication, role
 - `GET /api/sales/:id` - All roles (filtered by role), ACTIVE or SUSPENDED users
 - `PUT /api/sales/:id/complete` - All roles (own sales), **ACTIVE users only** (mutation protected)
 - `PUT /api/sales/:id/cancel` - All roles (own sales), **ACTIVE users only** (mutation protected)
+
+### Sale Return Routes
+
+- `GET /api/returns` - All roles; SUPERADMIN & MANAGER see all returns, ADMIN sees returns they processed, CASHIER sees returns they processed (scoped by `processedById`); ACTIVE or SUSPENDED users
+- `POST /api/sales/:id/return` - SUPERADMIN, MANAGER, ADMIN, **ACTIVE users only** (mutation protected)
+- `GET /api/sales/:id/return` - SUPERADMIN, MANAGER (any return); ADMIN (own return only); ACTIVE or SUSPENDED users
 
 ### Inventory Routes
 
@@ -431,7 +553,6 @@ All API routes follow a consistent protection pattern using authentication, role
 - `POST /api/users` - SUPERADMIN only, **ACTIVE users only** (mutation protected with `requireActiveMutation`)
   - Automatically generates a secure random password (12 characters)
   - Sends welcome email with login credentials to the new user
-  - Returns the temporary password in the API response for admin reference
   - Response message: "User created successfully. Login credentials have been sent to the user's email."
 - `GET /api/users/:id` - SUPERADMIN only, ACTIVE or SUSPENDED users
 - `PUT /api/users/:id` - SUPERADMIN only, **ACTIVE users only** (mutation protected)
@@ -449,6 +570,13 @@ All API routes follow a consistent protection pattern using authentication, role
 - `POST /api/backup` - SUPERADMIN only, ACTIVE or SUSPENDED users (read-only operation that exports database to Excel)
   - Uses standard middleware pattern: `requireAuth()` followed by `requireSuperAdmin()`
   - Exports all database tables to Excel workbook format
+
+### Cash Drawer Routes
+
+- `GET /api/cash-drawer` - All roles; SUPERADMIN & MANAGER see all sessions, ADMIN & CASHIER see own sessions only; ACTIVE or SUSPENDED users
+- `POST /api/cash-drawer` - All roles (open a new session), **ACTIVE users only** (mutation protected)
+- `GET /api/cash-drawer/:id` - All roles (own session); SUPERADMIN & MANAGER (any session); ACTIVE or SUSPENDED users
+- `PATCH /api/cash-drawer/:id/close` - All roles (own session only), **ACTIVE users only** (mutation protected)
 
 ### Protection Pattern
 
@@ -555,7 +683,6 @@ Password reset tokens are:
 9. **HTTP-Only Cookies**: Authentication tokens are stored in HTTP-only cookies to prevent XSS attacks
 10. **Secure Password Generation**: New user accounts are created with randomly generated 12-character passwords
 11. **Email Notification**: Login credentials are automatically sent to new users via email
-12. **Admin Password Access**: Temporary passwords are included in the API response for admin reference and backup
 
 ## Testing RBAC
 

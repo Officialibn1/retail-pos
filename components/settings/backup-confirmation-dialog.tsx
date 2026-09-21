@@ -100,13 +100,13 @@ export function BackupConfirmationDialog({
 						variant='outline'
 						onClick={() => onOpenChange(false)}
 						disabled={isLoading}
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'>
+						className='  text-brand-main-700 hover:bg-brand-main-50'>
 						Cancel
 					</Button>
 					<Button
 						onClick={handleBackup}
 						disabled={isLoading}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white'>
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white'>
 						{isLoading ? "Creating Backup..." : "Proceed with Backup"}
 					</Button>
 				</DialogFooter>

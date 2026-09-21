@@ -42,7 +42,7 @@ export function SalesTrendReport({
 
 	if (isLoading) {
 		return (
-			<Card className='border-brand-main-200 xl:col-span-2'>
+			<Card className='  xl:col-span-2'>
 				<CardHeader>
 					<div className='flex items-center justify-between'>
 						<div>
@@ -95,7 +95,7 @@ export function SalesTrendReport({
 	}
 
 	return (
-		<Card className='border-brand-main-200 xl:col-span-2'>
+		<Card className='  xl:col-span-2'>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
 					<div>

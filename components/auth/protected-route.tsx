@@ -15,7 +15,7 @@ export function ProtectedRoute({
 	children,
 	allowedRoles,
 }: ProtectedRouteProps) {
-	const { user, login, isLoading } = useAuth();
+	const { user, isLoading } = useAuth();
 
 	if (isLoading) {
 		return (
@@ -29,7 +29,7 @@ export function ProtectedRoute({
 	}
 
 	if (!user) {
-		return <LoginForm onLogin={login} />;
+		return <LoginForm />;
 	}
 
 	// Check if user has at least one of the allowed roles

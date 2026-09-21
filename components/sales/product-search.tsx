@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -16,6 +23,7 @@ import {
 import { Search, Plus, Camera } from "lucide-react";
 import { QR_SCANNER_FORMAT_OPTIONS, formatNaira } from "@/lib/utils";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 
 interface ProductSearchProps {
 	inventory: InventoryItemWithCategory[];
@@ -30,6 +38,7 @@ export function ProductSearch({
 	creatingSale,
 	completingSale,
 }: ProductSearchProps) {
+	const c = useCurrencySymbol();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [isScanning, setIsScanning] = useState(false);
@@ -61,19 +70,18 @@ export function ProductSearch({
 
 	const handleScan = (decodedBarcodes: DetectedBarcode[]) => {
 		setSearchTerm(decodedBarcodes[0].rawValue);
-		setIsScanning(false);
 	};
 
 	return (
 		<div className='space-y-4 h-fit'>
 			<div className='flex gap-4'>
 				<div className='relative flex-1'>
-					<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-brand-main-500' />
+					<Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
 					<Input
 						placeholder='Search products by name, SKU, or barcode...'
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						className='pl-8 border-brand-main-200 focus:border-brand-main-400'
+						className='pl-8   focus:border-brand-main-400'
 						disabled={completingSale || creatingSale}
 					/>
 					<Button
@@ -81,33 +89,36 @@ export function ProductSearch({
 						variant='outline'
 						onClick={() => setIsScanning(!isScanning)}
 						disabled={completingSale || creatingSale}
-						className='absolute right-2.5 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50'
+						className='absolute right-2.5 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0   text-brand-main-700 hover:bg-brand-main-50'
 						aria-label='Scan Barcode'>
 						<Camera className='h-4 w-4' />
 					</Button>
 				</div>
-				<select
+				<Select
 					value={selectedCategory}
 					disabled={completingSale || creatingSale}
-					onChange={(e) => setSelectedCategory(e.target.value)}
-					className='px-3 py-2 border border-brand-main-200 rounded-md text-sm focus:border-brand-main-400 focus:outline-none'>
-					<option value='all'>All Categories</option>
-					{categories.map((category) => (
-						<option
-							key={category}
-							value={category}>
-							{category}
-						</option>
-					))}
-				</select>
+					onValueChange={setSelectedCategory}>
+					<SelectTrigger className='w-44 focus:border-brand-main-400'>
+						<SelectValue placeholder='All Categories' />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value='all'>All Categories</SelectItem>
+						{categories.map((category) => (
+							<SelectItem
+								key={category}
+								value={category}>
+								{category}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			{isScanning && (
-				<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
+				<div className='relative w-full h-64 border   rounded-lg overflow-hidden'>
 					<BarcodeScanner
 						ref={scannerRef}
 						onCapture={handleScan}
-						onError={() => setIsScanning(false)}
 						width={300}
 						height={200}
 						trackConstraints={{
@@ -122,16 +133,16 @@ export function ProductSearch({
 				</div>
 			)}
 
-			<div className='border border-brand-main-200 rounded-lg h-full max-h-[415px] overflow-y-auto'>
+			<div className='border   rounded-lg h-full max-h-[415px] overflow-y-auto'>
 				<Table>
 					<TableHeader>
-						<TableRow className='border-brand-main-200'>
-							<TableHead className='text-brand-main-700'>Product</TableHead>
-							<TableHead className='text-brand-main-700'>SKU</TableHead>
-							<TableHead className='text-brand-main-700'>Price</TableHead>
-							<TableHead className='text-brand-main-700'>Stock</TableHead>
-							<TableHead className='text-brand-main-700'>Status</TableHead>
-							<TableHead className='text-brand-main-700'>Action</TableHead>
+						<TableRow className=' '>
+							<TableHead className='text-brand-main-900'>Product</TableHead>
+							<TableHead className='text-brand-main-900'>SKU</TableHead>
+							<TableHead className='text-brand-main-900'>Price</TableHead>
+							<TableHead className='text-brand-main-900'>Stock</TableHead>
+							<TableHead className='text-brand-main-900'>Status</TableHead>
+							<TableHead className='text-brand-main-900'>Action</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -143,23 +154,23 @@ export function ProductSearch({
 									className='border-brand-main-100 hover:bg-brand-main-50'>
 									<TableCell>
 										<div>
-											<p className='font-medium text-brand-main-800 text-sm'>
+											<p className='font-medium text-brand-main-900 text-sm'>
 												{product.name}
 											</p>
 											{product.description && (
-												<p className='text-xs text-brand-main-600 truncate max-w-xs'>
+												<p className='text-xs text-slate-500 truncate max-w-xs'>
 													{product.description}
 												</p>
 											)}
 										</div>
 									</TableCell>
-									<TableCell className='text-brand-main-700 text-sm'>
+									<TableCell className='text-brand-main-900 text-sm'>
 										{product.sku}
 									</TableCell>
-									<TableCell className='text-brand-main-800 font-medium'>
-										{formatNaira(Number(product.price))}
+									<TableCell className='text-brand-main-900 font-mono font-medium'>
+										{formatNaira(Number(product.price), c)}
 									</TableCell>
-									<TableCell className='text-brand-main-700'>
+									<TableCell className='text-brand-main-900'>
 										{product.stock}
 									</TableCell>
 									<TableCell>
@@ -167,10 +178,10 @@ export function ProductSearch({
 											variant={stockStatus.variant}
 											className={
 												stockStatus.variant === "destructive"
-													? "bg-red-100 text-red-800 hover:bg-red-100"
+													? "bg-red-100 text-red-900 hover:bg-red-100"
 													: stockStatus.variant === "secondary"
-													? "bg-amber-100 text-amber-800 hover:bg-amber-100"
-													: "bg-green-100 text-green-800 hover:bg-green-100"
+													? "bg-amber-100 text-amber-900 hover:bg-amber-100"
+													: "bg-green-100 text-green-900 hover:bg-green-100"
 											}>
 											{stockStatus.label}
 										</Badge>
@@ -179,7 +190,7 @@ export function ProductSearch({
 										<Button
 											size='sm'
 											onClick={() => onAddToCart(product, 1)}
-											className='bg-brand-main-600 hover:bg-brand-main-700 text-white'
+											className='bg-brand-main-900 hover:bg-brand-main-700 text-white'
 											disabled={
 												product.stock === 0 || completingSale || creatingSale
 											}>

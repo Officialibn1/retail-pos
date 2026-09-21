@@ -1,759 +1,1504 @@
 import { Customer, InventoryItem, Sale, User } from "@/generated/prisma";
 import {
-	ActivityLogWithUser,
-	CategoryWithCount,
-	CategoryWithItems,
-	InventoryItemWithCategory,
-	UserWithoutPassword,
+  ActivityLogWithUser,
+  CategoryWithCount,
+  CategoryWithItems,
+  InventoryItemWithCategory,
+  PurchaseOrderWithDetails,
+  SupplierWithCounts,
+  UserWithoutPassword,
 } from "@/lib/prisma-extended-types";
+import { SupplierDetail } from "@/lib/services/supplier.service";
 import { CustomerWithSales } from "@/lib/services/customer.service";
 import { SaleWithDetails } from "@/lib/services/sale.service";
 
 import {
-	AdjustStockInput,
-	CompleteSaleInput,
-	CreateCustomerInput,
-	CreateInventoryItemInput,
-	CreateSaleInput,
-	CreateUserInput,
-	LoginInput,
-	UpdateCustomerInput,
-	UpdateInventoryItemInput,
-	UpdateUserInput,
+  AdjustStockInput,
+  CompleteSaleInput,
+  CreateCustomerInput,
+  CreateInventoryItemInput,
+  CreateSaleInput,
+  CreateUserInput,
+  LoginInput,
+  UpdateCustomerInput,
+  UpdateInventoryItemInput,
+  UpdateUserInput,
+  CreateExpenseInput,
+  UpdateExpenseInput,
+  CreateSupplierInput,
+  UpdateSupplierInput,
+  CreatePurchaseOrderInput,
+  UpdatePurchaseOrderInput,
+  ReceivePurchaseOrderInput,
+  CreatePromotionInput,
+  UpdatePromotionInput,
+  ValidatePromotionCodeInput,
 } from "@/lib/validations";
 import {
-	DashboardStats,
-	LoginResponse,
-	LogoutResponse,
-	SearchParams,
-	TopProductsParams,
-	TopProductsResult,
-	CategoryRevenueParams,
-	CategoryRevenueResult,
-	SalesTrendParams,
-	SalesTrendResult,
-	PaymentBreakdownParams,
-	PaymentBreakdownResult,
-	CashierPerformanceParams,
-	CashierPerformanceResult,
-	InventoryValueResult,
-	TopCustomersParams,
-	TopCustomersResult,
-	CustomerTrendsParams,
-	CustomerTrendsResult,
+  DashboardStats,
+  LoginResponse,
+  LogoutResponse,
+  SearchParams,
+  TopProductsParams,
+  TopProductsResult,
+  CategoryRevenueParams,
+  CategoryRevenueResult,
+  SalesTrendParams,
+  SalesTrendResult,
+  PaymentBreakdownParams,
+  PaymentBreakdownResult,
+  CashierPerformanceParams,
+  CashierPerformanceResult,
+  InventoryValueResult,
+  TopCustomersParams,
+  TopCustomersResult,
+  CustomerTrendsParams,
+  CustomerTrendsResult,
+  GetExpensesResponse,
+  GetExpenseResponse,
+  CreateExpenseResponse,
+  UpdateExpenseResponse,
+  DeleteExpenseResponse,
+  ExpenseSearchParams,
 } from "@/lib/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const TAG_TYPES = [
-	"Auth",
-	"Inventory",
-	"Sales",
-	"Users",
-	"Customers",
-	"Categories",
-	"ActivityLogs",
-	"Analytics",
+  "Auth",
+  "Inventory",
+  "Sales",
+  "Returns",
+  "Users",
+  "Customers",
+  "Categories",
+  "ActivityLogs",
+  "Analytics",
+  "StoreSettings",
+  "CashDrawer",
+  "Notifications",
+  "Expenses",
+  "Suppliers",
+  "PurchaseOrders",
+  "Promotions",
 ] as const;
+
+export interface StoreSettings {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  taxRate: number;
+  primaryColor: string;
+  secondaryColor: string;
+  logoUrl: string;
+  currencySymbol: string;
+}
+
+export interface GetStoreSettingsResponse {
+  settings: StoreSettings;
+}
+
+export interface UpdateStoreSettingsRequest {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  taxRate?: number;
+  primaryColor?: string;
+  secondaryColor?: string;
+  logoUrl?: string;
+  currencySymbol?: string;
+}
 
 export type TagType = (typeof TAG_TYPES)[number];
 
 export interface InventoryItemResponse {
-	message: string;
-	item: InventoryItem;
+  message: string;
+  item: InventoryItem;
 }
 
 // Get inventory item response
 export interface GetInventoryItemResponse {
-	item: InventoryItemWithCategory;
+  item: InventoryItemWithCategory;
 }
 
 // Delete inventory item response
 export interface DeleteInventoryItemResponse {
-	message: string;
+  message: string;
 }
 
 // Get users response
 export interface GetUsersResponse {
-	users: UserWithoutPassword[];
-	count: number;
+  users: UserWithoutPassword[];
+  count: number;
 }
 
 // Get user response
 export interface GetUserResponse {
-	user: UserWithoutPassword;
+  user: UserWithoutPassword;
 }
 
 // Create user response
 export interface CreateUserResponse {
-	message: string;
-	user: UserWithoutPassword;
+  message: string;
+  user: UserWithoutPassword;
 }
 
 // Update user response
 export interface UpdateUserResponse {
-	message: string;
-	user: UserWithoutPassword;
+  message: string;
+  user: UserWithoutPassword;
 }
 
 // Delete user response
 export interface DeleteUserResponse {
-	message: string;
+  message: string;
 }
 
 // Customer data in a sale
 export interface SaleCustomerData {
-	id: string;
-	name: string | null;
-	phone: string | null;
+  id: string;
+  name: string | null;
+  phone: string | null;
 }
 
 // User data in a sale
 export interface SaleUser {
-	id: string;
-	name: string;
-	email: string;
+  id: string;
+  name: string;
+  email: string;
 }
 
 // Cancel sale request (no body required, but keeping for consistency)
 export interface CancelSaleRequest {
-	reason?: string;
+  reason?: string;
+}
+
+// Return item
+export interface ReturnItemRequest {
+  inventoryItemId: string;
+  quantity: number;
+}
+
+// Create return request
+export interface CreateReturnRequest {
+  items: ReturnItemRequest[];
+  reason: string;
+  refundMethod: string;
+}
+
+// Sale return item in response
+export interface SaleReturnItemResponse {
+  id: string;
+  quantity: number;
+  price: number;
+  inventoryItem: {
+    id: string;
+    name: string;
+    sku: string;
+  };
+}
+
+// Sale return response
+export interface CreateReturnResponse {
+  id: string;
+  saleId: string;
+  reason: string;
+  refundAmount: number;
+  refundMethod: string;
+  createdAt: string;
+  processedById: string;
+  items: SaleReturnItemResponse[];
+  processedBy: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 // Customer search parameters
 export interface CustomerSearchParams {
-	searchTerm?: string;
+  searchTerm?: string;
 }
 
 // Category search parameters
 export interface CategorySearchParams {
-	searchTerm?: string;
+  searchTerm?: string;
 }
 
 // User search parameters
 export interface UserSearchParams {
-	searchTerm?: string;
-	role?: string;
+  searchTerm?: string;
+  role?: string;
 }
 
 // Sale search parameters
 export interface SaleSearchParams {
-	searchTerm?: string;
-	status?: string;
-	paymentMethod?: string;
-	startDate?: string;
-	endDate?: string;
+  searchTerm?: string;
+  status?: string;
+  paymentMethod?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Get customers response
 export interface GetCustomersResponse {
-	customers: CustomerWithSales[];
-	count: number;
+  customers: CustomerWithSales[];
+  count: number;
 }
 
 // Get customer response
 export interface GetCustomerResponse {
-	customer: CustomerWithSales;
+  customer: CustomerWithSales;
+}
+
+// Customer detail sale item
+export interface CustomerDetailSaleItem {
+  id: string;
+  quantity: number;
+  price: number;
+  note: string | null;
+  inventoryItem: {
+    id: string;
+    name: string;
+    sku: string;
+    category: { id: string; name: string };
+  };
+}
+
+// Customer detail return item
+export interface CustomerDetailReturnItem {
+  id: string;
+  quantity: number;
+  price: number;
+  inventoryItem: { id: string; name: string; sku: string };
+}
+
+// Customer detail sale
+export interface CustomerDetailSale {
+  id: string;
+  total: number;
+  subTotal: number;
+  discountAmount: number | null;
+  taxAmount: number | null;
+  status: string;
+  paymentMethod: string | null;
+  amountPaid: number | null;
+  changeGiven: number | null;
+  createdAt: string;
+  completedAt: string | null;
+  cancelledAt: string | null;
+  user: { id: string; name: string };
+  items: CustomerDetailSaleItem[];
+  returns: Array<{
+    id: string;
+    reason: string;
+    refundAmount: number;
+    refundMethod: string;
+    createdAt: string;
+    processedBy: { id: string; name: string };
+    items: CustomerDetailReturnItem[];
+  }>;
+}
+
+// Customer detail response
+export interface CustomerDetailResponse {
+  customer: {
+    id: string;
+    name: string | null;
+    phone: string;
+    email: string | null;
+    createdAt: string;
+    updatedAt: string;
+    sales: CustomerDetailSale[];
+  };
 }
 
 // Create customer response
 export interface CreateCustomerResponse {
-	message: string;
-	customer: Customer;
+  message: string;
+  customer: Customer;
 }
 
 // Update customer response
 export interface UpdateCustomerResponse {
-	message: string;
-	customer: Customer;
+  message: string;
+  customer: Customer;
 }
 
 // Delete customer response
 export interface DeleteCustomerResponse {
-	message: string;
+  message: string;
 }
 
 // Category data
 export interface CategoryData {
-	id: string;
-	name: string;
+  id: string;
+  name: string;
 }
 
 // Create category request
 export interface CreateCategoryRequest {
-	name: string;
+  name: string;
 }
 
 // Update category request
 export interface UpdateCategoryRequest {
-	name: string;
+  name: string;
 }
 
 // Get categories response
 export interface GetCategoriesResponse {
-	categories: CategoryWithCount[];
-	count: number;
+  categories: CategoryWithCount[];
+  count: number;
 }
 
 // Get category response
 export interface GetCategoryResponse {
-	category: CategoryWithItems;
+  category: CategoryWithItems;
 }
 
 // Create category response
 export interface CreateCategoryResponse {
-	message: string;
-	category: CategoryData;
+  message: string;
+  category: CategoryData;
 }
 
 // Update category response
 export interface UpdateCategoryResponse {
-	message: string;
-	category: CategoryData;
+  message: string;
+  category: CategoryData;
 }
 
 // Delete category response
 export interface DeleteCategoryResponse {
-	message: string;
+  message: string;
 }
 
 // Daily sales data
 export interface DailySales {
-	date: string;
-	sales: number;
-	revenue: number;
+  date: string;
+  sales: number;
+  revenue: number;
 }
 
 // Get sales by date query parameters
 export interface GetSalesByDateParams {
-	startDate?: string;
-	endDate?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Top selling product data
 export interface TopProduct {
-	productId: string;
-	productName: string;
-	quantitySold: number;
-	revenue: number;
+  productId: string;
+  productName: string;
+  quantitySold: number;
+  revenue: number;
 }
 
 // Get top products query parameters
 export interface GetTopProductsParams {
-	limit?: number;
+  limit?: number;
 }
 
 // Payment method statistics
 export interface PaymentMethodStats {
-	method: string;
-	count: number;
-	revenue: number;
+  method: string;
+  count: number;
+  revenue: number;
 }
 
 // Activity log search parameters
 export interface ActivityLogSearchParams {
-	searchTerm?: string;
-	action?: string;
-	limit?: number;
+  searchTerm?: string;
+  action?: string;
+  limit?: number;
+  entityType?: string;
+  entityId?: string;
+}
+
+// Returns list search parameters
+export interface ReturnSearchParams {
+  searchTerm?: string;
+  refundMethod?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+// Return list item (matches ReturnWithDetails from return.service)
+export interface ReturnWithDetails {
+  id: string;
+  saleId: string;
+  reason: string;
+  refundAmount: number;
+  refundMethod: string;
+  createdAt: string;
+  processedBy: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  sale: {
+    id: string;
+    customer: {
+      id: string;
+      name: string | null;
+      phone: string;
+    } | null;
+  };
+  items: SaleReturnItemResponse[];
+}
+
+// Low-stock notification types
+export interface LowStockItem {
+  id: string;
+  name: string;
+  sku: string;
+  stock: number;
+  reorderLevel: number;
+  category: string;
+}
+
+export interface LowStockNotificationsResponse {
+  items: LowStockItem[];
+  count: number;
+}
+
+// Cash Drawer / Shift Session types
+export interface CashDrawerSessionUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface CashDrawerSession {
+  id: string;
+  userId: string;
+  openingFloat: number;
+  declaredClose: number | null;
+  expectedClose: number | null;
+  variance: number | null;
+  openedAt: string;
+  closedAt: string | null;
+  notes: string | null;
+  user: CashDrawerSessionUser;
+}
+
+export interface OpenShiftRequest {
+  openingFloat: number;
+  notes?: string;
+}
+
+export interface CloseShiftRequest {
+  declaredClose: number;
+  notes?: string;
+}
+
+export interface OpenShiftResponse {
+  message: string;
+  session: CashDrawerSession;
+}
+
+export interface CloseShiftResponse {
+  message: string;
+  session: CashDrawerSession;
+}
+
+export interface GetActiveSessionResponse {
+  session: CashDrawerSession | null;
+}
+
+export interface GetSessionsResponse {
+  sessions: CashDrawerSession[];
+}
+
+// ── Supplier Interfaces ─────────────────────────────────────────────────────
+
+export interface SupplierSearchParams {
+  searchTerm?: string;
+}
+
+export interface GetSuppliersResponse {
+  suppliers: SupplierWithCounts[];
+  count: number;
+}
+
+export interface GetSupplierResponse {
+  supplier: SupplierWithCounts;
+}
+
+export interface CreateSupplierResponse {
+  message: string;
+  supplier: SupplierWithCounts;
+}
+
+export interface UpdateSupplierResponse {
+  message: string;
+  supplier: SupplierWithCounts;
+}
+
+export interface DeleteSupplierResponse {
+  message: string;
+}
+
+// ── Purchase Order Interfaces ────────────────────────────────────────────────
+
+export interface PurchaseOrderSearchParams {
+  supplierId?: string;
+  status?: string;
+}
+
+export interface GetSupplierDetailResponse {
+  supplier: SupplierDetail;
+}
+
+export interface GetPurchaseOrdersResponse {
+  orders: PurchaseOrderWithDetails[];
+  count: number;
+}
+
+export interface GetPurchaseOrderResponse {
+  order: PurchaseOrderWithDetails;
+}
+
+export interface CreatePurchaseOrderResponse {
+  message: string;
+  order: PurchaseOrderWithDetails;
+}
+
+export interface UpdatePurchaseOrderResponse {
+  message: string;
+  order: PurchaseOrderWithDetails;
+}
+
+export interface ReceivePurchaseOrderResponse {
+  message: string;
+  order: PurchaseOrderWithDetails;
+}
+
+export interface CancelPurchaseOrderResponse {
+  message: string;
+  order: PurchaseOrderWithDetails;
+}
+
+// ── Promotion Interfaces ─────────────────────────────────────────────────────
+
+import { Promotion } from "@/generated/prisma";
+
+export interface PromotionSearchParams {
+  searchTerm?: string;
+  active?: string;
+}
+
+export interface GetPromotionsResponse {
+  promotions: Promotion[];
+  count: number;
+}
+
+export interface GetPromotionResponse {
+  promotion: Promotion;
+}
+
+export interface CreatePromotionResponse {
+  message: string;
+  promotion: Promotion;
+}
+
+export interface UpdatePromotionResponse {
+  message: string;
+  promotion: Promotion;
+}
+
+export interface DeletePromotionResponse {
+  message: string;
+}
+
+export interface ValidatePromotionResponse {
+  valid: true;
+  promotion: {
+    id: string;
+    code: string;
+    type: string;
+    value: number;
+    scope: string;
+    description: string | null;
+  };
+  discountAmount: number;
+  appliesTo: string;
 }
 
 export const api = createApi({
-	reducerPath: "api",
-	baseQuery: fetchBaseQuery({
-		baseUrl: "/",
-		credentials: "include", // Include cookies for JWT authentication
-		prepareHeaders: (headers) => {
-			// Ensure Content-Type is set for requests with body
-			if (!headers.has("Content-Type")) {
-				headers.set("Content-Type", "application/json");
-			}
-			return headers;
-		},
-	}),
-	tagTypes: TAG_TYPES,
-	endpoints: (builder) => ({
-		validateSession: builder.query<User, void>({
-			query: () => "/api/auth/me",
-			providesTags: ["Auth"],
-		}),
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: "/",
+    credentials: "include", // Include cookies for JWT authentication
+    prepareHeaders: (headers) => {
+      // Ensure Content-Type is set for requests with body
+      if (!headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
+      return headers;
+    },
+  }),
+  tagTypes: TAG_TYPES,
+  endpoints: (builder) => ({
+    validateSession: builder.query<User, void>({
+      query: () => "/api/auth/me",
+      providesTags: ["Auth"],
+    }),
 
-		login: builder.mutation<LoginResponse, LoginInput>({
-			query: (credentials) => ({
-				url: "/api/auth/login",
-				method: "POST",
-				body: credentials,
-			}),
-			invalidatesTags: ["Auth"],
-		}),
+    login: builder.mutation<LoginResponse, LoginInput>({
+      query: (credentials) => ({
+        url: "/api/auth/login",
+        method: "POST",
+        body: credentials,
+      }),
+      invalidatesTags: ["Auth"],
+    }),
 
-		logout: builder.mutation<LogoutResponse, void>({
-			query: () => ({
-				url: "/api/auth/logout",
-				method: "POST",
-			}),
-			invalidatesTags: ["Auth"],
-		}),
+    logout: builder.mutation<LogoutResponse, void>({
+      query: () => ({
+        url: "/api/auth/logout",
+        method: "POST",
+      }),
+      invalidatesTags: ["Auth"],
+    }),
 
-		getInventory: builder.query<
-			InventoryItemWithCategory[],
-			SearchParams | void
-		>({
-			query: (searchTerm) => ({
-				url: "/api/inventory",
-				params: {
-					searchTerm: searchTerm ? searchTerm.searchTerm : "",
-					category: searchTerm ? searchTerm.category : "",
-				},
-			}),
-			providesTags: ["Inventory"],
-		}),
+    getInventory: builder.query<
+      InventoryItemWithCategory[],
+      SearchParams | void
+    >({
+      query: (searchTerm) => ({
+        url: "/api/inventory",
+        params: {
+          searchTerm: searchTerm ? searchTerm.searchTerm : "",
+          category: searchTerm ? searchTerm.category : "",
+        },
+      }),
+      providesTags: ["Inventory"],
+    }),
 
-		getInventoryItem: builder.query<GetInventoryItemResponse, string>({
-			query: (id) => `/api/inventory/${id}`,
-			providesTags: ["Inventory"],
-		}),
+    getInventoryItem: builder.query<GetInventoryItemResponse, string>({
+      query: (id) => `/api/inventory/${id}`,
+      providesTags: ["Inventory"],
+    }),
 
-		createInventoryItem: builder.mutation<
-			InventoryItemResponse,
-			CreateInventoryItemInput
-		>({
-			query: (data) => ({
-				url: "/api/inventory",
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Inventory"],
-		}),
+    createInventoryItem: builder.mutation<
+      InventoryItemResponse,
+      CreateInventoryItemInput
+    >({
+      query: (data) => ({
+        url: "/api/inventory",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory", "Notifications"],
+    }),
 
-		updateInventoryItem: builder.mutation<
-			InventoryItemResponse,
-			{ id: string; data: UpdateInventoryItemInput }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/inventory/${id}`,
-				method: "PUT",
-				body: data,
-			}),
-			invalidatesTags: ["Inventory"],
-		}),
+    updateInventoryItem: builder.mutation<
+      InventoryItemResponse,
+      { id: string; data: UpdateInventoryItemInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/inventory/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory", "Notifications"],
+    }),
 
-		deleteInventoryItem: builder.mutation<DeleteInventoryItemResponse, string>({
-			query: (id) => ({
-				url: `/api/inventory/${id}`,
-				method: "DELETE",
-			}),
-			invalidatesTags: ["Inventory"],
-		}),
+    deleteInventoryItem: builder.mutation<DeleteInventoryItemResponse, string>({
+      query: (id) => ({
+        url: `/api/inventory/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Inventory", "Notifications"],
+    }),
 
-		adjustStock: builder.mutation<
-			InventoryItemResponse,
-			{ id: string; data: AdjustStockInput }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/inventory/${id}/adjust-stock`,
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Inventory"],
-		}),
+    adjustStock: builder.mutation<
+      InventoryItemResponse,
+      { id: string; data: AdjustStockInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/inventory/${id}/adjust-stock`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Inventory", "Notifications"],
+    }),
 
-		getSales: builder.query<SaleWithDetails[], SaleSearchParams | void>({
-			query: (params) => ({
-				url: "/api/sales",
-				method: "GET",
-				params: params || undefined,
-			}),
-			providesTags: ["Sales"],
-		}),
+    getSales: builder.query<SaleWithDetails[], SaleSearchParams | void>({
+      query: (params) => ({
+        url: "/api/sales",
+        method: "GET",
+        params: params || undefined,
+      }),
+      providesTags: ["Sales"],
+    }),
 
-		getSale: builder.query<SaleWithDetails, string>({
-			query: (id) => `/api/sales/${id}`,
-			providesTags: ["Sales"],
-		}),
+    getSale: builder.query<SaleWithDetails, string>({
+      query: (id) => `/api/sales/${id}`,
+      providesTags: ["Sales"],
+    }),
 
-		createSale: builder.mutation<Sale, CreateSaleInput>({
-			query: (data) => ({
-				url: "/api/sales",
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Sales", "Inventory"],
-		}),
+    createSale: builder.mutation<Sale, CreateSaleInput>({
+      query: (data) => ({
+        url: "/api/sales",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Sales", "Inventory"],
+    }),
 
-		completeSale: builder.mutation<
-			Sale,
-			{ id: string; data: CompleteSaleInput }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/sales/${id}/complete`,
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Sales", "Inventory"],
-		}),
+    completeSale: builder.mutation<
+      Sale,
+      { id: string; data: CompleteSaleInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/sales/${id}/complete`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Sales", "Inventory", "Notifications"],
+    }),
 
-		cancelSale: builder.mutation<Sale, string>({
-			query: (id) => ({
-				url: `/api/sales/${id}/cancel`,
-				method: "POST",
-			}),
-			invalidatesTags: ["Sales", "Inventory"],
-		}),
+    cancelSale: builder.mutation<Sale, string>({
+      query: (id) => ({
+        url: `/api/sales/${id}/cancel`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Sales", "Inventory"],
+    }),
 
-		getUsers: builder.query<GetUsersResponse, UserSearchParams | void>({
-			query: (params) => ({
-				url: "/api/users",
-				params: params || undefined,
-			}),
-			providesTags: ["Users"],
-		}),
+    updateSaleItems: builder.mutation<
+      SaleWithDetails,
+      {
+        id: string;
+        data: {
+          items: {
+            inventoryItemId: string;
+            quantity: number;
+            price: number;
+            note?: string | null;
+          }[];
+          discountRate: number;
+        };
+      }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/sales/${id}/items`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Sales", "Inventory"],
+    }),
 
-		getUser: builder.query<GetUserResponse, string>({
-			query: (id) => `/api/users/${id}`,
-			providesTags: ["Users"],
-		}),
+    createReturn: builder.mutation<
+      CreateReturnResponse,
+      { id: string; data: CreateReturnRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/sales/${id}/return`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Sales", "Inventory", "Returns"],
+    }),
 
-		createUser: builder.mutation<CreateUserResponse, CreateUserInput>({
-			query: (data) => ({
-				url: "/api/users",
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Users"],
-		}),
+    getReturns: builder.query<ReturnWithDetails[], ReturnSearchParams | void>({
+      query: (params) => ({
+        url: "/api/returns",
+        method: "GET",
+        params: params || undefined,
+      }),
+      providesTags: ["Returns"],
+    }),
 
-		updateUser: builder.mutation<
-			UpdateUserResponse,
-			{ id: string; data: UpdateUserInput }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/users/${id}`,
-				method: "PUT",
-				body: data,
-			}),
-			invalidatesTags: ["Users"],
-		}),
+    getUsers: builder.query<GetUsersResponse, UserSearchParams | void>({
+      query: (params) => ({
+        url: "/api/users",
+        params: params || undefined,
+      }),
+      providesTags: ["Users"],
+    }),
 
-		deleteUser: builder.mutation<DeleteUserResponse, string>({
-			query: (id) => ({
-				url: `/api/users/${id}`,
-				method: "DELETE",
-			}),
-			invalidatesTags: ["Users"],
-		}),
+    getUser: builder.query<GetUserResponse, string>({
+      query: (id) => `/api/users/${id}`,
+      providesTags: ["Users"],
+    }),
 
-		updateUserStatus: builder.mutation<
-			{ message: string; userId: string; status: string },
-			{ userId: string; status: string }
-		>({
-			query: ({ userId, status }) => ({
-				url: `/api/users/${userId}/status`,
-				method: "PATCH",
-				body: { status },
-			}),
-			invalidatesTags: ["Users"],
-		}),
+    createUser: builder.mutation<CreateUserResponse, CreateUserInput>({
+      query: (data) => ({
+        url: "/api/users",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
-		getCustomers: builder.query<
-			GetCustomersResponse,
-			CustomerSearchParams | void
-		>({
-			query: (params) => ({
-				url: "/api/customers",
-				params: params || undefined,
-			}),
-			providesTags: ["Customers"],
-		}),
+    updateUser: builder.mutation<
+      UpdateUserResponse,
+      { id: string; data: UpdateUserInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/users/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
-		getCustomer: builder.query<GetCustomerResponse, string>({
-			query: (id) => `/api/customers/${id}`,
-			providesTags: ["Customers"],
-		}),
+    deleteUser: builder.mutation<DeleteUserResponse, string>({
+      query: (id) => ({
+        url: `/api/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
-		createCustomer: builder.mutation<
-			CreateCustomerResponse,
-			CreateCustomerInput
-		>({
-			query: (data) => ({
-				url: "/api/customers",
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Customers"],
-		}),
+    updateUserStatus: builder.mutation<
+      { message: string; userId: string; status: string },
+      { userId: string; status: string }
+    >({
+      query: ({ userId, status }) => ({
+        url: `/api/users/${userId}/status`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
-		updateCustomer: builder.mutation<
-			UpdateCustomerResponse,
-			{ id: string; data: UpdateCustomerInput }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/customers/${id}`,
-				method: "PUT",
-				body: data,
-			}),
-			invalidatesTags: ["Customers"],
-		}),
+    getCustomers: builder.query<
+      GetCustomersResponse,
+      CustomerSearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/customers",
+        params: params || undefined,
+      }),
+      providesTags: ["Customers"],
+    }),
 
-		deleteCustomer: builder.mutation<DeleteCustomerResponse, string>({
-			query: (id) => ({
-				url: `/api/customers/${id}`,
-				method: "DELETE",
-			}),
-			invalidatesTags: ["Customers"],
-		}),
+    getCustomer: builder.query<GetCustomerResponse, string>({
+      query: (id) => `/api/customers/${id}`,
+      providesTags: ["Customers"],
+    }),
 
-		getCategories: builder.query<
-			GetCategoriesResponse,
-			CategorySearchParams | void
-		>({
-			query: (params) => ({
-				url: "/api/categories",
-				params: params || undefined,
-			}),
-			providesTags: ["Categories"],
-		}),
+    getCustomerDetail: builder.query<CustomerDetailResponse, string>({
+      query: (id) => `/api/customers/${id}/detail`,
+      providesTags: ["Customers"],
+    }),
 
-		getCategory: builder.query<GetCategoryResponse, string>({
-			query: (id) => `/api/categories/${id}`,
-			providesTags: ["Categories"],
-		}),
+    createCustomer: builder.mutation<
+      CreateCustomerResponse,
+      CreateCustomerInput
+    >({
+      query: (data) => ({
+        url: "/api/customers",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
 
-		createCategory: builder.mutation<
-			CreateCategoryResponse,
-			CreateCategoryRequest
-		>({
-			query: (data) => ({
-				url: "/api/categories",
-				method: "POST",
-				body: data,
-			}),
-			invalidatesTags: ["Categories"],
-		}),
+    updateCustomer: builder.mutation<
+      UpdateCustomerResponse,
+      { id: string; data: UpdateCustomerInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/customers/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Customers"],
+    }),
 
-		updateCategory: builder.mutation<
-			UpdateCategoryResponse,
-			{ id: string; data: UpdateCategoryRequest }
-		>({
-			query: ({ id, data }) => ({
-				url: `/api/categories/${id}`,
-				method: "PUT",
-				body: data,
-			}),
-			invalidatesTags: ["Categories"],
-		}),
+    deleteCustomer: builder.mutation<DeleteCustomerResponse, string>({
+      query: (id) => ({
+        url: `/api/customers/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Customers"],
+    }),
 
-		deleteCategory: builder.mutation<DeleteCategoryResponse, string>({
-			query: (id) => ({
-				url: `/api/categories/${id}`,
-				method: "DELETE",
-			}),
-			invalidatesTags: ["Categories"],
-		}),
+    getCategories: builder.query<
+      GetCategoriesResponse,
+      CategorySearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/categories",
+        params: params || undefined,
+      }),
+      providesTags: ["Categories"],
+    }),
 
-		getDashboardStats: builder.query<DashboardStats, void>({
-			query: () => "/api/analytics/dashboard",
-			providesTags: [{ type: "Analytics", id: "dashboard-stats" }],
-		}),
+    getCategory: builder.query<GetCategoryResponse, string>({
+      query: (id) => `/api/categories/${id}`,
+      providesTags: ["Categories"],
+    }),
 
-		getSalesByDate: builder.query<DailySales[], GetSalesByDateParams | void>({
-			query: (params) => ({
-				url: "/api/analytics/sales-by-date",
-				params: params || undefined,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `sales-by-date-${JSON.stringify(arg || {})}` },
-			],
-		}),
+    createCategory: builder.mutation<
+      CreateCategoryResponse,
+      CreateCategoryRequest
+    >({
+      query: (data) => ({
+        url: "/api/categories",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Categories"],
+    }),
 
-		getTopProducts: builder.query<TopProduct[], GetTopProductsParams | void>({
-			query: (params) => ({
-				url: "/api/analytics/top-products",
-				params: params || undefined,
-			}),
-			providesTags: (result, error, arg) => [
-				{
-					type: "Analytics",
-					id: `top-products-legacy-${JSON.stringify(arg || {})}`,
-				},
-			],
-		}),
+    updateCategory: builder.mutation<
+      UpdateCategoryResponse,
+      { id: string; data: UpdateCategoryRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/categories/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Categories"],
+    }),
 
-		getPaymentMethods: builder.query<PaymentMethodStats[], void>({
-			query: () => "/api/analytics/payment-methods",
-			providesTags: [{ type: "Analytics", id: "payment-methods" }],
-		}),
+    deleteCategory: builder.mutation<DeleteCategoryResponse, string>({
+      query: (id) => ({
+        url: `/api/categories/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Categories"],
+    }),
 
-		getInventoryAnalytics: builder.query<InventoryValueResult, void>({
-			query: () => "/api/analytics/inventory",
-			providesTags: [{ type: "Analytics", id: "inventory-analytics" }],
-		}),
+    getDashboardStats: builder.query<DashboardStats, void>({
+      query: () => "/api/analytics/dashboard",
+      providesTags: [{ type: "Analytics", id: "dashboard-stats" }],
+    }),
 
-		getActivityLogs: builder.query<
-			ActivityLogWithUser[],
-			ActivityLogSearchParams | void
-		>({
-			query: (params) => ({
-				url: "/api/activity-logs",
-				params: params || undefined,
-			}),
-			providesTags: ["ActivityLogs"],
-		}),
+    getSalesByDate: builder.query<DailySales[], GetSalesByDateParams | void>({
+      query: (params) => ({
+        url: "/api/analytics/sales-by-date",
+        params: params || undefined,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `sales-by-date-${JSON.stringify(arg || {})}` },
+      ],
+    }),
 
-		// Enhanced Analytics Endpoints
-		getTopPerformingProducts: builder.query<
-			TopProductsResult,
-			TopProductsParams
-		>({
-			query: (params) => ({
-				url: "/api/analytics/products/top-performing",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `top-products-${JSON.stringify(arg)}` },
-			],
-		}),
+    getTopProducts: builder.query<TopProduct[], GetTopProductsParams | void>({
+      query: (params) => ({
+        url: "/api/analytics/top-products",
+        params: params || undefined,
+      }),
+      providesTags: (result, error, arg) => [
+        {
+          type: "Analytics",
+          id: `top-products-legacy-${JSON.stringify(arg || {})}`,
+        },
+      ],
+    }),
 
-		getCategoryRevenue: builder.query<
-			CategoryRevenueResult,
-			CategoryRevenueParams
-		>({
-			query: (params) => ({
-				url: "/api/analytics/revenue/by-category",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `category-revenue-${JSON.stringify(arg)}` },
-			],
-		}),
+    getPaymentMethods: builder.query<PaymentMethodStats[], void>({
+      query: () => "/api/analytics/payment-methods",
+      providesTags: [{ type: "Analytics", id: "payment-methods" }],
+    }),
 
-		getSalesTrends: builder.query<SalesTrendResult, SalesTrendParams>({
-			query: (params) => ({
-				url: "/api/analytics/sales/trends",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `sales-trends-${JSON.stringify(arg)}` },
-			],
-		}),
+    getInventoryAnalytics: builder.query<InventoryValueResult, void>({
+      query: () => "/api/analytics/inventory",
+      providesTags: [{ type: "Analytics", id: "inventory-analytics" }],
+    }),
 
-		getPaymentBreakdown: builder.query<
-			PaymentBreakdownResult,
-			PaymentBreakdownParams
-		>({
-			query: (params) => ({
-				url: "/api/analytics/payments/breakdown",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `payment-breakdown-${JSON.stringify(arg)}` },
-			],
-		}),
+    getActivityLogs: builder.query<
+      ActivityLogWithUser[],
+      ActivityLogSearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/activity-logs",
+        params: params || undefined,
+      }),
+      providesTags: ["ActivityLogs"],
+    }),
 
-		getCashierPerformance: builder.query<
-			CashierPerformanceResult,
-			CashierPerformanceParams
-		>({
-			query: (params) => ({
-				url: "/api/analytics/cashiers/performance",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `cashier-performance-${JSON.stringify(arg)}` },
-			],
-		}),
+    // Enhanced Analytics Endpoints
+    getTopPerformingProducts: builder.query<
+      TopProductsResult,
+      TopProductsParams
+    >({
+      query: (params) => ({
+        url: "/api/analytics/products/top-performing",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `top-products-${JSON.stringify(arg)}` },
+      ],
+    }),
 
-		getInventoryValue: builder.query<InventoryValueResult, void>({
-			query: () => "/api/analytics/inventory/value",
-			providesTags: [{ type: "Analytics", id: "inventory-value" }],
-		}),
+    getCategoryRevenue: builder.query<
+      CategoryRevenueResult,
+      CategoryRevenueParams
+    >({
+      query: (params) => ({
+        url: "/api/analytics/revenue/by-category",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `category-revenue-${JSON.stringify(arg)}` },
+      ],
+    }),
 
-		getTopCustomers: builder.query<TopCustomersResult, TopCustomersParams>({
-			query: (params) => ({
-				url: "/api/analytics/customers/top",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `top-customers-${JSON.stringify(arg)}` },
-			],
-		}),
+    getSalesTrends: builder.query<SalesTrendResult, SalesTrendParams>({
+      query: (params) => ({
+        url: "/api/analytics/sales/trends",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `sales-trends-${JSON.stringify(arg)}` },
+      ],
+    }),
 
-		getCustomerTrends: builder.query<
-			CustomerTrendsResult,
-			CustomerTrendsParams
-		>({
-			query: (params) => ({
-				url: "/api/analytics/customers/trends",
-				params: params,
-			}),
-			providesTags: (result, error, arg) => [
-				{ type: "Analytics", id: `customer-trends-${JSON.stringify(arg)}` },
-			],
-		}),
+    getPaymentBreakdown: builder.query<
+      PaymentBreakdownResult,
+      PaymentBreakdownParams
+    >({
+      query: (params) => ({
+        url: "/api/analytics/payments/breakdown",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `payment-breakdown-${JSON.stringify(arg)}` },
+      ],
+    }),
 
-		// Database backup mutation - returns a file blob
-		createBackup: builder.mutation<Blob, void>({
-			queryFn: async (_arg, _queryApi, _extraOptions, fetchWithBQ) => {
-				const result = await fetchWithBQ({
-					url: "/api/backup",
-					method: "POST",
-					responseHandler: (response) => response.blob(),
-				});
+    getCashierPerformance: builder.query<
+      CashierPerformanceResult,
+      CashierPerformanceParams
+    >({
+      query: (params) => ({
+        url: "/api/analytics/cashiers/performance",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `cashier-performance-${JSON.stringify(arg)}` },
+      ],
+    }),
 
-				if (result.error) {
-					return { error: result.error };
-				}
+    getInventoryValue: builder.query<InventoryValueResult, void>({
+      query: () => "/api/analytics/inventory/value",
+      providesTags: [{ type: "Analytics", id: "inventory-value" }],
+    }),
 
-				return { data: result.data as Blob };
-			},
-		}),
-	}),
+    getTopCustomers: builder.query<TopCustomersResult, TopCustomersParams>({
+      query: (params) => ({
+        url: "/api/analytics/customers/top",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `top-customers-${JSON.stringify(arg)}` },
+      ],
+    }),
+
+    getCustomerTrends: builder.query<
+      CustomerTrendsResult,
+      CustomerTrendsParams
+    >({
+      query: (params) => ({
+        url: "/api/analytics/customers/trends",
+        params: params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Analytics", id: `customer-trends-${JSON.stringify(arg)}` },
+      ],
+    }),
+
+    // Low-stock notifications
+    getLowStockNotifications: builder.query<
+      LowStockNotificationsResponse,
+      void
+    >({
+      query: () => "/api/notifications/low-stock",
+      providesTags: ["Notifications"],
+    }),
+
+    // Cash Drawer / Shift endpoints
+    getActiveSession: builder.query<GetActiveSessionResponse, void>({
+      query: () => "/api/cash-drawer/active",
+      providesTags: ["CashDrawer"],
+    }),
+
+    getCashDrawerSessions: builder.query<
+      GetSessionsResponse,
+      { userId?: string; limit?: number } | void
+    >({
+      query: (params) => ({
+        url: "/api/cash-drawer",
+        params: params || undefined,
+      }),
+      providesTags: ["CashDrawer"],
+    }),
+
+    openShift: builder.mutation<OpenShiftResponse, OpenShiftRequest>({
+      query: (data) => ({
+        url: "/api/cash-drawer",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["CashDrawer"],
+    }),
+
+    closeShift: builder.mutation<
+      CloseShiftResponse,
+      { id: string; data: CloseShiftRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/cash-drawer/${id}/close`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["CashDrawer"],
+    }),
+
+    // ── Expenses ──────────────────────────────────────────────────────
+    getExpenses: builder.query<GetExpensesResponse, ExpenseSearchParams | void>(
+      {
+        query: (params) => ({
+          url: "/api/expenses",
+          params: params || undefined,
+        }),
+        providesTags: ["Expenses"],
+      },
+    ),
+
+    getExpense: builder.query<GetExpenseResponse, string>({
+      query: (id) => `/api/expenses/${id}`,
+      providesTags: ["Expenses"],
+    }),
+
+    createExpense: builder.mutation<CreateExpenseResponse, CreateExpenseInput>({
+      query: (data) => ({
+        url: "/api/expenses",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Expenses", "Analytics"],
+    }),
+
+    updateExpense: builder.mutation<
+      UpdateExpenseResponse,
+      { id: string; data: UpdateExpenseInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/expenses/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Expenses", "Analytics"],
+    }),
+
+    deleteExpense: builder.mutation<DeleteExpenseResponse, string>({
+      query: (id) => ({
+        url: `/api/expenses/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Expenses", "Analytics"],
+    }),
+
+    // ── Suppliers ─────────────────────────────────────────────────────
+    getSuppliers: builder.query<
+      GetSuppliersResponse,
+      SupplierSearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/suppliers",
+        params: params || undefined,
+      }),
+      providesTags: ["Suppliers"],
+    }),
+
+    getSupplier: builder.query<GetSupplierResponse, string>({
+      query: (id) => `/api/suppliers/${id}`,
+      providesTags: ["Suppliers"],
+    }),
+
+    getSupplierDetail: builder.query<GetSupplierDetailResponse, string>({
+      query: (id) => `/api/suppliers/${id}/detail`,
+      providesTags: ["Suppliers"],
+    }),
+
+    createSupplier: builder.mutation<
+      CreateSupplierResponse,
+      CreateSupplierInput
+    >({
+      query: (data) => ({
+        url: "/api/suppliers",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers", "Inventory"],
+    }),
+
+    updateSupplier: builder.mutation<
+      UpdateSupplierResponse,
+      { id: string; data: UpdateSupplierInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/suppliers/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Suppliers", "Inventory"],
+    }),
+
+    deleteSupplier: builder.mutation<DeleteSupplierResponse, string>({
+      query: (id) => ({
+        url: `/api/suppliers/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Suppliers", "Inventory"],
+    }),
+
+    // ── Purchase Orders ────────────────────────────────────────────────
+    getPurchaseOrders: builder.query<
+      GetPurchaseOrdersResponse,
+      PurchaseOrderSearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/purchase-orders",
+        params: params || undefined,
+      }),
+      providesTags: ["PurchaseOrders"],
+    }),
+
+    getPurchaseOrder: builder.query<GetPurchaseOrderResponse, string>({
+      query: (id) => `/api/purchase-orders/${id}`,
+      providesTags: ["PurchaseOrders"],
+    }),
+
+    createPurchaseOrder: builder.mutation<
+      CreatePurchaseOrderResponse,
+      CreatePurchaseOrderInput
+    >({
+      query: (data) => ({
+        url: "/api/purchase-orders",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["PurchaseOrders"],
+    }),
+
+    updatePurchaseOrder: builder.mutation<
+      UpdatePurchaseOrderResponse,
+      { id: string; data: UpdatePurchaseOrderInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/purchase-orders/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["PurchaseOrders"],
+    }),
+
+    receivePurchaseOrder: builder.mutation<
+      ReceivePurchaseOrderResponse,
+      { id: string; data: ReceivePurchaseOrderInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/purchase-orders/${id}/receive`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["PurchaseOrders", "Inventory", "Notifications"],
+    }),
+
+    cancelPurchaseOrder: builder.mutation<CancelPurchaseOrderResponse, string>({
+      query: (id) => ({
+        url: `/api/purchase-orders/${id}/cancel`,
+        method: "POST",
+      }),
+      invalidatesTags: ["PurchaseOrders"],
+    }),
+
+    // ── Promotions ────────────────────────────────────────────────────────
+    getPromotions: builder.query<
+      GetPromotionsResponse,
+      PromotionSearchParams | void
+    >({
+      query: (params) => ({
+        url: "/api/promotions",
+        params: params || undefined,
+      }),
+      providesTags: ["Promotions"],
+    }),
+
+    getPromotion: builder.query<GetPromotionResponse, string>({
+      query: (id) => `/api/promotions/${id}`,
+      providesTags: ["Promotions"],
+    }),
+
+    createPromotion: builder.mutation<
+      CreatePromotionResponse,
+      CreatePromotionInput
+    >({
+      query: (data) => ({
+        url: "/api/promotions",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Promotions"],
+    }),
+
+    updatePromotion: builder.mutation<
+      UpdatePromotionResponse,
+      { id: string; data: UpdatePromotionInput }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/promotions/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Promotions"],
+    }),
+
+    deletePromotion: builder.mutation<DeletePromotionResponse, string>({
+      query: (id) => ({
+        url: `/api/promotions/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Promotions"],
+    }),
+
+    validatePromotionCode: builder.mutation<
+      ValidatePromotionResponse,
+      ValidatePromotionCodeInput
+    >({
+      query: (data) => ({
+        url: "/api/promotions/validate",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    // Database backup mutation - returns a file blob
+    createBackup: builder.mutation<Blob, void>({
+      queryFn: async (_arg, _queryApi, _extraOptions, fetchWithBQ) => {
+        const result = await fetchWithBQ({
+          url: "/api/backup",
+          method: "POST",
+          responseHandler: (response) => response.blob(),
+        });
+
+        if (result.error) {
+          return { error: result.error };
+        }
+
+        return { data: result.data as Blob };
+      },
+    }),
+
+    getStoreSettings: builder.query<GetStoreSettingsResponse, void>({
+      query: () => "/api/settings/store",
+      providesTags: ["StoreSettings"],
+    }),
+
+    updateStoreSettings: builder.mutation<
+      GetStoreSettingsResponse,
+      UpdateStoreSettingsRequest
+    >({
+      query: (data) => ({
+        url: "/api/settings/store",
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["StoreSettings"],
+    }),
+  }),
 });
 
 export const {
-	useValidateSessionQuery,
-	useLoginMutation,
-	useLogoutMutation,
-	useGetInventoryQuery,
-	useGetInventoryItemQuery,
-	useCreateInventoryItemMutation,
-	useUpdateInventoryItemMutation,
-	useDeleteInventoryItemMutation,
-	useAdjustStockMutation,
-	useGetSalesQuery,
-	useGetSaleQuery,
-	useCreateSaleMutation,
-	useCompleteSaleMutation,
-	useCancelSaleMutation,
-	useGetUsersQuery,
-	useGetUserQuery,
-	useCreateUserMutation,
-	useUpdateUserMutation,
-	useDeleteUserMutation,
-	useUpdateUserStatusMutation,
-	useGetCustomersQuery,
-	useGetCustomerQuery,
-	useCreateCustomerMutation,
-	useUpdateCustomerMutation,
-	useDeleteCustomerMutation,
-	useGetCategoriesQuery,
-	useGetCategoryQuery,
-	useCreateCategoryMutation,
-	useUpdateCategoryMutation,
-	useDeleteCategoryMutation,
-	useGetDashboardStatsQuery,
-	useGetSalesByDateQuery,
-	useGetTopProductsQuery,
-	useGetPaymentMethodsQuery,
-	useGetInventoryAnalyticsQuery,
-	useGetActivityLogsQuery,
-	// Enhanced Analytics Hooks
-	useGetTopPerformingProductsQuery,
-	useGetCategoryRevenueQuery,
-	useGetSalesTrendsQuery,
-	useGetPaymentBreakdownQuery,
-	useGetCashierPerformanceQuery,
-	useGetInventoryValueQuery,
-	useGetTopCustomersQuery,
-	useGetCustomerTrendsQuery,
-	// Backup
-	useCreateBackupMutation,
+  useValidateSessionQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useGetInventoryQuery,
+  useGetInventoryItemQuery,
+  useCreateInventoryItemMutation,
+  useUpdateInventoryItemMutation,
+  useDeleteInventoryItemMutation,
+  useAdjustStockMutation,
+  useGetSalesQuery,
+  useGetSaleQuery,
+  useCreateSaleMutation,
+  useCompleteSaleMutation,
+  useCancelSaleMutation,
+  useUpdateSaleItemsMutation,
+  useCreateReturnMutation,
+  useGetReturnsQuery,
+  useGetUsersQuery,
+  useGetUserQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useUpdateUserStatusMutation,
+  useGetCustomersQuery,
+  useGetCustomerQuery,
+  useGetCustomerDetailQuery,
+  useCreateCustomerMutation,
+  useUpdateCustomerMutation,
+  useDeleteCustomerMutation,
+  useGetCategoriesQuery,
+  useGetCategoryQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetDashboardStatsQuery,
+  useGetSalesByDateQuery,
+  useGetTopProductsQuery,
+  useGetPaymentMethodsQuery,
+  useGetInventoryAnalyticsQuery,
+  useGetActivityLogsQuery,
+  // Enhanced Analytics Hooks
+  useGetTopPerformingProductsQuery,
+  useGetCategoryRevenueQuery,
+  useGetSalesTrendsQuery,
+  useGetPaymentBreakdownQuery,
+  useGetCashierPerformanceQuery,
+  useGetInventoryValueQuery,
+  useGetTopCustomersQuery,
+  useGetCustomerTrendsQuery,
+  // Backup
+  useCreateBackupMutation,
+  // Store Settings
+  useGetStoreSettingsQuery,
+  useUpdateStoreSettingsMutation,
+  // Cash Drawer
+  useGetActiveSessionQuery,
+  useGetCashDrawerSessionsQuery,
+  useOpenShiftMutation,
+  useCloseShiftMutation,
+  // Notifications
+  useGetLowStockNotificationsQuery,
+  // Expenses
+  useGetExpensesQuery,
+  useGetExpenseQuery,
+  useCreateExpenseMutation,
+  useUpdateExpenseMutation,
+  useDeleteExpenseMutation,
+  // Suppliers
+  useGetSuppliersQuery,
+  useGetSupplierQuery,
+  useGetSupplierDetailQuery,
+  useCreateSupplierMutation,
+  useUpdateSupplierMutation,
+  useDeleteSupplierMutation,
+  // Purchase Orders
+  useGetPurchaseOrdersQuery,
+  useGetPurchaseOrderQuery,
+  useCreatePurchaseOrderMutation,
+  useUpdatePurchaseOrderMutation,
+  useReceivePurchaseOrderMutation,
+  useCancelPurchaseOrderMutation,
+  // Promotions
+  useGetPromotionsQuery,
+  useGetPromotionQuery,
+  useCreatePromotionMutation,
+  useUpdatePromotionMutation,
+  useDeletePromotionMutation,
+  useValidatePromotionCodeMutation,
 } = api;

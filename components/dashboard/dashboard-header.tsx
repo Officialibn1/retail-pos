@@ -11,9 +11,10 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
-import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ShiftStatusIndicator } from "@/components/cash-drawer/shift-status-indicator";
+import { LowStockBell } from "@/components/notifications/low-stock-bell";
 
 export function DashboardHeader() {
 	const pathname = usePathname();
@@ -51,11 +52,11 @@ export function DashboardHeader() {
 	const breadcrumbs = getBreadcrumbs();
 
 	return (
-		<header className='flex h-16 shrink-0 items-center gap-2 border-b border-brand-main-200 px-4'>
-			<SidebarTrigger className='text-brand-main-700 hover:bg-brand-main-100' />
+		<header className='flex h-16 shrink-0 items-center gap-2 border-b bg-muted px-4'>
+			<SidebarTrigger className='text-brand-main-900 hover:bg-brand-main-100' />
 			<Separator
 				orientation='vertical'
-				className='mr-2 h-4 bg-brand-main-200'
+				className='mr-2 h-4 bg-border'
 			/>
 
 			<Breadcrumb>
@@ -72,13 +73,13 @@ export function DashboardHeader() {
 								) : (
 									<BreadcrumbLink
 										asChild
-										className='text-brand-main-600 hover:text-brand-main-800'>
+										className='text-brand-main-800/90 hover:text-brand-main-800'>
 										<Link href={crumb.href}>{crumb.label}</Link>
 									</BreadcrumbLink>
 								)}
 							</BreadcrumbItem>
 							{index < breadcrumbs.length - 1 && (
-								<BreadcrumbSeparator className='text-brand-main-400' />
+								<BreadcrumbSeparator className='text-brand-main-800/60' />
 							)}
 						</div>
 					))}
@@ -86,12 +87,8 @@ export function DashboardHeader() {
 			</Breadcrumb>
 
 			<div className='ml-auto flex items-center gap-2'>
-				<Button
-					variant='ghost'
-					size='icon'
-					className='text-brand-main-600 hover:bg-brand-main-100'>
-					<Bell className='h-4 w-4' />
-				</Button>
+				<ShiftStatusIndicator />
+				<LowStockBell />
 			</div>
 		</header>
 	);

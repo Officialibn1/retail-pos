@@ -17,8 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME;
+import { useGetStoreSettingsQuery } from "@/lib/store/api";
 
 export function ForgotPasswordForm() {
 	const [email, setEmail] = useState("");
@@ -28,6 +27,8 @@ export function ForgotPasswordForm() {
 	const [success, setSuccess] = useState("");
 	const [resetType, setResetType] = useState<"LINK" | "OTP">("LINK");
 	const [showOtpInput, setShowOtpInput] = useState(false);
+	const { data: storeData } = useGetStoreSettingsQuery();
+	const storeName = storeData?.settings?.name;
 	const [verifiedToken, setVerifiedToken] = useState("");
 
 	const handleRequestReset = async (e: React.FormEvent) => {
@@ -171,7 +172,7 @@ export function ForgotPasswordForm() {
 
 									<Button
 										type='submit'
-										className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+										className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 										disabled={isLoading}>
 										{isLoading ? <Spinner /> : "Send Reset Link"}
 									</Button>
@@ -214,7 +215,7 @@ export function ForgotPasswordForm() {
 
 									<Button
 										type='submit'
-										className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+										className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 										disabled={isLoading}>
 										{isLoading ? <Spinner /> : "Send OTP"}
 									</Button>
@@ -251,7 +252,7 @@ export function ForgotPasswordForm() {
 
 							<Button
 								type='submit'
-								className='w-full bg-brand-main-600 hover:bg-brand-main-700'
+								className='w-full bg-brand-main-900 hover:bg-brand-main-700'
 								disabled={isLoading || otp.length !== 6}>
 								{isLoading ? <Spinner /> : "Verify OTP"}
 							</Button>

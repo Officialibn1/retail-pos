@@ -109,6 +109,8 @@ export async function PUT(
 			"INVENTORY_UPDATED",
 			`Updated inventory item: ${item.name} (SKU: ${item.sku})`,
 			ipAddress,
+			undefined,
+			{ entityType: "InventoryItem", entityId: item.id },
 		);
 
 		return NextResponse.json({

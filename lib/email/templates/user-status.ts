@@ -3,12 +3,12 @@
 import { getStoreInfo } from "../store-info";
 import { UserStatusEmailData } from "../types";
 
-export function generateUserStatusEmail(data: UserStatusEmailData): {
+export async function generateUserStatusEmail(data: UserStatusEmailData): Promise<{
 	html: string;
 	text: string;
-} {
+}> {
 	const { userName, status, reason } = data;
-	const store = getStoreInfo();
+	const store = await getStoreInfo();
 
 	const statusMessages = {
 		ACTIVE: {

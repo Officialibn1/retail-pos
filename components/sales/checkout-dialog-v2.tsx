@@ -202,7 +202,7 @@ export function CheckoutDialogV2({
 						variant='outline'
 						onClick={handleClose}
 						disabled={isProcessing}
-						className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'
+						className='  text-brand-main-700 hover:bg-brand-main-50 w-full sm:w-auto'
 						data-testid='close-button'
 						aria-label='Close checkout and save order for later'>
 						Close
@@ -211,7 +211,7 @@ export function CheckoutDialogV2({
 						ref={completePaymentButtonRef}
 						onClick={handleCompletePayment}
 						disabled={isProcessing}
-						className='bg-brand-main-600 hover:bg-brand-main-700 text-white w-full sm:w-auto'
+						className='bg-brand-main-900 hover:bg-brand-main-700 text-white w-full sm:w-auto'
 						data-testid='complete-payment-button'
 						aria-label='Proceed to complete payment'>
 						{isProcessing ? (

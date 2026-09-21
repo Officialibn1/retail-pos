@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/form";
 import { Camera } from "lucide-react";
 import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
-import { useGetCategoriesQuery } from "@/lib/store/api";
+import { useGetCategoriesQuery, useGetSuppliersQuery } from "@/lib/store/api";
 import { Spinner } from "@/components/ui/spinner";
 import {
 	createInventoryItemSchema,
@@ -42,7 +42,7 @@ import {
 interface AddItemDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (item: CreateInventoryItemInput) => void;
+	onSave: (item: CreateInventoryItemInput, form: any) => void;
 	isCreatingItem: boolean;
 }
 
@@ -62,16 +62,21 @@ export function AddItemDialog({
 			description: "",
 			sku: "",
 			price: 0,
+			cost: undefined,
 			stock: 0,
+			reorderLevel: 10,
 			categoryId: "",
 			barcode: "",
+			supplierId: "",
 		},
 	});
 
 	const { data: categoriesData, isLoading: categoriesLoading } =
 		useGetCategoriesQuery();
+	const { data: suppliersData } = useGetSuppliersQuery();
 
 	const categories = categoriesData?.categories || [];
+	const suppliers = suppliersData?.suppliers || [];
 
 	// Reset form when dialog closes
 	useEffect(() => {
@@ -82,8 +87,7 @@ export function AddItemDialog({
 	}, [open, form]);
 
 	const onSubmit = (data: CreateInventoryItemInput) => {
-		onSave(data);
-		form.reset();
+		onSave(data, form);
 		setIsScanning(false);
 	};
 
@@ -98,10 +102,10 @@ export function AddItemDialog({
 			onOpenChange={onOpenChange}>
 			<DialogContent className='sm:max-w-[600px]'>
 				<DialogHeader>
-					<DialogTitle className='text-brand-main-800'>
+					<DialogTitle className='text-brand-main-950'>
 						Add New Item
 					</DialogTitle>
-					<DialogDescription className='text-brand-main-600'>
+					<DialogDescription className='text-brand-main-800'>
 						Add a new item to your inventory. Fill in all the required
 						information.
 					</DialogDescription>
@@ -117,14 +121,14 @@ export function AddItemDialog({
 								name='name'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Product Name *
 										</FormLabel>
 										<FormControl>
 											<Input
 												{...field}
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -136,12 +140,12 @@ export function AddItemDialog({
 								name='sku'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>SKU *</FormLabel>
+										<FormLabel>SKU *</FormLabel>
 										<FormControl>
 											<Input
 												{...field}
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 											/>
 										</FormControl>
 										<FormMessage />
@@ -155,7 +159,7 @@ export function AddItemDialog({
 							name='description'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className='text-brand-main-700'>
+									<FormLabel>
 										Description
 									</FormLabel>
 									<FormControl>
@@ -163,7 +167,7 @@ export function AddItemDialog({
 											{...field}
 											value={field.value || ""}
 											disabled={isCreatingItem || categoriesLoading}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											rows={3}
 										/>
 									</FormControl>
@@ -178,7 +182,7 @@ export function AddItemDialog({
 								name='categoryId'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Category *
 										</FormLabel>
 										<Select
@@ -186,7 +190,7 @@ export function AddItemDialog({
 											onValueChange={field.onChange}
 											disabled={isCreatingItem || categoriesLoading}>
 											<FormControl>
-												<SelectTrigger className='border-brand-main-200 focus:border-brand-main-400 w-full'>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
 													<SelectValue placeholder='Select category' />
 												</SelectTrigger>
 											</FormControl>
@@ -209,7 +213,7 @@ export function AddItemDialog({
 								name='barcode'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Barcode
 										</FormLabel>
 										<div className='flex items-center gap-2'>
@@ -220,7 +224,7 @@ export function AddItemDialog({
 													disabled={
 														isCreatingItem || categoriesLoading || isScanning
 													}
-													className='border-brand-main-200 focus:border-brand-main-400 flex-grow'
+													className='  focus:border-brand-main-400 flex-grow'
 												/>
 											</FormControl>
 											<Button
@@ -230,7 +234,7 @@ export function AddItemDialog({
 													isCreatingItem || categoriesLoading || isScanning
 												}
 												onClick={() => setIsScanning(!isScanning)}
-												className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
+												className='  text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
 												aria-label='Scan Barcode'>
 												<Camera className='h-4 w-4' />
 											</Button>
@@ -242,7 +246,7 @@ export function AddItemDialog({
 						</div>
 
 						{isScanning && (
-							<div className='relative w-full h-64 border border-brand-main-200 rounded-lg overflow-hidden'>
+							<div className='relative w-full h-64 border   rounded-lg overflow-hidden'>
 								<BarcodeScanner
 									ref={scannerRef}
 									onCapture={handleScan}
@@ -267,7 +271,7 @@ export function AddItemDialog({
 								name='price'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Selling Price *
 										</FormLabel>
 										<FormControl>
@@ -276,7 +280,7 @@ export function AddItemDialog({
 												type='number'
 												step='0.01'
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 												onChange={(e) =>
 													field.onChange(
 														e.target.value ? Number(e.target.value) : "",
@@ -290,10 +294,40 @@ export function AddItemDialog({
 							/>
 							<FormField
 								control={form.control}
+								name='cost'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Cost Price</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												value={field.value ?? ""}
+												type='number'
+												step='0.01'
+												min={0}
+												disabled={isCreatingItem || categoriesLoading}
+												className='  focus:border-brand-main-400'
+												placeholder="Purchase/supplier cost"
+												onChange={(e) =>
+													field.onChange(
+														e.target.value !== "" ? Number(e.target.value) : null,
+													)
+												}
+											/>
+										</FormControl>
+										
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
 								name='stock'
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel className='text-brand-main-700'>
+										<FormLabel>
 											Quantity *
 										</FormLabel>
 										<FormControl>
@@ -301,7 +335,7 @@ export function AddItemDialog({
 												{...field}
 												type='number'
 												disabled={isCreatingItem || categoriesLoading}
-												className='border-brand-main-200 focus:border-brand-main-400'
+												className='  focus:border-brand-main-400'
 												onChange={(e) =>
 													field.onChange(
 														e.target.value ? Number(e.target.value) : "",
@@ -313,7 +347,66 @@ export function AddItemDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name='reorderLevel'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											Reorder Level
+										</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												type='number'
+												min={0}
+												disabled={isCreatingItem || categoriesLoading}
+												className='  focus:border-brand-main-400'
+												onChange={(e) =>
+													field.onChange(
+														e.target.value ? Number(e.target.value) : 0,
+													)
+												}
+											/>
+										</FormControl>
+										{/* <p className='text-xs text-slate-500'>
+											Alert threshold — you'll be notified when stock hits this level
+										</p> */}
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
+						{suppliers.length > 0 && (
+							<FormField
+								control={form.control}
+								name='supplierId'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Supplier</FormLabel>
+										<Select
+											value={field.value || ""}
+											onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+											disabled={isCreatingItem || categoriesLoading}>
+											<FormControl>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
+													<SelectValue placeholder='No supplier assigned' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='none'>No supplier</SelectItem>
+												{suppliers.map((s) => (
+													<SelectItem key={s.id} value={s.id}>
+														{s.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<DialogFooter>
 							<Button
@@ -324,13 +417,13 @@ export function AddItemDialog({
 									onOpenChange(false);
 									setIsScanning(false);
 								}}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className=' hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isCreatingItem || categoriesLoading}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isCreatingItem ? <Spinner /> : "Add Item"}
 							</Button>
 						</DialogFooter>

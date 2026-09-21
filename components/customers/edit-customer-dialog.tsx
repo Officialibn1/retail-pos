@@ -119,7 +119,7 @@ export function EditCustomerDialog({
 											{...field}
 											value={field.value || ""}
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., John Doe'
 										/>
 									</FormControl>
@@ -142,7 +142,7 @@ export function EditCustomerDialog({
 											value={field.value || ""}
 											type='email'
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., john@example.com'
 										/>
 									</FormControl>
@@ -165,7 +165,7 @@ export function EditCustomerDialog({
 											value={field.value || ""}
 											type='tel'
 											disabled={isUpdating}
-											className='border-brand-main-200 focus:border-brand-main-400'
+											className='  focus:border-brand-main-400'
 											placeholder='e.g., +2348012345678'
 										/>
 									</FormControl>
@@ -180,13 +180,13 @@ export function EditCustomerDialog({
 								disabled={isUpdating}
 								variant='outline'
 								onClick={handleCancel}
-								className='border-brand-main-200 text-brand-main-700 hover:bg-brand-main-50 flex-1'>
+								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={isUpdating}
-								className='bg-brand-main-600 hover:bg-brand-main-700 text-white flex-1'>
+								className='bg-brand-main-900 hover:bg-brand-main-700 text-white flex-1'>
 								{isUpdating ? <Spinner /> : "Save Changes"}
 							</Button>
 						</DialogFooter>

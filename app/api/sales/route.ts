@@ -63,6 +63,8 @@ export async function POST(request: NextRequest) {
 			"SALE_CREATED",
 			`Created sale ${sale.id} with ${data.items.length} items`,
 			ipAddress,
+			undefined,
+			{ entityType: "Sale", entityId: sale.id },
 		);
 
 		return NextResponse.json(sale, { status: 201 });

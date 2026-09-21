@@ -291,10 +291,10 @@ export default function AnalyticsPage() {
 			{/* Header with Date Range Selector and Real-time Controls */}
 			<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
 				<div>
-					<h1 className='text-3xl font-bold text-brand-main-800'>
+					<h1 className='text-3xl font-bold text-brand-main-900'>
 						Analytics Dashboard
 					</h1>
-					<p className='text-brand-main-600 mt-1'>
+					<p className='text-brand-main-800 mt-1'>
 						{canSeeAll
 							? "Store-wide analytics and insights"
 							: "Your personal sales analytics"}
