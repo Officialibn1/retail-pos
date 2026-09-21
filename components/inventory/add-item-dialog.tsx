@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/form";
 import { Camera } from "lucide-react";
 import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
-import { useGetCategoriesQuery } from "@/lib/store/api";
+import { useGetCategoriesQuery, useGetSuppliersQuery } from "@/lib/store/api";
 import { Spinner } from "@/components/ui/spinner";
 import {
 	createInventoryItemSchema,
@@ -62,17 +62,21 @@ export function AddItemDialog({
 			description: "",
 			sku: "",
 			price: 0,
+			cost: undefined,
 			stock: 0,
 			reorderLevel: 10,
 			categoryId: "",
 			barcode: "",
+			supplierId: "",
 		},
 	});
 
 	const { data: categoriesData, isLoading: categoriesLoading } =
 		useGetCategoriesQuery();
+	const { data: suppliersData } = useGetSuppliersQuery();
 
 	const categories = categoriesData?.categories || [];
+	const suppliers = suppliersData?.suppliers || [];
 
 	// Reset form when dialog closes
 	useEffect(() => {
@@ -290,6 +294,36 @@ export function AddItemDialog({
 							/>
 							<FormField
 								control={form.control}
+								name='cost'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Cost Price</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												value={field.value ?? ""}
+												type='number'
+												step='0.01'
+												min={0}
+												disabled={isCreatingItem || categoriesLoading}
+												className='  focus:border-brand-main-400'
+												placeholder="Purchase/supplier cost"
+												onChange={(e) =>
+													field.onChange(
+														e.target.value !== "" ? Number(e.target.value) : null,
+													)
+												}
+											/>
+										</FormControl>
+										
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<div className='grid grid-cols-2 gap-4'>
+							<FormField
+								control={form.control}
 								name='stock'
 								render={({ field }) => (
 									<FormItem>
@@ -313,36 +347,66 @@ export function AddItemDialog({
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name='reorderLevel'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>
+											Reorder Level
+										</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												type='number'
+												min={0}
+												disabled={isCreatingItem || categoriesLoading}
+												className='  focus:border-brand-main-400'
+												onChange={(e) =>
+													field.onChange(
+														e.target.value ? Number(e.target.value) : 0,
+													)
+												}
+											/>
+										</FormControl>
+										{/* <p className='text-xs text-slate-500'>
+											Alert threshold — you'll be notified when stock hits this level
+										</p> */}
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
-						<FormField
-							control={form.control}
-							name='reorderLevel'
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>
-										Reorder Level
-									</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											type='number'
-											min={0}
-											disabled={isCreatingItem || categoriesLoading}
-											className='  focus:border-brand-main-400'
-											onChange={(e) =>
-												field.onChange(
-													e.target.value ? Number(e.target.value) : 0,
-												)
-											}
-										/>
-									</FormControl>
-									<p className='text-xs text-slate-500'>
-										Alert threshold — you'll be notified when stock hits this level
-									</p>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						{suppliers.length > 0 && (
+							<FormField
+								control={form.control}
+								name='supplierId'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Supplier</FormLabel>
+										<Select
+											value={field.value || ""}
+											onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+											disabled={isCreatingItem || categoriesLoading}>
+											<FormControl>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
+													<SelectValue placeholder='No supplier assigned' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='none'>No supplier</SelectItem>
+												{suppliers.map((s) => (
+													<SelectItem key={s.id} value={s.id}>
+														{s.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<DialogFooter>
 							<Button

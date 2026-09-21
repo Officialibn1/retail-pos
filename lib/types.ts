@@ -230,3 +230,56 @@ export interface CustomerTrendsResult {
 		lastVisit: string;
 	}>;
 }
+
+// ============================================================================
+// Expense Types
+// ============================================================================
+
+export interface ExpenseRecordedBy {
+	id: string;
+	name: string;
+	email: string;
+}
+
+export interface ExpenseRecord {
+	id: string;
+	title: string;
+	amount: number;
+	category: string;
+	description: string | null;
+	date: string;
+	recordedById: string;
+	createdAt: string;
+	updatedAt: string;
+	recordedBy: ExpenseRecordedBy;
+}
+
+export interface GetExpensesResponse {
+	expenses: ExpenseRecord[];
+	count: number;
+}
+
+export interface GetExpenseResponse {
+	expense: ExpenseRecord;
+}
+
+export interface CreateExpenseResponse {
+	message: string;
+	expense: ExpenseRecord;
+}
+
+export interface UpdateExpenseResponse {
+	message: string;
+	expense: ExpenseRecord;
+}
+
+export interface DeleteExpenseResponse {
+	message: string;
+}
+
+export interface ExpenseSearchParams {
+	searchTerm?: string;
+	category?: string;
+	startDate?: string;
+	endDate?: string;
+}

@@ -1,6 +1,7 @@
 # POS System — Improvement Plan
 
 ## Priority Key
+
 - 🔴 High — core retail workflow, noticeable gap in daily use
 - 🟡 Medium — adds meaningful value, moderate effort
 - 🟢 Low — nice-to-have, low urgency
@@ -10,6 +11,7 @@
 ## Missing Features
 
 ### 1. Returns & Refunds 🔴
+
 **What:** Allow partial or full returns on completed sales, issue refund, and restock returned items.
 
 - [x] Add `Return` model to schema (`saleId`, `items[]`, `refundAmount`, `reason`, `createdAt`)
@@ -24,31 +26,36 @@
 ---
 
 ### 2. Supplier & Purchase Orders 🟡
+
 **What:** Track who supplies inventory, at what cost, and when stock was received.
 
-- [ ] Add `Supplier` model (`name`, `phone`, `email`, `address`)
-- [ ] Add `PurchaseOrder` model (`supplierId`, `status`, `items[]`, `totalCost`, `receivedAt`)
-- [ ] Add `cost` (purchase price) field to `InventoryItem` schema
-- [ ] Add CRUD API routes for suppliers and purchase orders
-- [ ] Build Suppliers page (MANAGER+)
-- [ ] Build Purchase Orders page with "Mark as Received" action that auto-adjusts stock
-- [ ] Expose `cost` field in the add/edit inventory item dialog
+- [x] Add `Supplier` model (`name`, `phone`, `email`, `address`)
+- [x] Add `PurchaseOrder` model (`supplierId`, `status`, `items[]`, `totalCost`, `receivedAt`)
+- [x] Add `cost` (purchase price) field to `InventoryItem` schema
+- [x] Add optional supplier reltation between `InventoryItem` and `Supplier`, where when adding an inventory item you should be able to select a supplier (Optional), the sale feature should be available when updating
+- [x] When creating a supplier there should be a field to add inventory items that do not have suppliers to the supplier (Should support multiple selection), the same feature should be available when updating a supplier
+- [x] Add CRUD API routes for suppliers and purchase orders
+- [x] Build Suppliers page (MANAGER+)
+- [x] Build Purchase Orders page with "Mark as Received" action that auto-adjusts stock
+- [x] Expose `cost` field in the add/edit inventory item dialog
 - [ ] Unlock margin/profit calculations in analytics once `cost` is populated
 
 ---
 
 ### 3. Expense Tracking 🟡
+
 **What:** Record operational costs so analytics can show profit, not just revenue.
 
-- [ ] Add `Expense` model (`category`, `amount`, `description`, `date`, `recordedBy`)
-- [ ] Add `ExpenseCategory` enum or model (Rent, Salaries, Utilities, Restocking, Other)
-- [ ] Add `GET/POST /api/expenses` and `PUT/DELETE /api/expenses/[id]` routes
-- [ ] Build Expenses page (MANAGER+)
-- [ ] Add "Total Expenses" and "Net Profit" cards to analytics dashboard
+- [x] Add `Expense` model (`category`, `amount`, `description`, `date`, `recordedBy`)
+- [x] Add `ExpenseCategory` enum or model (Rent, Salaries, Utilities, Restocking, Other)
+- [x] Add `GET/POST /api/expenses` and `PUT/DELETE /api/expenses/[id]` routes
+- [x] Build Expenses page (MANAGER+)
+- [x] Add "Total Expenses" and "Net Profit" cards to analytics dashboard
 
 ---
 
 ### 4. Cash Drawer Management (Shift Open/Close) 🔴
+
 **What:** Cashiers declare opening float; system reconciles expected cash vs declared at shift end.
 
 - [x] Add `CashDrawerSession` model (`userId`, `openingFloat`, `declaredClose`, `expectedClose`, `variance`, `openedAt`, `closedAt`)
@@ -61,6 +68,7 @@
 ---
 
 ### 5. Low-Stock Alerts 🟡
+
 **What:** Proactively notify relevant roles when stock drops below a defined threshold.
 
 - [x] Add `lowStockThreshold` field to `InventoryItem` (default: 10, currently `reorderLevel` could serve this purpose — evaluate reuse)
@@ -72,17 +80,19 @@
 ---
 
 ### 6. Discount Codes & Promotions 🟢
+
 **What:** Pre-define promotions that apply automatically or via a coupon code at checkout.
 
-- [ ] Add `Promotion` model (`code`, `type: PERCENTAGE | FIXED`, `value`, `scope: ALL | CATEGORY | ITEM`, `expiresAt`, `usageLimit`)
-- [ ] Add CRUD routes and a Promotions page (MANAGER+)
-- [ ] Add coupon code input field in the checkout/cart component
-- [ ] Apply promotion discount server-side when creating a sale
-- [ ] Track promotion usage per sale
+- [x] Add `Promotion` model (`code`, `type: PERCENTAGE | FIXED`, `value`, `scope: ALL | CATEGORY | ITEM`, `expiresAt`, `usageLimit`)
+- [x] Add CRUD routes and a Promotions page (MANAGER+)
+- [x] Add coupon code input field in the checkout/cart component
+- [x] Apply promotion discount server-side when creating a sale
+- [x] Track promotion usage per sale
 
 ---
 
 ### 7. Barcode Label Printing 🟢
+
 **What:** Generate and print barcode labels for inventory items directly from the app.
 
 - [ ] Add a "Print Label" action in the inventory table row dropdown
@@ -95,6 +105,7 @@
 ## Improvements to Existing Modules
 
 ### Sales / Checkout 🔴
+
 - [x] **Fix receipt store info:** Update `components/receipts/receipt-template.tsx` to use `useGetStoreSettingsQuery` instead of `process.env.NEXT_PUBLIC_STORE_*`
 - [x] **Add items to a pending order:** See detailed workflow below.
 - [x] **Item notes:** Add an optional per-line note field in the cart (e.g. "gift wrap", "size adjustment")
@@ -121,6 +132,7 @@
 6. On success, `editingOrderId` is cleared, the cart is cleared, and the pending orders list refetches.
 
 **Files to create/modify:**
+
 - [x] `app/api/sales/[id]/items/route.ts` — new `PATCH` route (auth required, any role, active mutation check)
 - [x] `lib/store/api/index.ts` — add `useUpdateSaleItemsMutation`
 - [x] `components/sales/pending-order-card.tsx` — add "Edit Order" button
@@ -131,6 +143,7 @@
 ---
 
 ### Inventory 🟡
+
 - [ ] **Bulk CSV import:** Add "Import" button on the Inventory page; accept a CSV with columns matching the item schema; validate and preview before committing
 - [ ] **Add `cost` field:** Add purchase price to `InventoryItem` schema and expose in add/edit dialogs (prerequisite for supplier orders and margin analytics)
 - [ ] **Product image:** Add `imageUrl` field to `InventoryItem`; display thumbnail in inventory table and product search during checkout
@@ -138,12 +151,14 @@
 ---
 
 ### Customers 🟢
+
 - [x] **Enforce name on registration:** Make `name` required when creating a customer through the UI (it's optional in the DB for walk-ins, but the form should require it)
 - [x] **Spending tier / loyalty indicator:** Compute total spend from existing sale data and display a tier badge (e.g. Bronze < ₦50k, Silver < ₦200k, Gold ≥ ₦200k) on the customer detail view — no schema change needed
 
 ---
 
 ### Analytics 🟡
+
 - [ ] **Period comparison:** Add a "Compare to previous period" toggle on analytics charts; overlay current vs previous range on the same chart
 - [ ] **Filtered report export:** Add "Export CSV" and "Export PDF" buttons per analytics tab (top products, sales trends, etc.) — separate from the full DB backup
 - [ ] **Shift-based reporting:** Add a "By Shift" breakdown tab using the `shift` field on users, aggregating sales by the cashier's assigned shift
@@ -151,12 +166,14 @@
 ---
 
 ### Activity Logs 🟢
+
 - [x] **Structured metadata:** Store a JSON `metadata` field on `ActivityLog` alongside the free-text `details` (e.g. `{ entityType: "InventoryItem", entityId: "...", changes: { price: [old, new] } }`)
 - [x] **Filter by entity:** Add filter dropdowns on the Activity Logs page for entity type and entity ID so specific item/sale histories are queryable without text search
 
 ---
 
 ### Settings 🟢
+
 - [x] **MANAGER store edit access:** Allow MANAGER role to update `phone`, `address`, and `email` (but not `taxRate`, `primaryColor`, or `logoUrl` — those stay SUPERADMIN-only); update the PUT route's role check and the form's disabled logic accordingly
 - [x] **Currency configuration:** Add a `currency` field to `StoreSettings` (code + symbol, e.g. `NGN` / `₦`); replace the hardcoded `₦` symbol across receipt templates, analytics cards, and the cart with a value read from store settings
 
@@ -164,10 +181,10 @@
 
 ## Suggested Implementation Order
 
-| Phase | Items | Rationale |
-|---|---|---|
-| 1 | Receipt store info fix, `cost` field, Returns & Refunds | Correctness fixes + highest daily impact |
-| 2 | Cash Drawer Management, Low-Stock Alerts, Bulk CSV Import | Operational workflow completeness |
-| 3 | Expense Tracking, Supplier/Purchase Orders, Analytics improvements | Financial accuracy |
-| 4 | Discount Codes, Loyalty tiers, Shift reporting, Filtered exports | Growth & reporting features |
-| 5 | Barcode printing, Activity log metadata, Currency config, Item notes | Polish |
+| Phase | Items                                                                | Rationale                                |
+| ----- | -------------------------------------------------------------------- | ---------------------------------------- |
+| 1     | Receipt store info fix, `cost` field, Returns & Refunds              | Correctness fixes + highest daily impact |
+| 2     | Cash Drawer Management, Low-Stock Alerts, Bulk CSV Import            | Operational workflow completeness        |
+| 3     | Expense Tracking, Supplier/Purchase Orders, Analytics improvements   | Financial accuracy                       |
+| 4     | Discount Codes, Loyalty tiers, Shift reporting, Filtered exports     | Growth & reporting features              |
+| 5     | Barcode printing, Activity log metadata, Currency config, Item notes | Polish                                   |

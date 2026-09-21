@@ -182,14 +182,46 @@ exports.Prisma.InventoryItemScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
+  cost: 'cost',
   stock: 'stock',
   reorderLevel: 'reorderLevel',
   sku: 'sku',
   barcode: 'barcode',
   categoryId: 'categoryId',
+  supplierId: 'supplierId',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  status: 'status',
+  notes: 'notes',
+  totalCost: 'totalCost',
+  receivedAt: 'receivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseOrderItemScalarFieldEnum = {
+  id: 'id',
+  purchaseOrderId: 'purchaseOrderId',
+  inventoryItemId: 'inventoryItemId',
+  quantity: 'quantity',
+  unitCost: 'unitCost'
 };
 
 exports.Prisma.StockMovementScalarFieldEnum = {
@@ -216,7 +248,24 @@ exports.Prisma.SaleScalarFieldEnum = {
   customerId: 'customerId',
   discountAmount: 'discountAmount',
   taxAmount: 'taxAmount',
-  subTotal: 'subTotal'
+  subTotal: 'subTotal',
+  promotionId: 'promotionId'
+};
+
+exports.Prisma.PromotionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  description: 'description',
+  type: 'type',
+  value: 'value',
+  scope: 'scope',
+  targetId: 'targetId',
+  isActive: 'isActive',
+  expiresAt: 'expiresAt',
+  usageLimit: 'usageLimit',
+  usageCount: 'usageCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SaleItemScalarFieldEnum = {
@@ -256,6 +305,18 @@ exports.Prisma.CashDrawerSessionScalarFieldEnum = {
   openedAt: 'openedAt',
   closedAt: 'closedAt',
   notes: 'notes'
+};
+
+exports.Prisma.ExpenseScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  amount: 'amount',
+  category: 'category',
+  description: 'description',
+  date: 'date',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.StoreInfoScalarFieldEnum = {
@@ -322,6 +383,13 @@ exports.UserRole = exports.$Enums.UserRole = {
   CASHIER: 'CASHIER'
 };
 
+exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
+  PENDING: 'PENDING',
+  ORDERED: 'ORDERED',
+  RECEIVED: 'RECEIVED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.SaleStatus = exports.$Enums.SaleStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
@@ -335,6 +403,27 @@ exports.PaymentMethod = exports.$Enums.PaymentMethod = {
   BANK_TRANSFER: 'BANK_TRANSFER'
 };
 
+exports.PromotionType = exports.$Enums.PromotionType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED'
+};
+
+exports.PromotionScope = exports.$Enums.PromotionScope = {
+  ALL: 'ALL',
+  CATEGORY: 'CATEGORY',
+  ITEM: 'ITEM'
+};
+
+exports.ExpenseCategory = exports.$Enums.ExpenseCategory = {
+  RENT: 'RENT',
+  SALARIES: 'SALARIES',
+  UTILITIES: 'UTILITIES',
+  RESTOCKING: 'RESTOCKING',
+  MAINTENANCE: 'MAINTENANCE',
+  MARKETING: 'MARKETING',
+  OTHER: 'OTHER'
+};
+
 exports.Prisma.ModelName = {
   Session: 'Session',
   PasswordResetToken: 'PasswordResetToken',
@@ -343,12 +432,17 @@ exports.Prisma.ModelName = {
   Customer: 'Customer',
   InventoryItemCategory: 'InventoryItemCategory',
   InventoryItem: 'InventoryItem',
+  Supplier: 'Supplier',
+  PurchaseOrder: 'PurchaseOrder',
+  PurchaseOrderItem: 'PurchaseOrderItem',
   StockMovement: 'StockMovement',
   Sale: 'Sale',
+  Promotion: 'Promotion',
   SaleItem: 'SaleItem',
   SaleReturn: 'SaleReturn',
   SaleReturnItem: 'SaleReturnItem',
   CashDrawerSession: 'CashDrawerSession',
+  Expense: 'Expense',
   StoreInfo: 'StoreInfo'
 };
 

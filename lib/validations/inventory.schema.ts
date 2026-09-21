@@ -21,6 +21,18 @@ export const createInventoryItemSchema = z.object({
 				.regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
 				.transform(Number),
 		),
+	cost: z
+		.number()
+		.nonnegative("Cost must be 0 or positive")
+		.max(999999999.99, "Cost is too large")
+		.or(
+			z
+				.string()
+				.regex(/^\d+(\.\d{1,2})?$/, "Invalid cost format")
+				.transform(Number),
+		)
+		.optional()
+		.nullable(),
 	stock: z
 		.number()
 		.int("Stock must be an integer")
@@ -52,6 +64,12 @@ export const createInventoryItemSchema = z.object({
 		.nullable()
 		.or(z.literal("").transform(() => null)),
 	categoryId: z.string().cuid("Invalid category ID"),
+	supplierId: z
+		.string()
+		.cuid("Invalid supplier ID")
+		.optional()
+		.nullable()
+		.or(z.literal("").transform(() => null)),
 });
 
 export const updateInventoryItemSchema = z.object({
@@ -76,6 +94,18 @@ export const updateInventoryItemSchema = z.object({
 				.transform(Number),
 		)
 		.optional(),
+	cost: z
+		.number()
+		.nonnegative("Cost must be 0 or positive")
+		.max(999999999.99, "Cost is too large")
+		.or(
+			z
+				.string()
+				.regex(/^\d+(\.\d{1,2})?$/, "Invalid cost format")
+				.transform(Number),
+		)
+		.optional()
+		.nullable(),
 	sku: z
 		.string()
 		.min(1, "SKU is required")
@@ -101,6 +131,12 @@ export const updateInventoryItemSchema = z.object({
 		.min(0, "Reorder level cannot be negative")
 		.optional(),
 	categoryId: z.string().cuid("Invalid category ID").optional(),
+	supplierId: z
+		.string()
+		.cuid("Invalid supplier ID")
+		.optional()
+		.nullable()
+		.or(z.literal("").transform(() => null)),
 });
 
 export const adjustStockSchema = z.object({

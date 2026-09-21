@@ -31,11 +31,13 @@ export async function createInventoryItem(
 			name: data.name,
 			description: data.description,
 			price: data.price,
+			cost: data.cost ?? null,
 			stock: data.stock ?? 0,
 			reorderLevel: data.reorderLevel ?? 10,
 			sku: data.sku,
 			barcode: data.barcode || null,
 			categoryId: data.categoryId,
+			supplierId: data.supplierId || null,
 		},
 	});
 
@@ -62,10 +64,16 @@ export async function getInventoryItemById(
 					name: true,
 				},
 			},
+			supplier: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
 		},
 	});
 
-	return item;
+	return item as any;
 }
 
 /**
@@ -102,10 +110,12 @@ export async function updateInventoryItem(
 			name: data.name,
 			description: data.description,
 			price: data.price,
+			cost: data.cost !== undefined ? data.cost ?? null : undefined,
 			sku: data.sku,
 			barcode: data.barcode || null,
 			categoryId: data.categoryId,
 			reorderLevel: data.reorderLevel,
+			supplierId: data.supplierId !== undefined ? data.supplierId || null : undefined,
 		},
 	});
 
@@ -185,6 +195,12 @@ export async function listInventoryItems(
 		},
 		include: {
 			category: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
+			supplier: {
 				select: {
 					id: true,
 					name: true,

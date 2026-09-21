@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BarcodeScanner, DetectedBarcode } from "react-barcode-scanner";
 import {
 	Dialog,
 	DialogContent,
@@ -29,13 +30,15 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { Camera } from "lucide-react";
+import { QR_SCANNER_FORMAT_OPTIONS } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import {
 	updateInventoryItemSchema,
 	type UpdateInventoryItemInput,
 } from "@/lib/validations/inventory.schema";
 import { InventoryItemWithCategory } from "@/lib/prisma-extended-types";
-import { useGetCategoriesQuery } from "@/lib/store/api";
+import { useGetCategoriesQuery, useGetSuppliersQuery } from "@/lib/store/api";
 
 interface EditItemDialogProps {
 	open: boolean;
@@ -52,6 +55,8 @@ export function EditItemDialog({
 	onSave,
 	isUpdating = false,
 }: EditItemDialogProps) {
+	const [isScanning, setIsScanning] = useState(false);
+	const scannerRef = useRef(null);
 	const form = useForm<UpdateInventoryItemInput>({
 		resolver: zodResolver(updateInventoryItemSchema),
 		defaultValues: {
@@ -59,16 +64,20 @@ export function EditItemDialog({
 			description: "",
 			sku: "",
 			price: 0,
+			cost: undefined,
 			categoryId: "",
 			barcode: "",
 			reorderLevel: 10,
+			supplierId: "",
 		},
 	});
 
 	const { data: categoriesData, isLoading: categoriesLoading } =
 		useGetCategoriesQuery();
+	const { data: suppliersData } = useGetSuppliersQuery();
 
 	const categories = categoriesData?.categories || [];
+	const suppliers = suppliersData?.suppliers || [];
 
 	// Pre-fill form with current item data when dialog opens
 	useEffect(() => {
@@ -78,9 +87,11 @@ export function EditItemDialog({
 				description: item.description || "",
 				sku: item.sku,
 				price: Number(item.price),
+				cost: item.cost !== null && item.cost !== undefined ? Number(item.cost) : undefined,
 				categoryId: item.categoryId,
 				barcode: item.barcode || "",
 				reorderLevel: item.reorderLevel ?? 10,
+				supplierId: (item as any).supplierId || "",
 			});
 		}
 	}, [open, item, form]);
@@ -89,11 +100,18 @@ export function EditItemDialog({
 	useEffect(() => {
 		if (!open) {
 			form.reset();
+			setIsScanning(false);
 		}
 	}, [open, form]);
 
 	const onSubmit = (data: UpdateInventoryItemInput) => {
 		onSave(data);
+		setIsScanning(false);
+	};
+
+	const handleScan = (decodedBarcodes: DetectedBarcode[]) => {
+		form.setValue("barcode", decodedBarcodes[0].rawValue);
+		setIsScanning(false);
 	};
 
 	return (
@@ -214,19 +232,50 @@ export function EditItemDialog({
 										<FormLabel className='text-brand-main-700'>
 											Barcode
 										</FormLabel>
-										<FormControl>
-											<Input
-												{...field}
-												value={field.value || ""}
-												disabled={isUpdating || categoriesLoading}
-												className='  focus:border-brand-main-400'
-											/>
-										</FormControl>
+										<div className='flex items-center gap-2'>
+											<FormControl>
+												<Input
+													{...field}
+													value={field.value || ""}
+													disabled={isUpdating || categoriesLoading || isScanning}
+													className='  focus:border-brand-main-400 flex-grow'
+												/>
+											</FormControl>
+											<Button
+												type='button'
+												variant='outline'
+												disabled={isUpdating || categoriesLoading || isScanning}
+												onClick={() => setIsScanning(!isScanning)}
+												className='  text-brand-main-700 hover:bg-brand-main-50 h-9 w-9 p-0'
+												aria-label='Scan Barcode'>
+												<Camera className='h-4 w-4' />
+											</Button>
+										</div>
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 						</div>
+
+						{isScanning && (
+							<div className='relative w-full h-64 border rounded-lg overflow-hidden'>
+								<BarcodeScanner
+									ref={scannerRef}
+									onCapture={handleScan}
+									onError={() => setIsScanning(false)}
+									width={300}
+									height={200}
+									trackConstraints={{
+										facingMode: {
+											ideal: "environment",
+										},
+									}}
+									options={{
+										formats: QR_SCANNER_FORMAT_OPTIONS,
+									}}
+								/>
+							</div>
+						)}
 
 						<FormField
 							control={form.control}
@@ -254,6 +303,67 @@ export function EditItemDialog({
 								</FormItem>
 							)}
 						/>
+
+						<FormField
+							control={form.control}
+							name='cost'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel className='text-brand-main-700'>Cost Price</FormLabel>
+									<FormControl>
+										<Input
+											{...field}
+											value={field.value ?? ""}
+											type='number'
+											step='0.01'
+											min={0}
+											disabled={isUpdating || categoriesLoading}
+											className='  focus:border-brand-main-400'
+											onChange={(e) =>
+												field.onChange(
+													e.target.value !== "" ? Number(e.target.value) : null,
+												)
+											}
+										/>
+									</FormControl>
+									<p className='text-xs text-slate-500'>
+										Purchase/supplier cost — used for profit analysis
+									</p>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						{suppliers.length > 0 && (
+							<FormField
+								control={form.control}
+								name='supplierId'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className='text-brand-main-700'>Supplier</FormLabel>
+										<Select
+											value={field.value || ""}
+											onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+											disabled={isUpdating || categoriesLoading}>
+											<FormControl>
+												<SelectTrigger className='  focus:border-brand-main-400 w-full'>
+													<SelectValue placeholder='No supplier assigned' />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value='none'>No supplier</SelectItem>
+												{suppliers.map((s) => (
+													<SelectItem key={s.id} value={s.id}>
+														{s.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						<FormField
 							control={form.control}
@@ -298,7 +408,10 @@ export function EditItemDialog({
 								type='button'
 								disabled={isUpdating || categoriesLoading}
 								variant='outline'
-								onClick={() => onOpenChange(false)}
+								onClick={() => {
+									onOpenChange(false);
+									setIsScanning(false);
+								}}
 								className='  text-brand-main-700 hover:bg-brand-main-50 flex-1'>
 								Cancel
 							</Button>
