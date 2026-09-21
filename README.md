@@ -2,6 +2,15 @@
 
 A full-featured, web-based Point of Sale system built for retail stores. Designed to handle everything from day-to-day sales to inventory management, analytics, and staff administration — all in one place.
 
+**Live Preview:** [https://retail-pos-vert.vercel.app/](https://retail-pos-vert.vercel.app/)
+
+**Demo Credentials:**
+
+| Role | Email | Username | Password |
+|---|---|---|---|
+| Admin | admin@pos.com | admin | password123 |
+| Manager | manager@pos.com | manager | password123 |
+
 ---
 
 ## Purpose
